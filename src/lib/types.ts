@@ -1,0 +1,65 @@
+// Общие типы данных приложения. Соответствуют таблицам из supabase/schema.sql
+
+export type Role = 'artist' | 'editor' | 'admin';
+
+export type EditorStatus = 'pending' | 'approved' | 'rejected';
+
+export type CampaignStatus = 'open' | 'in_progress' | 'completed' | 'closed';
+
+export type ApplicationStatus =
+  | 'pending'
+  | 'accepted'
+  | 'rejected'
+  | 'in_revision'
+  | 'delivered'
+  | 'completed';
+
+export interface Profile {
+  id: string;
+  role: Role;
+  display_name: string;
+  avatar_url: string | null;
+  bio: string | null;
+  editor_status: EditorStatus | null;
+  price_min: number | null;
+  price_max: number | null;
+  active_cap: number | null;
+  telegram: string | null;
+  instagram: string | null;
+  tiktok: string | null;
+  portfolio_url: string | null;
+  created_at: string;
+}
+
+export interface Campaign {
+  id: string;
+  artist_id: string;
+  title: string;
+  description: string;
+  track_url: string | null;
+  budget: number | null;
+  status: CampaignStatus;
+  max_editors: number;
+  created_at: string;
+}
+
+export interface Application {
+  id: string;
+  campaign_id: string;
+  editor_id: string;
+  status: ApplicationStatus;
+  price: number | null;
+  cover_note: string | null;
+  submission_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RevisionMessage {
+  id: string;
+  application_id: string;
+  author_id: string;
+  body: string;
+  attachment_url: string | null;
+  created_at: string;
+}
