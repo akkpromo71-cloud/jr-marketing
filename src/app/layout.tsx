@@ -39,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
       openGraph: { siteName: 'J/R marketing', title, description, locale: 'en_US' },
     };
   }
-  const title = 'J/R marketing — маркетплейс артистов и видеомонтажёров';
+  const title = 'J/R marketing — маркетплейс артистов и видеоэдиторов';
   const description =
     'Площадка, которая соединяет артистов и эдиторов TikTok/Reels: заказ монтажа, заявки, правки и модерация в одном месте.';
   return {
