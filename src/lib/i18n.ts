@@ -362,7 +362,16 @@ export const dict = {
   },
 } as const;
 
-export type Dict = (typeof dict)['ru'];
+// dict объявлен через `as const`, поэтому TS выводит для каждого языка СВОИ
+// строковые литеральные типы (например 'Лента треков' у ru и 'Track feed' у en).
+// Без этого Widen тип Dict = typeof dict['ru'] требовал бы у en ТЕ ЖЕ русские
+// литералы — сборка падала на `next build` с ошибкой типов (в dev это не проверяется
+// так строго). Widen «стирает» литералы до обычного string, оставляя структуру ключей.
+type Widen<T> = T extends string
+  ? string
+  : { readonly [K in keyof T]: Widen<T[K]> };
+
+export type Dict = Widen<(typeof dict)['ru']>;
 
 export async function getDict(): Promise<{ locale: Locale; t: Dict }> {
   const locale = await getLocale();
