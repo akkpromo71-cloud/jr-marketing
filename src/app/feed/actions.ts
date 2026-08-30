@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getDict, translateAuthError } from '@/lib/i18n';
 
 export async function applyToCampaignAction(formData: FormData) {
   const campaignId = String(formData.get('campaign_id') ?? '');
@@ -23,7 +24,8 @@ export async function applyToCampaignAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/feed?error=${encodeURIComponent(error.message)}`);
+    const { t } = await getDict();
+    redirect(`/feed?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 
   revalidatePath('/feed');

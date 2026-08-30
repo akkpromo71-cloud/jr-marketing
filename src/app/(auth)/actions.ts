@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
-import { getDict } from '@/lib/i18n';
+import { getDict, translateAuthError } from '@/lib/i18n';
 
 export async function signOutAction() {
   const supabase = await createClient();
@@ -21,7 +21,9 @@ export async function loginAction(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}${next ? `&next=${encodeURIComponent(next)}` : ''}`);
+    const { t } = await getDict();
+    const message = translateAuthError(error.message, t);
+    redirect(`/login?error=${encodeURIComponent(message)}${next ? `&next=${encodeURIComponent(next)}` : ''}`);
   }
 
   // getCurrentProfile сам создаст профиль на лету, если его почему-то ещё нет
@@ -80,7 +82,7 @@ export async function signUpEditorAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/signup/editor?error=${encodeURIComponent(error.message)}`);
+    redirect(`/signup/editor?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 
   redirect('/feed?welcome=editor');
@@ -112,7 +114,7 @@ export async function signUpArtistAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/signup/artist?error=${encodeURIComponent(error.message)}`);
+    redirect(`/signup/artist?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 
   redirect('/dashboard?welcome=artist');

@@ -150,7 +150,33 @@ returns boolean as $$
   select exists (
     select 1 from public.profiles where id = auth.uid() and role = 'admin'
   );
-$$ language sql stable security definer;
+$$ language sql stable security definer set search_path = public;
+
+-- ---- helper-функции ниже (editor_applied_to_campaign / is_campaign_owner) нужны,
+--      чтобы политика campaigns_select не заглядывала НАПРЯМУЮ в applications,
+--      а политика applications_select не заглядывала НАПРЯМУЮ в campaigns.
+--      Если делать это напрямую через exists(...), Postgres обнаруживает цикл
+--      ("campaigns_select читает applications, applications_select читает campaigns,
+--      campaigns_select читает applications, ...") и падает с ошибкой
+--      "infinite recursion detected in policy for relation campaigns" — снаружи
+--      это выглядит так, будто кампании просто не видны никому и нигде.
+--      security definer здесь выполняет запрос от имени владельца функции,
+--      минуя RLS второй таблицы, — цикл разрывается.
+create or replace function public.editor_applied_to_campaign(p_campaign_id uuid)
+returns boolean as $$
+  select exists (
+    select 1 from public.applications a
+    where a.campaign_id = p_campaign_id and a.editor_id = auth.uid()
+  );
+$$ language sql stable security definer set search_path = public;
+
+create or replace function public.is_campaign_owner(p_campaign_id uuid)
+returns boolean as $$
+  select exists (
+    select 1 from public.campaigns c
+    where c.id = p_campaign_id and c.artist_id = auth.uid()
+  );
+$$ language sql stable security definer set search_path = public;
 
 -- ---- profiles ----
 -- Любой авторизованный пользователь может читать профили (нужно для отображения
@@ -171,10 +197,7 @@ create policy "profiles_update_self_or_admin" on public.profiles
 create policy "campaigns_select" on public.campaigns
   for select using (
     status = 'open' or artist_id = auth.uid() or public.is_admin()
-    or exists (
-      select 1 from public.applications a
-      where a.campaign_id = campaigns.id and a.editor_id = auth.uid()
-    )
+    or public.editor_applied_to_campaign(id)
   );
 
 create policy "campaigns_insert_own" on public.campaigns
@@ -189,10 +212,7 @@ create policy "applications_select" on public.applications
   for select using (
     editor_id = auth.uid()
     or public.is_admin()
-    or exists (
-      select 1 from public.campaigns c
-      where c.id = applications.campaign_id and c.artist_id = auth.uid()
-    )
+    or public.is_campaign_owner(campaign_id)
   );
 
 -- Заявку создаёт только сам эдитор от своего имени
@@ -204,10 +224,7 @@ create policy "applications_update" on public.applications
   for update using (
     editor_id = auth.uid()
     or public.is_admin()
-    or exists (
-      select 1 from public.campaigns c
-      where c.id = applications.campaign_id and c.artist_id = auth.uid()
-    )
+    or public.is_campaign_owner(campaign_id)
   );
 
 -- ---- revision_messages ----

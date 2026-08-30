@@ -183,6 +183,12 @@ export const dict = {
       fillRequired: 'Заполните все обязательные поля (отмечены *)',
       needOneSocial: 'Укажите хотя бы один аккаунт — Instagram или TikTok',
       priceRange: 'Цена "от" не может быть больше цены "до"',
+      invalidCredentials: 'Неверный email или пароль',
+      emailAlreadyRegistered: 'Пользователь с таким email уже зарегистрирован',
+      emailNotConfirmed: 'Email ещё не подтверждён — проверьте почту и перейдите по ссылке',
+      weakPassword: 'Пароль слишком короткий — минимум 6 символов',
+      invalidEmail: 'Некорректный email',
+      genericAuthError: 'Что-то пошло не так. Попробуйте ещё раз.',
     },
   },
   en: {
@@ -358,6 +364,12 @@ export const dict = {
       fillRequired: 'Please fill in all required fields (marked *)',
       needOneSocial: 'Please provide at least one account — Instagram or TikTok',
       priceRange: 'The "from" price cannot be higher than the "to" price',
+      invalidCredentials: 'Invalid email or password',
+      emailAlreadyRegistered: 'A user with this email is already registered',
+      emailNotConfirmed: 'Email is not confirmed yet — check your inbox and follow the link',
+      weakPassword: 'Password is too short — 6 characters minimum',
+      invalidEmail: 'Invalid email address',
+      genericAuthError: 'Something went wrong. Please try again.',
     },
   },
 } as const;
@@ -376,4 +388,20 @@ export type Dict = Widen<(typeof dict)['ru']>;
 export async function getDict(): Promise<{ locale: Locale; t: Dict }> {
   const locale = await getLocale();
   return { locale, t: dict[locale] };
+}
+
+// Supabase Auth всегда возвращает error.message на английском, независимо от
+// локали сайта — эта функция переводит самые частые сообщения на язык
+// интерфейса. Если сообщение незнакомое, возвращаем его как есть (лучше
+// показать нераспознанный английский текст, чем скрыть реальную причину ошибки).
+export function translateAuthError(message: string, t: Dict): string {
+  const m = message.toLowerCase();
+  if (m.includes('invalid login credentials')) return t.errors.invalidCredentials;
+  if (m.includes('already registered') || m.includes('already exists')) return t.errors.emailAlreadyRegistered;
+  if (m.includes('email not confirmed') || m.includes('email link is invalid or has expired')) {
+    return t.errors.emailNotConfirmed;
+  }
+  if (m.includes('password') && (m.includes('at least') || m.includes('should be'))) return t.errors.weakPassword;
+  if (m.includes('unable to validate email') || m.includes('invalid email')) return t.errors.invalidEmail;
+  return message;
 }
