@@ -6,44 +6,6 @@ import { createClient } from '@/lib/supabase/server';
 import { fetchTikTokStats } from '@/lib/tiktok';
 import type { ApplicationStatus } from '@/lib/types';
 
-// Переписку по правкам теперь ведут только эдитор заявки и администратор —
-// артист индивидуальные заявки больше не видит и не участвует в переписке
-// (см. dashboard/campaigns/[id]/page.tsx: у артиста только сводный отчёт).
-export async function postRevisionMessageAction(formData: FormData) {
-  const applicationId = String(formData.get('application_id') ?? '');
-  const body = String(formData.get('body') ?? '').trim();
-  if (!body) return;
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-
-  if (profile?.role !== 'admin') {
-    const { data: app } = await supabase
-      .from('applications')
-      .select('editor_id')
-      .eq('id', applicationId)
-      .single();
-    if (app?.editor_id !== user.id) redirect('/dashboard');
-  }
-
-  await supabase.from('revision_messages').insert({
-    application_id: applicationId,
-    author_id: user.id,
-    body,
-  });
-
-  revalidatePath(`/applications/${applicationId}`);
-}
-
 // Принимать/отклонять отклик и принимать/возвращать сданную работу теперь
 // может только администратор — артист только даёт бюджет и бриф, подбор
 // эдиторов ведёт команда J/R marketing (проверка роли — доп. защита поверх
