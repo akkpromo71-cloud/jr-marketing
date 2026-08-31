@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, StatusBadge, inputClass, BackLink } from '@/components/ui';
+import { Card, Button, Field, StatusBadge, inputClass, BackLink, RatingInput } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import {
   updateApplicationStatusAction,
   submitWorkAction,
   updateEditResultAction,
+  submitEditorReviewAction,
 } from '@/app/applications/[id]/actions';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber, formatDate } from '@/lib/format';
@@ -44,6 +45,15 @@ export default async function ApplicationDetailPage({
   const isAdmin = profile?.role === 'admin';
 
   if (!isEditor && !isAdmin) notFound();
+
+  const { data: existingReview } = isEditor
+    ? await supabase
+        .from('reviews')
+        .select('id')
+        .eq('application_id', app.id)
+        .eq('author_role', 'editor')
+        .maybeSingle()
+    : { data: null };
 
   return (
     <>
@@ -203,6 +213,34 @@ export default async function ApplicationDetailPage({
               <p className="mt-3 text-xs text-text-faint">
                 {t.applicationDetail.updatedAt}: {formatDate(app.result_updated_at, locale)}
               </p>
+            )}
+          </Card>
+        )}
+
+        {isEditor && app.status === 'completed' && (
+          <Card className="mt-6 p-6">
+            {existingReview ? (
+              <p className="text-sm text-text-dim">{t.reviewForm.alreadySubmitted}</p>
+            ) : (
+              <form action={submitEditorReviewAction} className="flex flex-col gap-4">
+                <input type="hidden" name="application_id" value={app.id} />
+                <input type="hidden" name="campaign_id" value={app.campaign_id} />
+                <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                  {t.reviewForm.editorTitle}
+                </p>
+                <RatingInput label={t.reviewForm.ratingLabel} />
+                <Field label={t.reviewForm.commentLabel}>
+                  <textarea
+                    className={inputClass}
+                    name="comment"
+                    rows={3}
+                    placeholder={t.reviewForm.commentPlaceholder}
+                  />
+                </Field>
+                <Button type="submit" variant="primary" className="self-start">
+                  {t.reviewForm.submitBtn}
+                </Button>
+              </form>
             )}
           </Card>
         )}
