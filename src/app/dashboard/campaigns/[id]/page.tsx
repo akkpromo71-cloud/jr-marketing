@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Card, Button, Field, inputClass, StatusBadge, BackLink, EmptyState, RatingInput } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import {
@@ -262,28 +263,31 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
           <Link key={a.id} href={`/applications/${a.id}`}>
             <Card className="p-5 hover:-translate-y-0.5 hover:border-accent/50">
               <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h3 className="font-display text-lg font-medium text-text">{a.profiles?.display_name}</h3>
-                  {a.price && (
-                    <p className="mt-1 text-sm text-text-dim">
-                      {t.applicationDetail.price}: {a.price} $
-                    </p>
-                  )}
-                  {a.cover_note && (
-                    <p className="mt-1 line-clamp-2 text-sm text-text-faint">{a.cover_note}</p>
-                  )}
-                  {(a.profiles?.paypal_email || a.profiles?.crypto_wallet) && (
-                    <p className="mt-1 text-xs text-text-faint">
-                      {a.profiles.paypal_email
-                        ? `${t.payout.paypal}: ${a.profiles.paypal_email}`
-                        : `${t.payout.crypto}: ${a.profiles.crypto_wallet}`}
-                    </p>
-                  )}
-                  {a.views_count != null && (
-                    <p className="mt-1 text-xs font-semibold text-accent">
-                      {formatCompactNumber(a.views_count, locale)} {t.campaignDetail.viewsShort}
-                    </p>
-                  )}
+                <div className="flex items-center gap-3">
+                  <Avatar url={a.profiles?.avatar_url ?? null} name={a.profiles?.display_name ?? '?'} size={40} />
+                  <div>
+                    <h3 className="font-display text-lg font-medium text-text">{a.profiles?.display_name}</h3>
+                    {a.price && (
+                      <p className="mt-1 text-sm text-text-dim">
+                        {t.applicationDetail.price}: {a.price} $
+                      </p>
+                    )}
+                    {a.cover_note && (
+                      <p className="mt-1 line-clamp-2 text-sm text-text-faint">{a.cover_note}</p>
+                    )}
+                    {(a.profiles?.paypal_email || a.profiles?.crypto_wallet) && (
+                      <p className="mt-1 text-xs text-text-faint">
+                        {a.profiles.paypal_email
+                          ? `${t.payout.paypal}: ${a.profiles.paypal_email}`
+                          : `${t.payout.crypto}: ${a.profiles.crypto_wallet}`}
+                      </p>
+                    )}
+                    {a.views_count != null && (
+                      <p className="mt-1 text-xs font-semibold text-accent">
+                        {formatCompactNumber(a.views_count, locale)} {t.campaignDetail.viewsShort}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <StatusBadge status={a.status} />
               </div>
