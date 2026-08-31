@@ -105,7 +105,7 @@ export function EmptyState({ icon, text }: { icon: string; text: string }) {
   return (
     <Card className="flex flex-col items-center gap-3 p-10 text-center">
       <span
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-tint-bg text-2xl"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-tint-bg)] text-2xl"
         aria-hidden="true"
       >
         {icon}
