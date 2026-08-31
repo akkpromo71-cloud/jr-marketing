@@ -5,18 +5,15 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function approveEditorAction(formData: FormData) {
   const editorId = String(formData.get('editor_id') ?? '');
-  const priceMin = Number(formData.get('price_min') ?? 0) || null;
-  const priceMax = Number(formData.get('price_max') ?? 0) || null;
-  const activeCap = Number(formData.get('active_cap') ?? 3) || 3;
+  const price = Number(formData.get('price') ?? 0) || null;
 
   const supabase = await createClient();
   await supabase
     .from('profiles')
     .update({
       editor_status: 'approved',
-      price_min: priceMin,
-      price_max: priceMax,
-      active_cap: activeCap,
+      price_min: price,
+      price_max: price,
     })
     .eq('id', editorId);
 
