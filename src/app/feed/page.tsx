@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Nav } from '@/components/nav';
 import { Card, Button, Field, inputClass, StatusBadge, EmptyState } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
@@ -26,7 +27,7 @@ export default async function FeedPage({
   // "трек · артист" вместо голого названия кампании.
   const { data: campaigns } = await supabase
     .from('campaigns')
-    .select('*, profiles(display_name)')
+    .select('*, profiles(display_name, avatar_url)')
     .eq('status', 'open')
     .order('created_at', { ascending: false });
 
@@ -77,20 +78,23 @@ export default async function FeedPage({
 
         <div className="mt-8 flex flex-col gap-4">
           {(campaigns ?? []).length === 0 && <EmptyState icon="🎬" text={t.feed.noOpenCampaigns} />}
-          {(campaigns as (Campaign & { profiles: { display_name: string } | null })[] | null)?.map((c) => {
+          {(campaigns as (Campaign & { profiles: { display_name: string; avatar_url: string | null } | null })[] | null)?.map((c) => {
             const already = appliedCampaignIds.has(c.id);
             const canApply = profile?.role === 'editor' && !pending && !rejected;
             return (
               <Card key={c.id} className="p-6">
                 <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="font-display text-xl font-medium text-text">{c.title}</h2>
-                    {c.profiles?.display_name && (
-                      <p className="mt-0.5 text-xs text-text-faint">
-                        {t.feed.artistLabel}: {c.profiles.display_name}
-                      </p>
-                    )}
-                    <p className="mt-2 text-sm text-text-dim">{c.description}</p>
+                  <div className="flex items-start gap-3">
+                    <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={40} />
+                    <div>
+                      <h2 className="font-display text-xl font-medium text-text">{c.title}</h2>
+                      {c.profiles?.display_name && (
+                        <p className="mt-0.5 text-xs text-text-faint">
+                          {t.feed.artistLabel}: {c.profiles.display_name}
+                        </p>
+                      )}
+                      <p className="mt-2 text-sm text-text-dim">{c.description}</p>
+                    </div>
                   </div>
                   <StatusBadge status={c.status} />
                 </div>
