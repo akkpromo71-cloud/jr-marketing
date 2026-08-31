@@ -122,7 +122,7 @@ export const dict = {
     },
     applicationsList: {
       title: 'Мои заявки',
-      subtitle: 'Статус ваших откликов и переписка по правкам.',
+      subtitle: 'Статус ваших откликов на треки артистов.',
       appliedMsg: 'Заявка отправлена — её рассмотрит наша команда.',
       noApplications: 'Заявок пока нет.',
       yourPrice: 'Ваша цена',
@@ -342,7 +342,7 @@ export const dict = {
     },
     applicationsList: {
       title: 'My applications',
-      subtitle: 'The status of your applications and revision chats.',
+      subtitle: "The status of your applications to artists' tracks.",
       appliedMsg: "Application sent — our team will review it.",
       noApplications: 'No applications yet.',
       yourPrice: 'Your price',
