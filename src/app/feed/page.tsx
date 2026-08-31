@@ -97,12 +97,9 @@ export default async function FeedPage({
                 ) : profile?.role === 'editor' && !pending && !rejected ? (
                   <form action={applyToCampaignAction} className="mt-5 flex flex-col gap-3 border-t border-border pt-5">
                     <input type="hidden" name="campaign_id" value={c.id} />
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label={t.feed.yourPrice}>
-                        <input className={inputClass} type="number" name="price" min={0} />
-                      </Field>
-                      <div />
-                    </div>
+                    <p className="text-xs text-text-faint">
+                      {t.feed.yourPrice}: {profile?.price_min ?? '—'} $
+                    </p>
                     <Field label={t.feed.coverNote}>
                       <textarea className={inputClass} name="cover_note" rows={2} placeholder={t.feed.coverNotePlaceholder} />
                     </Field>
