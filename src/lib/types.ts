@@ -28,6 +28,10 @@ export interface Profile {
   instagram: string | null;
   tiktok: string | null;
   portfolio_url: string | null;
+  // Куда эдитору присылать оплату — заполняется при регистрации, можно
+  // изменить в /settings. Хотя бы одно из двух обязательно для эдитора.
+  paypal_email: string | null;
+  crypto_wallet: string | null;
   created_at: string;
 }
 
@@ -37,6 +41,12 @@ export interface Campaign {
   title: string;
   description: string;
   track_url: string | null;
+  // Ссылка на трек в Spotify — необязательное дополнение к track_url
+  // (обычно ссылке на звук в TikTok), показывается отдельной кнопкой в ленте.
+  spotify_url: string | null;
+  // Заметка от администратора для эдиторов по этой кампании (например,
+  // пожелания по стилю монтажа) — заполняется на странице кампании в админке.
+  manager_message: string | null;
   budget: number | null;
   status: CampaignStatus;
   max_editors: number;
