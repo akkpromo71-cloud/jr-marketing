@@ -2,18 +2,14 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Card, StatusBadge, EmptyState } from '@/components/ui';
+import { Toast } from '@/components/toast';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { getDict } from '@/lib/i18n';
 import type { Application, Campaign } from '@/lib/types';
 
-export default async function ApplicationsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ applied?: string }>;
-}) {
-  const { applied } = await searchParams;
+export default async function ApplicationsPage() {
   const profile = await getCurrentProfile();
   if (profile && profile.role !== 'editor' && profile.role !== 'admin') {
     redirect(roleHome(profile.role));
@@ -36,11 +32,7 @@ export default async function ApplicationsPage({
         <h1 className="font-display text-3xl font-medium text-text">{t.applicationsList.title}</h1>
         <p className="mt-1 text-sm text-text-dim">{t.applicationsList.subtitle}</p>
 
-        {applied === '1' && (
-          <div className="mt-6 rounded-xl border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
-            {t.applicationsList.appliedMsg}
-          </div>
-        )}
+        <Toast successParam="applied" successMessage={t.applicationsList.appliedMsg} />
 
         <div className="mt-8 flex flex-col gap-4">
           {(applications ?? []).length === 0 && <EmptyState icon="📨" text={t.applicationsList.noApplications} />}
