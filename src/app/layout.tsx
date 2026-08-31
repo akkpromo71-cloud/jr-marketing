@@ -21,10 +21,13 @@ const manrope = Manrope({
 
 // applicationName/icons/openGraph.siteName — чтобы бренд "J/R marketing" был виден
 // везде (вкладка браузера, установка как приложение, превью ссылки), а не голый хост.
+// metadataBase + openGraph/twitter.images — чтобы ссылка на сайт в мессенджерах
+// и соцсетях разворачивалась с превью-картинкой (логотипом), а не голым текстом.
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const shared: Partial<Metadata> = {
     applicationName: 'J/R marketing',
+    metadataBase: new URL('https://jr-marketing-psi.vercel.app'),
     icons: {
       icon: '/favicon.ico',
       apple: '/apple-touch-icon.png',
@@ -38,7 +41,8 @@ export async function generateMetadata(): Promise<Metadata> {
       ...shared,
       title,
       description,
-      openGraph: { siteName: 'J/R marketing', title, description, locale: 'en_US' },
+      openGraph: { siteName: 'J/R marketing', title, description, locale: 'en_US', images: ['/logo.png'] },
+      twitter: { card: 'summary_large_image', title, description, images: ['/logo.png'] },
     };
   }
   const title = 'J/R marketing — платформа для артистов и видеоэдиторов';
@@ -48,7 +52,8 @@ export async function generateMetadata(): Promise<Metadata> {
     ...shared,
     title,
     description,
-    openGraph: { siteName: 'J/R marketing', title, description, locale: 'ru_RU' },
+    openGraph: { siteName: 'J/R marketing', title, description, locale: 'ru_RU', images: ['/logo.png'] },
+    twitter: { card: 'summary_large_image', title, description, images: ['/logo.png'] },
   };
 }
 
