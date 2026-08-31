@@ -20,15 +20,17 @@ export const dict = {
       logout: 'Выйти',
     },
     landing: {
-      heroTitle: 'Место, где артисты продвигают треки, а эдиторы зарабатывают на монтаже',
+      heroTitle: 'Место, где артисты продвигают треки, а эдиторы превращают монтаж в доход',
       heroSubtitle:
-        'J/R marketing — площадка для заказа монтажа коротких видео (TikTok/Reels). Артисты публикуют треки, эдиторы откликаются, а модерация и правки проходят в одном месте.',
+        'J/R marketing — пространство для коротких видео TikTok и Reels: артисты выкладывают треки и ищут тех, кто оживит их на экране, а эдиторы откликаются, берут заказы и растут в мастерстве. Заявки, правки и модерация проходят в одном месте — без лишней переписки и потерянных договорённостей.',
       editorTag: 'Я эдитор',
       editorTitle: 'Монтирую видео',
-      editorText: 'Откликайтесь на треки артистов, согласуйте цену с администратором и получайте заказы.',
+      editorText:
+        'Откликайтесь на треки артистов, договаривайтесь о цене напрямую и берите заказ за заказом — портфолио и доход растут вместе.',
       artistTag: 'Я артист',
       artistTitle: 'Ищу эдитора',
-      artistText: 'Публикуйте трек, получайте отклики от проверенных эдиторов, высокий охват и прослушивания.',
+      artistText:
+        'Публикуйте трек, выбирайте из откликов проверенных эдиторов и получайте монтаж, который поднимает охваты и прослушивания.',
       registerBtn: 'Зарегистрироваться',
       loginBtn: 'Войти',
       contactLabel: 'Мы на связи:',
@@ -201,15 +203,16 @@ export const dict = {
       logout: 'Log out',
     },
     landing: {
-      heroTitle: 'The place where artists promote tracks and editors earn money editing them',
+      heroTitle: 'The place where artists promote their tracks, and editors turn video editing into steady income',
       heroSubtitle:
-        'J/R marketing is a platform for commissioning short-video edits (TikTok/Reels). Artists post tracks, editors apply, and moderation and revisions all happen in one place.',
+        'J/R marketing is a home for short-form video on TikTok and Reels: artists post their tracks and look for editors to bring them to life on screen, while editors apply, take on projects, and sharpen their craft. Applications, revisions, and moderation all happen in one place — no scattered chats, no lost agreements.',
       editorTag: "I'm an editor",
       editorTitle: 'I edit videos',
-      editorText: "Apply to artists' tracks, agree on a price with the admin, and get hired.",
+      editorText:
+        "Apply to artists' tracks, agree on a price directly, and take on job after job — your portfolio and income grow together.",
       artistTag: "I'm an artist",
       artistTitle: "I'm looking for an editor",
-      artistText: 'Post a track, get applications from vetted editors, high reach and plays.',
+      artistText: 'Post a track, pick from applications by vetted editors, and get an edit that drives real reach and plays.',
       registerBtn: 'Sign up',
       loginBtn: 'Log in',
       contactLabel: 'Reach us:',
