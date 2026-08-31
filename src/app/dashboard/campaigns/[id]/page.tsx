@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, StatusBadge, BackLink } from '@/components/ui';
+import { Card, Button, StatusBadge, BackLink, EmptyState } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { closeCampaignAction } from '@/app/dashboard/actions';
@@ -177,12 +177,10 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
         {t.campaignDetail.responses} ({apps.length})
       </h2>
       <div className="flex flex-col gap-4">
-        {apps.length === 0 && (
-          <Card className="p-8 text-center text-sm text-text-faint">{t.campaignDetail.noResponses}</Card>
-        )}
+        {apps.length === 0 && <EmptyState icon="👀" text={t.campaignDetail.noResponses} />}
         {apps.map((a) => (
           <Link key={a.id} href={`/applications/${a.id}`}>
-            <Card className="p-5 transition hover:border-accent/50">
+            <Card className="p-5 hover:-translate-y-0.5 hover:border-accent/50">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h3 className="font-display text-lg font-medium text-text">{a.profiles?.display_name}</h3>
