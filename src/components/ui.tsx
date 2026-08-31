@@ -82,6 +82,21 @@ export async function StatusBadge({
   );
 }
 
+// Ссылка "Назад" для страниц, куда заходят не через верхнее меню (детали заявки,
+// детали кампании, формы регистрации/входа/создания трека) — без неё оттуда
+// некуда деться, кроме кнопки "назад" в браузере.
+export function BackLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      className="mb-4 inline-flex items-center gap-1.5 text-sm text-text-dim transition hover:text-text"
+    >
+      <span aria-hidden="true">←</span>
+      {label}
+    </Link>
+  );
+}
+
 export function Field({
   label,
   children,
