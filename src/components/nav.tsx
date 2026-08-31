@@ -13,7 +13,7 @@ export async function Nav() {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-bg/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center transition hover:opacity-80 active:scale-95">
           {/* Логотип уже содержит надпись "JR marketing" — отдельный текст рядом не нужен,
               фон вырезан (см. public/logo-mark.png), поэтому крупный размер смотрится чисто. */}
           <Image
