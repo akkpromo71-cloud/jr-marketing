@@ -22,7 +22,7 @@ export const dict = {
     landing: {
       heroTitle: 'Место, где артисты продвигают треки, а эдиторы превращают монтаж в доход',
       heroSubtitle:
-        'J/R marketing — пространство для коротких видео TikTok и Reels: артисты выкладывают треки и ищут тех, кто оживит их на экране, а эдиторы откликаются, берут заказы и растут в мастерстве. Заявки, правки и модерация проходят в одном месте — без лишней переписки и потерянных договорённостей.',
+        'J/R marketing — пространство для коротких видео TikTok и Reels, где артисты находят эдиторов под трек, а эдиторы — стабильный поток заказов. Заявки, правки и модерация — в одном месте.',
       editorTag: 'Я эдитор',
       editorTitle: 'Монтирую видео',
       editorText:
@@ -205,7 +205,7 @@ export const dict = {
     landing: {
       heroTitle: 'The place where artists promote their tracks, and editors turn video editing into steady income',
       heroSubtitle:
-        'J/R marketing is a home for short-form video on TikTok and Reels: artists post their tracks and look for editors to bring them to life on screen, while editors apply, take on projects, and sharpen their craft. Applications, revisions, and moderation all happen in one place — no scattered chats, no lost agreements.',
+        'J/R marketing is a home for short-form video on TikTok and Reels, where artists find editors for their tracks, and editors find a steady stream of work. Applications, revisions, and moderation — all in one place.',
       editorTag: "I'm an editor",
       editorTitle: 'I edit videos',
       editorText:

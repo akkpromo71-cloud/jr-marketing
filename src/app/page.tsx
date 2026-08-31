@@ -17,11 +17,13 @@ export default async function LandingPage() {
     <>
       <Nav />
       <main className="mx-auto max-w-5xl px-6 py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <h1 className="font-display text-4xl font-medium leading-tight text-text sm:text-5xl">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="font-display text-4xl font-medium leading-[1.15] tracking-tight text-text sm:text-5xl lg:text-6xl">
             {t.landing.heroTitle}
           </h1>
-          <p className="mt-5 text-base text-text-dim">{t.landing.heroSubtitle}</p>
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-text-dim sm:text-lg">
+            {t.landing.heroSubtitle}
+          </p>
         </div>
 
         <div className="mt-14 grid gap-6 sm:grid-cols-2">
