@@ -62,7 +62,7 @@ export default async function AdminPage() {
                         <>
                           {' · '}
                           <a href={e.portfolio_url} target="_blank" className="text-accent hover:underline">
-                            {locale === 'en' ? 'portfolio' : 'портфолио'}
+                            {locale === 'en' ? 'works' : 'работы'}
                           </a>
                         </>
                       )}

@@ -20,13 +20,13 @@ export const dict = {
       logout: 'Выйти',
     },
     landing: {
-      heroTitle: 'Место, где артисты продвигают треки, а эдиторы превращают монтаж в доход',
+      heroTitle: 'Место, где артисты продвигают треки, а эдиторы превращают монтаж в доход',
       heroSubtitle:
         'J/R marketing — пространство для коротких видео TikTok и Reels, где артисты находят эдиторов под трек, а эдиторы — стабильный поток заказов. Заявки, правки и модерация — в одном месте.',
       editorTag: 'Я эдитор',
       editorTitle: 'Монтирую видео',
       editorText:
-        'Откликайтесь на треки артистов, договаривайтесь о цене напрямую и берите заказ за заказом — портфолио и доход растут вместе.',
+        'Откликайтесь на треки артистов, договаривайтесь о цене напрямую и берите заказ за заказом — опыт и доход растут вместе.',
       artistTag: 'Я артист',
       artistTitle: 'Ищу эдитора',
       artistText:
@@ -203,13 +203,13 @@ export const dict = {
       logout: 'Log out',
     },
     landing: {
-      heroTitle: 'The place where artists promote their tracks, and editors turn video editing into steady income',
+      heroTitle: 'The place where artists promote their tracks, and editors turn video editing into steady income',
       heroSubtitle:
         'J/R marketing is a home for short-form video on TikTok and Reels, where artists find editors for their tracks, and editors find a steady stream of work. Applications, revisions, and moderation — all in one place.',
       editorTag: "I'm an editor",
       editorTitle: 'I edit videos',
       editorText:
-        "Apply to artists' tracks, agree on a price directly, and take on job after job — your portfolio and income grow together.",
+        "Apply to artists' tracks, agree on a price directly, and take on job after job — your experience and income grow together.",
       artistTag: "I'm an artist",
       artistTitle: "I'm looking for an editor",
       artistText: 'Post a track, pick from applications by vetted editors, and get an edit that drives real reach and plays.',
