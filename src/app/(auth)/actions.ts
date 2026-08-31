@@ -39,8 +39,7 @@ export async function signUpEditorAction(formData: FormData) {
   const password = String(formData.get('password') ?? '');
   const displayName = String(formData.get('display_name') ?? '').trim();
   const bio = String(formData.get('bio') ?? '').trim();
-  const priceMin = Number(formData.get('price_min') ?? 0) || null;
-  const priceMax = Number(formData.get('price_max') ?? 0) || null;
+  const price = Number(formData.get('price') ?? 0) || null;
   const telegram = String(formData.get('telegram') ?? '').trim() || null;
   const instagram = String(formData.get('instagram') ?? '').trim() || null;
   const tiktok = String(formData.get('tiktok') ?? '').trim() || null;
@@ -50,14 +49,11 @@ export async function signUpEditorAction(formData: FormData) {
   // Серверная проверка обязательных полей — HTML required можно обойти,
   // отправив запрос напрямую, минуя форму. Портфолио не требуем;
   // из соцсетей обязателен хотя бы один Instagram/TikTok, Telegram — по желанию.
-  if (!displayName || !bio || !priceMin || !priceMax) {
+  if (!displayName || !bio || !price) {
     redirect(`/signup/editor?error=${encodeURIComponent(t.errors.fillRequired)}`);
   }
   if (!instagram && !tiktok) {
     redirect(`/signup/editor?error=${encodeURIComponent(t.errors.needOneSocial)}`);
-  }
-  if (priceMin! > priceMax!) {
-    redirect(`/signup/editor?error=${encodeURIComponent(t.errors.priceRange)}`);
   }
 
   const supabase = await createClient();
@@ -72,8 +68,10 @@ export async function signUpEditorAction(formData: FormData) {
         role: 'editor',
         display_name: displayName,
         bio,
-        price_min: priceMin,
-        price_max: priceMax,
+        // Единая цена эдитора: пишем в оба столбца (price_min/price_max),
+        // чтобы не трогать схему БД — площадка везде показывает одно число.
+        price_min: price,
+        price_max: price,
         telegram,
         instagram,
         tiktok,
