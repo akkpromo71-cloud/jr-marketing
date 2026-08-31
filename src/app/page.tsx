@@ -17,8 +17,8 @@ export default async function LandingPage() {
     <>
       <Nav />
       <main className="mx-auto max-w-5xl px-6 py-20">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-display text-4xl font-medium leading-[1.15] tracking-tight text-text sm:text-5xl lg:text-6xl">
+        <div className="mx-auto max-w-5xl text-center">
+          <h1 className="font-display text-4xl font-medium leading-tight text-text sm:text-5xl">
             {t.landing.heroTitle}
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-text-dim sm:text-lg">
