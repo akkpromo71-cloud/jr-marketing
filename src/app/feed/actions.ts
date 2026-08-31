@@ -5,9 +5,11 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDict, translateAuthError } from '@/lib/i18n';
 
+// Цену эдитор больше не придумывает под каждый отклик — берём его
+// согласованную с администратором ставку из профиля (price_min), чтобы
+// выплата всегда была той цифрой, которую утвердил админ при одобрении.
 export async function applyToCampaignAction(formData: FormData) {
   const campaignId = String(formData.get('campaign_id') ?? '');
-  const price = Number(formData.get('price') ?? 0) || null;
   const coverNote = String(formData.get('cover_note') ?? '') || null;
 
   const supabase = await createClient();
@@ -16,10 +18,16 @@ export async function applyToCampaignAction(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  const { data: editorProfile } = await supabase
+    .from('profiles')
+    .select('price_min')
+    .eq('id', user.id)
+    .single();
+
   const { error } = await supabase.from('applications').insert({
     campaign_id: campaignId,
-    editor_id: user!.id,
-    price,
+    editor_id: user.id,
+    price: editorProfile?.price_min ?? null,
     cover_note: coverNote,
   });
 
