@@ -59,3 +59,43 @@ export async function updateCampaignMessageAction(formData: FormData) {
   revalidatePath(`/dashboard/campaigns/${campaignId}`);
   revalidatePath('/feed');
 }
+
+// Отзыв артиста — один на кампанию целиком (не на конкретного эдитора: артист
+// не видит, кто именно работал над треком, это ведёт команда). RLS
+// (reviews_insert_artist) пропустит запись только владельцу кампании и только
+// когда по ней есть хотя бы одна заявка со статусом 'completed'.
+export async function submitArtistReviewAction(formData: FormData) {
+  const campaignId = String(formData.get('campaign_id') ?? '');
+  const rating = Number(formData.get('rating') ?? 5);
+  const comment = String(formData.get('comment') ?? '').trim() || null;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  await supabase.from('reviews').insert({
+    campaign_id: campaignId,
+    application_id: null,
+    author_role: 'artist',
+    rating,
+    comment,
+  });
+
+  revalidatePath(`/dashboard/campaigns/${campaignId}`);
+}
+
+// Публикация/снятие отзыва с лендинга — решает только администратор (та же
+// модель модерации, что и для сообщения менеджера и одобрения эдиторов).
+export async function toggleReviewPublishedAction(formData: FormData) {
+  const reviewId = String(formData.get('review_id') ?? '');
+  const campaignId = String(formData.get('campaign_id') ?? '');
+  const nextPublished = formData.get('next_published') === '1';
+
+  const supabase = await createClient();
+  await supabase.from('reviews').update({ is_published: nextPublished }).eq('id', reviewId);
+
+  revalidatePath(`/dashboard/campaigns/${campaignId}`);
+  revalidatePath('/');
+}
