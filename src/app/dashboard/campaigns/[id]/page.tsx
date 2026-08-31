@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, StatusBadge, BackLink, EmptyState } from '@/components/ui';
+import { Card, Button, Field, inputClass, StatusBadge, BackLink, EmptyState } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
-import { closeCampaignAction } from '@/app/dashboard/actions';
+import { closeCampaignAction, updateCampaignMessageAction } from '@/app/dashboard/actions';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
 import type { Application, Campaign, Profile } from '@/lib/types';
@@ -57,7 +57,32 @@ export default async function CampaignDetailPage({
           </form>
         )}
 
-        {isAdmin ? <AdminApplications campaignId={id} budget={c.budget} /> : <ArtistReport campaignId={id} />}
+        {isAdmin ? (
+          <>
+            {/* Заметка для эдиторов ("сообщение от менеджера" в карточке трека) —
+                видит и правит только админ, эдиторам показывается на /feed. */}
+            <Card className="mt-6 p-5">
+              <form action={updateCampaignMessageAction} className="flex flex-col gap-3">
+                <input type="hidden" name="campaign_id" value={c.id} />
+                <Field label={t.campaignDetail.managerMessageLabel}>
+                  <textarea
+                    className={inputClass}
+                    name="manager_message"
+                    rows={2}
+                    defaultValue={c.manager_message ?? ''}
+                    placeholder={t.campaignDetail.managerMessagePlaceholder}
+                  />
+                </Field>
+                <Button type="submit" variant="secondary" className="self-start">
+                  {t.campaignDetail.saveMessageBtn}
+                </Button>
+              </form>
+            </Card>
+            <AdminApplications campaignId={id} budget={c.budget} />
+          </>
+        ) : (
+          <ArtistReport campaignId={id} />
+        )}
       </main>
     </>
   );
@@ -191,6 +216,13 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
                   )}
                   {a.cover_note && (
                     <p className="mt-1 line-clamp-2 text-sm text-text-faint">{a.cover_note}</p>
+                  )}
+                  {(a.profiles?.paypal_email || a.profiles?.crypto_wallet) && (
+                    <p className="mt-1 text-xs text-text-faint">
+                      {a.profiles.paypal_email
+                        ? `${t.payout.paypal}: ${a.profiles.paypal_email}`
+                        : `${t.payout.crypto}: ${a.profiles.crypto_wallet}`}
+                    </p>
                   )}
                   {a.views_count != null && (
                     <p className="mt-1 text-xs font-semibold text-accent">
