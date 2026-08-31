@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Card, Field, inputClass, Button, BackLink } from '@/components/ui';
+import { Toast } from '@/components/toast';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { updatePayoutAction } from '@/app/settings/actions';
@@ -9,12 +10,7 @@ import { getDict } from '@/lib/i18n';
 // Пока единственное, что тут можно поменять — реквизиты выплаты эдитора.
 // Другим ролям (артист/админ) здесь сейчас нечего делать, поэтому страница
 // доступна только эдитору — так же, как /feed и /applications.
-export default async function SettingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ saved?: string; error?: string }>;
-}) {
-  const { saved, error } = await searchParams;
+export default async function SettingsPage() {
   const profile = await getCurrentProfile();
   if (!profile) redirect('/login');
   if (profile.role !== 'editor') redirect(roleHome(profile.role));
@@ -29,17 +25,8 @@ export default async function SettingsPage({
         <h1 className="font-display text-3xl font-medium text-text">{t.settings.title}</h1>
         <p className="mt-1 text-sm text-text-dim">{t.settings.subtitle}</p>
 
+        <Toast successParam="saved" successMessage={t.settings.savedMsg} errorParam="error" />
         <Card className="mt-8 p-6">
-          {saved === '1' && (
-            <div className="mb-4 rounded-xl border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
-              {t.settings.savedMsg}
-            </div>
-          )}
-          {error && (
-            <div className="mb-4 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
-              {decodeURIComponent(error)}
-            </div>
-          )}
           <form action={updatePayoutAction} className="flex flex-col gap-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">{t.payout.title}</p>
             <Field label={t.payout.paypal}>
