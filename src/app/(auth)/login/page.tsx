@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { loginAction } from '@/app/(auth)/actions';
-import { Field, inputClass, Button, Card } from '@/components/ui';
+import { Field, inputClass, Button, Card, BackLink } from '@/components/ui';
 import { getDict } from '@/lib/i18n';
 
 export default async function LoginPage({
@@ -13,6 +13,7 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-6 py-16">
+      <BackLink href="/" label={t.common.back} />
       <h1 className="mb-1 font-display text-3xl font-medium text-text">{t.login.title}</h1>
       <p className="mb-8 text-sm text-text-dim">{t.login.subtitle}</p>
 
