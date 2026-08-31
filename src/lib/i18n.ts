@@ -20,7 +20,7 @@ export const dict = {
       logout: 'Выйти',
     },
     landing: {
-      heroTitle: 'Маркетплейс, который соединяет артистов и эдиторов',
+      heroTitle: 'Место, где артисты продвигают треки, а эдиторы зарабатывают на монтаже',
       heroSubtitle:
         'J/R marketing — площадка для заказа монтажа коротких видео (TikTok/Reels). Артисты публикуют треки, эдиторы откликаются, а модерация и правки проходят в одном месте.',
       editorTag: 'Я эдитор',
@@ -201,7 +201,7 @@ export const dict = {
       logout: 'Log out',
     },
     landing: {
-      heroTitle: 'The marketplace that connects artists and video editors',
+      heroTitle: 'The place where artists promote tracks and editors earn money editing them',
       heroSubtitle:
         'J/R marketing is a platform for commissioning short-video edits (TikTok/Reels). Artists post tracks, editors apply, and moderation and revisions all happen in one place.',
       editorTag: "I'm an editor",

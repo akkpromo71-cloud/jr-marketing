@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
   if (locale === 'en') {
-    const title = 'J/R marketing — marketplace for artists and video editors';
+    const title = 'J/R marketing — platform for artists and video editors';
     const description =
       'The platform that connects artists with TikTok/Reels editors: commissioning edits, applications, revisions and moderation, all in one place.';
     return {
@@ -39,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
       openGraph: { siteName: 'J/R marketing', title, description, locale: 'en_US' },
     };
   }
-  const title = 'J/R marketing — маркетплейс артистов и видеоэдиторов';
+  const title = 'J/R marketing — платформа для артистов и видеоэдиторов';
   const description =
     'Площадка, которая соединяет артистов и эдиторов TikTok/Reels: заказ монтажа, заявки, правки и модерация в одном месте.';
   return {

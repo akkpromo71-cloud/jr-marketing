@@ -1,6 +1,6 @@
 # J/R marketing
 
-Маркетплейс, соединяющий артистов и видеомонтажёров (TikTok/Reels).
+Платформа, соединяющая артистов и видеоэдиторов (TikTok/Reels).
 Next.js (App Router) + Supabase (Auth, Postgres, RLS). Дизайн-система «Label Noir»
 перенесена из интерактивного мокапа.
 
