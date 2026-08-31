@@ -3,12 +3,16 @@ import Image from 'next/image';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { Avatar } from '@/components/avatar';
 import { signOutAction } from '@/app/(auth)/actions';
 import { getDict } from '@/lib/i18n';
 
 export async function Nav() {
   const profile = await getCurrentProfile();
   const { locale, t } = await getDict();
+  // И артист, и эдитор сами правят свой профиль на /settings (имя, фото,
+  // "о себе"; эдитору там же — реквизиты выплаты). Админу профиль не нужен.
+  const hasProfilePage = profile?.role === 'editor' || profile?.role === 'artist';
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-bg/80 backdrop-blur">
@@ -34,14 +38,16 @@ export async function Nav() {
               <Link href="/applications" className="text-text-dim hover:text-text transition">
                 {t.nav.myApplications}
               </Link>
-              <Link href="/settings" className="text-text-dim hover:text-text transition">
-                {t.nav.settings}
-              </Link>
             </>
           )}
           {profile?.role === 'artist' && (
             <Link href="/dashboard" className="text-text-dim hover:text-text transition">
               {t.nav.myCampaigns}
+            </Link>
+          )}
+          {hasProfilePage && (
+            <Link href="/settings" className="text-text-dim hover:text-text transition">
+              {t.nav.settings}
             </Link>
           )}
           {profile?.role === 'admin' && (
@@ -52,9 +58,16 @@ export async function Nav() {
           <LanguageSwitcher locale={locale} />
           <ThemeToggle label={locale === 'en' ? 'Toggle theme' : 'Переключить тему'} />
           {profile ? (
-            <form action={signOutAction}>
-              <button className="text-text-faint hover:text-text transition">{t.nav.logout}</button>
-            </form>
+            <>
+              {hasProfilePage && (
+                <Link href="/settings" aria-label={t.nav.settings} className="transition hover:opacity-80">
+                  <Avatar url={profile.avatar_url} name={profile.display_name} size={28} />
+                </Link>
+              )}
+              <form action={signOutAction}>
+                <button className="text-text-faint hover:text-text transition">{t.nav.logout}</button>
+              </form>
+            </>
           ) : (
             <Link
               href="/login"
