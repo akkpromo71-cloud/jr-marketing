@@ -24,9 +24,17 @@ export const dict = {
     },
     settings: {
       title: 'Настройки',
-      subtitle: 'Реквизиты для выплат — можно изменить в любой момент.',
+      subtitle: 'Профиль и реквизиты — можно изменить в любой момент.',
       saveBtn: 'Сохранить',
       savedMsg: 'Сохранено.',
+      profileTitle: 'Профиль',
+      nameLabel: 'Имя',
+      namePlaceholder: 'Как вас видеть в профиле',
+      bioLabel: 'О себе',
+      bioPlaceholder: 'Пара слов о себе',
+      avatarLabel: 'Фото профиля',
+      avatarHint: 'JPG, PNG или WebP, до 5 МБ.',
+      saveProfileBtn: 'Сохранить профиль',
     },
     reviewForm: {
       editorTitle: 'Оцените сотрудничество',
@@ -301,6 +309,7 @@ export const dict = {
       weakPassword: 'Пароль слишком короткий — минимум 6 символов',
       invalidEmail: 'Некорректный email',
       genericAuthError: 'Что-то пошло не так. Попробуйте ещё раз.',
+      avatarTooLarge: 'Файл слишком большой — максимум 5 МБ',
     },
   },
   en: {
@@ -317,9 +326,17 @@ export const dict = {
     },
     settings: {
       title: 'Settings',
-      subtitle: 'Your payout details — change them anytime.',
+      subtitle: 'Your profile and payout details — change them anytime.',
       saveBtn: 'Save',
       savedMsg: 'Saved.',
+      profileTitle: 'Profile',
+      nameLabel: 'Name',
+      namePlaceholder: 'How you want to appear in your profile',
+      bioLabel: 'About you',
+      bioPlaceholder: 'A couple of words about you',
+      avatarLabel: 'Profile photo',
+      avatarHint: 'JPG, PNG or WebP, up to 5 MB.',
+      saveProfileBtn: 'Save profile',
     },
     reviewForm: {
       editorTitle: 'Rate the collaboration',
@@ -593,6 +610,7 @@ export const dict = {
       weakPassword: 'Password is too short — 6 characters minimum',
       invalidEmail: 'Invalid email address',
       genericAuthError: 'Something went wrong. Please try again.',
+      avatarTooLarge: 'File is too large — 5 MB maximum',
     },
   },
 } as const;
