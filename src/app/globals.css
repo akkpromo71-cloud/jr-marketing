@@ -69,6 +69,7 @@
 
 html {
   color-scheme: light;
+  scroll-behavior: smooth;
 }
 html.dark {
   color-scheme: dark;
@@ -85,4 +86,76 @@ button {
 
 ::selection {
   background: var(--accent-tint-bg);
+}
+
+/* Клавиатурная навигация — свой заметный focus-ring вместо браузерного дефолта,
+   не мешает мышью/тачем (:focus-visible срабатывает только для клавиатуры). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Motion — мягкое "оживление" интерфейса: плавающие акценты на лендинге
+   и появление секций при прокрутке. Всё выключено при prefers-reduced-motion,
+   чтобы не мешать людям, чувствительным к анимации.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes float-a {
+    0%,
+    100% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-50%, 26px);
+    }
+  }
+  @keyframes float-b {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(-18px, 22px);
+    }
+  }
+  /* Вариант для пятна, отцентрованного по обеим осям (left-1/2 top-1/2
+     -translate-x-1/2 -translate-y-1/2) — база -50%/-50% сохраняется в каждом кадре. */
+  @keyframes float-c {
+    0%,
+    100% {
+      transform: translate(-50%, -50%);
+    }
+    50% {
+      transform: translate(-50%, calc(-50% + 22px));
+    }
+  }
+  .animate-float-a {
+    animation: float-a 9s ease-in-out infinite;
+  }
+  .animate-float-b {
+    animation: float-b 11s ease-in-out infinite;
+  }
+  .animate-float-c {
+    animation: float-c 10s ease-in-out infinite;
+  }
+}
+
+/* Reveal — начальное состояние для src/components/reveal.tsx, снимается
+   добавлением класса .reveal-visible через IntersectionObserver на клиенте. */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+}
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
 }
