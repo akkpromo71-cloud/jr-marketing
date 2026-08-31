@@ -39,7 +39,7 @@ export default async function LandingPage() {
           </div>
           <div className="relative mx-auto max-w-4xl px-6 pb-16 pt-20 text-center sm:pt-28">
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent-tint-bg px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-accent">
+              <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-[var(--accent-tint-bg)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-accent">
                 {t.landing.kicker}
               </span>
             </Reveal>
@@ -63,7 +63,7 @@ export default async function LandingPage() {
               <Card className="group relative h-full overflow-hidden p-8 hover:-translate-y-1 hover:border-accent/40 hover:shadow-accent">
                 <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/25" />
                 <div className="relative flex flex-col gap-4">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent-tint-bg text-xl transition duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--accent-tint-bg)] text-xl transition duration-300 group-hover:-rotate-6 group-hover:scale-110">
                     ✂️
                   </span>
                   <span className="text-xs font-semibold uppercase tracking-wide text-text-faint">
@@ -93,7 +93,7 @@ export default async function LandingPage() {
               <Card className="group relative h-full overflow-hidden p-8 hover:-translate-y-1 hover:border-accent/40 hover:shadow-accent">
                 <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/25" />
                 <div className="relative flex flex-col gap-4">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent-tint-bg text-xl transition duration-300 group-hover:rotate-6 group-hover:scale-110">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--accent-tint-bg)] text-xl transition duration-300 group-hover:rotate-6 group-hover:scale-110">
                     🎵
                   </span>
                   <span className="text-xs font-semibold uppercase tracking-wide text-text-faint">
@@ -127,7 +127,7 @@ export default async function LandingPage() {
             {highlights.map((h, i) => (
               <Reveal key={h.title} delay={i * 90}>
                 <Card className="group h-full p-6 hover:-translate-y-1 hover:border-accent/40">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint-bg text-lg transition duration-300 group-hover:scale-110">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent-tint-bg)] text-lg transition duration-300 group-hover:scale-110">
                     {h.icon}
                   </span>
                   <h3 className="mt-4 font-display text-lg font-medium text-text">{h.title}</h3>
