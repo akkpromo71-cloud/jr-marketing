@@ -45,11 +45,12 @@ export default async function ApplicationDetailPage({
     .eq('id', app.editor_id)
     .single();
 
-  const isArtist = profile?.id === app.campaigns?.artist_id;
+  // Артист сюда больше не заходит — отклики ведёт администратор, артист видит
+  // только сводный отчёт по кампании (src/app/dashboard/campaigns/[id]/page.tsx).
   const isEditor = profile?.id === app.editor_id;
   const isAdmin = profile?.role === 'admin';
 
-  if (!isArtist && !isEditor && !isAdmin) notFound();
+  if (!isEditor && !isAdmin) notFound();
 
   return (
     <>
@@ -75,7 +76,7 @@ export default async function ApplicationDetailPage({
           </Card>
         )}
 
-        {isArtist && app.status === 'pending' && (
+        {isAdmin && app.status === 'pending' && (
           <div className="mt-6 flex gap-3">
             <form action={updateApplicationStatusAction}>
               <input type="hidden" name="application_id" value={app.id} />
@@ -94,7 +95,7 @@ export default async function ApplicationDetailPage({
           </div>
         )}
 
-        {isArtist && app.status === 'delivered' && (
+        {isAdmin && app.status === 'delivered' && (
           <div className="mt-6 flex gap-3">
             <form action={updateApplicationStatusAction}>
               <input type="hidden" name="application_id" value={app.id} />
@@ -235,7 +236,7 @@ export default async function ApplicationDetailPage({
             })}
           </div>
 
-          {(isArtist || isEditor) && (
+          {(isAdmin || isEditor) && (
             <form action={postRevisionMessageAction} className="mt-4 flex gap-3 border-t border-border pt-4">
               <input type="hidden" name="application_id" value={app.id} />
               <input
