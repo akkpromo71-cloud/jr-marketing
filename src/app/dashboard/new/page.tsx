@@ -48,6 +48,9 @@ export default async function NewCampaignPage({
             <Field label={t.dashboardNew.trackLink}>
               <input className={inputClass} name="track_url" placeholder="https://..." />
             </Field>
+            <Field label={t.dashboardNew.spotifyLink}>
+              <input className={inputClass} name="spotify_url" placeholder="https://open.spotify.com/..." />
+            </Field>
             <div className="grid grid-cols-2 gap-4">
               <Field label={t.dashboardNew.budget}>
                 <input className={inputClass} type="number" name="budget" min={0} />
