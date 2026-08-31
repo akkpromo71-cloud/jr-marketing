@@ -45,6 +45,8 @@ export async function getCurrentProfile(): Promise<Profile | null> {
       instagram: toText(meta.instagram),
       tiktok: toText(meta.tiktok),
       portfolio_url: toText(meta.portfolio_url),
+      paypal_email: toText(meta.paypal_email),
+      crypto_wallet: toText(meta.crypto_wallet),
     })
     .select('*')
     .single();
