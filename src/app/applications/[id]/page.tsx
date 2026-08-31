@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Card, Button, Field, StatusBadge, inputClass, BackLink, RatingInput } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import {
@@ -64,12 +65,19 @@ export default async function ApplicationDetailPage({
           label={t.common.back}
         />
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-medium text-text">{app.campaigns?.title}</h1>
-            <p className="mt-1 text-sm text-text-dim">
-              {t.applicationDetail.editor}: {(editorProfile as Profile | null)?.display_name ?? '—'}
-              {app.price ? ` · ${t.applicationDetail.price}: ${app.price} $` : ''}
-            </p>
+          <div className="flex items-start gap-3">
+            <Avatar
+              url={(editorProfile as Profile | null)?.avatar_url ?? null}
+              name={(editorProfile as Profile | null)?.display_name ?? '?'}
+              size={44}
+            />
+            <div>
+              <h1 className="font-display text-3xl font-medium text-text">{app.campaigns?.title}</h1>
+              <p className="mt-1 text-sm text-text-dim">
+                {t.applicationDetail.editor}: {(editorProfile as Profile | null)?.display_name ?? '—'}
+                {app.price ? ` · ${t.applicationDetail.price}: ${app.price} $` : ''}
+              </p>
+            </div>
           </div>
           <StatusBadge status={app.status} />
         </div>
