@@ -88,6 +88,23 @@ button {
   background: var(--accent-tint-bg);
 }
 
+/* Едва заметное зерно поверх всего сайта — придаёт тёмной/светлой теме
+   фактуру вместо плоской заливки, как у премиальных музыкальных брендов.
+   pointer-events: none, поэтому не мешает кликам. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark body::after {
+  opacity: 0.05;
+}
+
 /* Клавиатурная навигация — свой заметный focus-ring вместо браузерного дефолта,
    не мешает мышью/тачем (:focus-visible срабатывает только для клавиатуры). */
 :focus-visible {
@@ -139,6 +156,42 @@ button {
   }
   .animate-float-c {
     animation: float-c 10s ease-in-out infinite;
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .animate-toast-in {
+    animation: toast-in 0.3s ease-out;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    background: var(--surface-2);
+  }
+  .animate-toast-in {
+    animation: none;
   }
 }
 
