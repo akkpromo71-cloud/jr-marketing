@@ -14,7 +14,9 @@ const fraunces = Fraunces({
 const manrope = Manrope({
   subsets: ['latin', 'cyrillic'],
   variable: '--font-manrope',
-  weight: ['400', '500', '600', '700'],
+  // 800 добавлен ради жирного заголовка на лендинге (font-extrabold) — без него
+  // браузер подделывал бы жирность синтетически поверх 700.
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 // applicationName/icons/openGraph.siteName — чтобы бренд "J/R marketing" был виден
