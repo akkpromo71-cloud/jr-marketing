@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Card, Button, Field, inputClass, StatusBadge, EmptyState } from '@/components/ui';
+import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
@@ -32,7 +33,7 @@ export default async function AdminPage() {
 
   const { data: campaigns } = await supabase
     .from('campaigns')
-    .select('*, profiles(display_name)')
+    .select('*, profiles(display_name, avatar_url)')
     .order('created_at', { ascending: false })
     .limit(20);
 
@@ -52,38 +53,41 @@ export default async function AdminPage() {
             {(pendingEditors as Profile[] | null)?.map((e) => (
               <Card key={e.id} className="p-5">
                 <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-display text-lg font-medium text-text">{e.display_name}</h3>
-                    {e.bio && <p className="mt-1 max-w-md text-sm text-text-dim">{e.bio}</p>}
-                    <p className="mt-2 text-xs text-text-faint">
-                      {t.admin.wishPrice}: {e.price_min ?? '—'} $
-                      {e.portfolio_url && (
-                        <>
-                          {' · '}
-                          <a href={e.portfolio_url} target="_blank" className="text-accent hover:underline">
-                            {locale === 'en' ? 'works' : 'работы'}
-                          </a>
-                        </>
-                      )}
-                    </p>
-                    <div className="mt-1 flex gap-2 text-xs text-text-faint">
-                      {e.telegram && <span>TG: {e.telegram}</span>}
-                      {e.instagram &&
-                        (e.instagram.startsWith('http') ? (
-                          <a href={e.instagram} target="_blank" className="text-accent hover:underline">
-                            IG
-                          </a>
-                        ) : (
-                          <span>IG: {e.instagram}</span>
-                        ))}
-                      {e.tiktok &&
-                        (e.tiktok.startsWith('http') ? (
-                          <a href={e.tiktok} target="_blank" className="text-accent hover:underline">
-                            TT
-                          </a>
-                        ) : (
-                          <span>TT: {e.tiktok}</span>
-                        ))}
+                  <div className="flex items-start gap-3">
+                    <Avatar url={e.avatar_url} name={e.display_name} size={44} />
+                    <div>
+                      <h3 className="font-display text-lg font-medium text-text">{e.display_name}</h3>
+                      {e.bio && <p className="mt-1 max-w-md text-sm text-text-dim">{e.bio}</p>}
+                      <p className="mt-2 text-xs text-text-faint">
+                        {t.admin.wishPrice}: {e.price_min ?? '—'} $
+                        {e.portfolio_url && (
+                          <>
+                            {' · '}
+                            <a href={e.portfolio_url} target="_blank" className="text-accent hover:underline">
+                              {locale === 'en' ? 'works' : 'работы'}
+                            </a>
+                          </>
+                        )}
+                      </p>
+                      <div className="mt-1 flex gap-2 text-xs text-text-faint">
+                        {e.telegram && <span>TG: {e.telegram}</span>}
+                        {e.instagram &&
+                          (e.instagram.startsWith('http') ? (
+                            <a href={e.instagram} target="_blank" className="text-accent hover:underline">
+                              IG
+                            </a>
+                          ) : (
+                            <span>IG: {e.instagram}</span>
+                          ))}
+                        {e.tiktok &&
+                          (e.tiktok.startsWith('http') ? (
+                            <a href={e.tiktok} target="_blank" className="text-accent hover:underline">
+                              TT
+                            </a>
+                          ) : (
+                            <span>TT: {e.tiktok}</span>
+                          ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -114,9 +118,12 @@ export default async function AdminPage() {
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {(approvedEditors as Profile[] | null)?.map((e) => (
-              <Card key={e.id} className="p-4 hover:-translate-y-0.5 hover:border-accent/40">
-                <p className="font-medium text-text">{e.display_name}</p>
-                <p className="mt-1 text-xs text-text-faint">{e.price_min} $</p>
+              <Card key={e.id} className="flex items-center gap-3 p-4 hover:-translate-y-0.5 hover:border-accent/40">
+                <Avatar url={e.avatar_url} name={e.display_name} size={36} />
+                <div>
+                  <p className="font-medium text-text">{e.display_name}</p>
+                  <p className="mt-1 text-xs text-text-faint">{e.price_min} $</p>
+                </div>
               </Card>
             ))}
           </div>
@@ -125,19 +132,24 @@ export default async function AdminPage() {
         <section className="mt-12">
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">{t.admin.recentCampaignsTitle}</h2>
           <div className="flex flex-col gap-3">
-            {(campaigns as (Campaign & { profiles: { display_name: string } })[] | null)?.map((c) => (
-              <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
-                <Card className="flex items-center justify-between p-4 hover:-translate-y-0.5 hover:border-accent/50">
-                  <div>
-                    <p className="font-medium text-text">{c.title}</p>
-                    <p className="text-xs text-text-faint">
-                      {t.admin.artist}: {c.profiles?.display_name}
-                    </p>
-                  </div>
-                  <StatusBadge status={c.status} />
-                </Card>
-              </Link>
-            ))}
+            {(campaigns as (Campaign & { profiles: { display_name: string; avatar_url: string | null } })[] | null)?.map(
+              (c) => (
+                <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
+                  <Card className="flex items-center justify-between p-4 hover:-translate-y-0.5 hover:border-accent/50">
+                    <div className="flex items-center gap-3">
+                      <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={36} />
+                      <div>
+                        <p className="font-medium text-text">{c.title}</p>
+                        <p className="text-xs text-text-faint">
+                          {t.admin.artist}: {c.profiles?.display_name}
+                        </p>
+                      </div>
+                    </div>
+                    <StatusBadge status={c.status} />
+                  </Card>
+                </Link>
+              )
+            )}
           </div>
         </section>
       </main>
