@@ -56,6 +56,22 @@ export default async function EditorSignupPage({
             <input className={inputClass} name="telegram" placeholder={t.signupEditor.telegramPlaceholder} />
           </Field>
           <p className="text-xs text-text-faint -mt-2">{t.signupEditor.socialHint}</p>
+
+          {/* Реквизиты выплаты — без них некуда присылать оплату за эдиты,
+              поэтому хотя бы одно из двух обязательно (проверка на сервере в signUpEditorAction). */}
+          <div className="mt-2 border-t border-border pt-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-faint">{t.payout.title}</p>
+            <div className="flex flex-col gap-4">
+              <Field label={t.payout.paypal}>
+                <input className={inputClass} name="paypal_email" placeholder={t.payout.paypalPlaceholder} />
+              </Field>
+              <Field label={t.payout.crypto}>
+                <input className={inputClass} name="crypto_wallet" placeholder={t.payout.cryptoPlaceholder} />
+              </Field>
+            </div>
+            <p className="mt-2 text-xs text-text-faint">{t.payout.hint}</p>
+          </div>
+
           <p className="text-xs text-text-faint -mt-2">{t.signupEditor.requiredNote}</p>
           <Button type="submit" variant="primary" className="mt-2 w-full">
             {t.signupEditor.submitBtn}
