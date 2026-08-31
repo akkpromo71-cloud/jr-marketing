@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Card, Button, Field, inputClass, StatusBadge } from '@/components/ui';
@@ -135,15 +136,17 @@ export default async function AdminPage() {
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">{t.admin.recentCampaignsTitle}</h2>
           <div className="flex flex-col gap-3">
             {(campaigns as (Campaign & { profiles: { display_name: string } })[] | null)?.map((c) => (
-              <Card key={c.id} className="flex items-center justify-between p-4">
-                <div>
-                  <p className="font-medium text-text">{c.title}</p>
-                  <p className="text-xs text-text-faint">
-                    {t.admin.artist}: {c.profiles?.display_name}
-                  </p>
-                </div>
-                <StatusBadge status={c.status} />
-              </Card>
+              <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
+                <Card className="flex items-center justify-between p-4 transition hover:border-accent/50">
+                  <div>
+                    <p className="font-medium text-text">{c.title}</p>
+                    <p className="text-xs text-text-faint">
+                      {t.admin.artist}: {c.profiles?.display_name}
+                    </p>
+                  </div>
+                  <StatusBadge status={c.status} />
+                </Card>
+              </Link>
             ))}
           </div>
         </section>
