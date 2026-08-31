@@ -11,6 +11,9 @@ export async function getLocale(): Promise<Locale> {
 
 export const dict = {
   ru: {
+    common: {
+      back: 'Назад',
+    },
     nav: {
       feed: 'Лента треков',
       myApplications: 'Мои заявки',
@@ -26,11 +29,11 @@ export const dict = {
       editorTag: 'Я эдитор',
       editorTitle: 'Монтирую видео',
       editorText:
-        'Откликайтесь на треки артистов, договаривайтесь о цене напрямую и берите заказ за заказом — опыт и доход растут вместе.',
+        'Откликайтесь на треки артистов со своей ставкой и берите заказ за заказом — опыт и доход растут вместе.',
       artistTag: 'Я артист',
       artistTitle: 'Ищу эдитора',
       artistText:
-        'Публикуйте трек, выбирайте из откликов проверенных эдиторов и получайте монтаж, который поднимает охваты и прослушивания.',
+        'Публикуйте трек и бюджет — эдиторов подберёт наша команда, а вы получите монтаж, который поднимает охваты и прослушивания.',
       registerBtn: 'Зарегистрироваться',
       loginBtn: 'Войти',
       contactLabel: 'Мы на связи:',
@@ -58,9 +61,8 @@ export const dict = {
       about: 'О монтаже *',
       aboutPlaceholder:
         'Что монтируете: аниме, фильмы/сериалы, стримеров, просто ирл или другое — опишите сами',
-      priceFrom: 'Цена от, $ *',
-      priceTo: 'Цена до, $ *',
-      priceHint: 'Это ваши пожелания по цене — финальный диапазон согласует администратор.',
+      price: 'Ваша цена за эдит, $ *',
+      priceHint: 'Это ваше пожелание по цене — финальную цену согласует администратор при одобрении.',
       telegram: 'Telegram',
       telegramPlaceholder: '@username или ссылка на Telegram',
       instagram: 'Ссылка на Instagram *',
@@ -103,7 +105,7 @@ export const dict = {
     applicationsList: {
       title: 'Мои заявки',
       subtitle: 'Статус ваших откликов и переписка по правкам.',
-      appliedMsg: 'Заявка отправлена артисту.',
+      appliedMsg: 'Заявка отправлена — её рассмотрит наша команда.',
       noApplications: 'Заявок пока нет.',
       yourPrice: 'Ваша цена',
     },
@@ -119,10 +121,6 @@ export const dict = {
       submissionUrlPlaceholder: 'Ссылка на готовое видео',
       sendBtn: 'Отправить',
       finishedWork: 'Готовая работа',
-      revisions: 'Правки и обсуждение',
-      noMessages: 'Сообщений пока нет.',
-      messagePlaceholder: 'Написать сообщение…',
-      sendMessageBtn: 'Отправить',
       resultFormTitle: 'Ссылка на эдит',
       resultFormHint:
         'Залили эдит к себе на аккаунт? Оставьте ссылку — просмотры и лайки будем подтягивать с TikTok автоматически, раз в сутки. Вводить цифры вручную не нужно.',
@@ -187,12 +185,8 @@ export const dict = {
       wishPrice: 'Пожелание по цене',
       approveBtn: 'Одобрить',
       rejectBtn: 'Отклонить',
-      priceFrom: 'Цена от, $',
-      priceTo: 'Цена до, $',
-      orderLimit: 'Лимит заказов',
+      price: 'Цена, $',
       approvedTitle: 'Одобренные эдиторы',
-      ordersLimit: 'лимит',
-      ordersWord: 'заказов',
       recentCampaignsTitle: 'Последние кампании',
       artist: 'Артист',
     },
@@ -211,7 +205,6 @@ export const dict = {
     errors: {
       fillRequired: 'Заполните все обязательные поля (отмечены *)',
       needOneSocial: 'Укажите хотя бы один аккаунт — Instagram или TikTok',
-      priceRange: 'Цена "от" не может быть больше цены "до"',
       invalidCredentials: 'Неверный email или пароль',
       emailAlreadyRegistered: 'Пользователь с таким email уже зарегистрирован',
       emailNotConfirmed: 'Email ещё не подтверждён — проверьте почту и перейдите по ссылке',
@@ -221,6 +214,9 @@ export const dict = {
     },
   },
   en: {
+    common: {
+      back: 'Back',
+    },
     nav: {
       feed: 'Track feed',
       myApplications: 'My applications',
@@ -236,10 +232,11 @@ export const dict = {
       editorTag: "I'm an editor",
       editorTitle: 'I edit videos',
       editorText:
-        "Apply to artists' tracks, agree on a price directly, and take on job after job — your experience and income grow together.",
+        "Apply to artists' tracks with your rate, and take on job after job — your experience and income grow together.",
       artistTag: "I'm an artist",
       artistTitle: "I'm looking for an editor",
-      artistText: 'Post a track, pick from applications by vetted editors, and get an edit that drives real reach and plays.',
+      artistText:
+        "Post a track and budget — our team picks the right editors, and you get an edit that drives real reach and plays.",
       registerBtn: 'Sign up',
       loginBtn: 'Log in',
       contactLabel: 'Reach us:',
@@ -267,9 +264,8 @@ export const dict = {
       about: 'About your editing *',
       aboutPlaceholder:
         'What do you edit: anime, movies/TV shows, streamers, just IRL content, or something else — describe it yourself',
-      priceFrom: 'Price from, $ *',
-      priceTo: 'Price to, $ *',
-      priceHint: "This is your price preference — the admin will confirm the final range.",
+      price: 'Your price per edit, $ *',
+      priceHint: "This is your price preference — the admin will confirm the final price on approval.",
       telegram: 'Telegram',
       telegramPlaceholder: '@username or Telegram link',
       instagram: 'Instagram link *',
@@ -312,7 +308,7 @@ export const dict = {
     applicationsList: {
       title: 'My applications',
       subtitle: 'The status of your applications and revision chats.',
-      appliedMsg: 'Application sent to the artist.',
+      appliedMsg: "Application sent — our team will review it.",
       noApplications: 'No applications yet.',
       yourPrice: 'Your price',
     },
@@ -328,10 +324,6 @@ export const dict = {
       submissionUrlPlaceholder: 'Link to the finished video',
       sendBtn: 'Send',
       finishedWork: 'Finished work',
-      revisions: 'Revisions & discussion',
-      noMessages: 'No messages yet.',
-      messagePlaceholder: 'Write a message…',
-      sendMessageBtn: 'Send',
       resultFormTitle: 'Edit link',
       resultFormHint:
         "Posted the edit on your account? Leave the link — we'll pull views and likes from TikTok automatically once a day. No need to enter numbers by hand.",
@@ -396,12 +388,8 @@ export const dict = {
       wishPrice: 'Requested price',
       approveBtn: 'Approve',
       rejectBtn: 'Reject',
-      priceFrom: 'Price from, $',
-      priceTo: 'Price to, $',
-      orderLimit: 'Order limit',
+      price: 'Price, $',
       approvedTitle: 'Approved editors',
-      ordersLimit: 'limit',
-      ordersWord: 'orders',
       recentCampaignsTitle: 'Recent campaigns',
       artist: 'Artist',
     },
@@ -420,7 +408,6 @@ export const dict = {
     errors: {
       fillRequired: 'Please fill in all required fields (marked *)',
       needOneSocial: 'Please provide at least one account — Instagram or TikTok',
-      priceRange: 'The "from" price cannot be higher than the "to" price',
       invalidCredentials: 'Invalid email or password',
       emailAlreadyRegistered: 'A user with this email is already registered',
       emailNotConfirmed: 'Email is not confirmed yet — check your inbox and follow the link',
