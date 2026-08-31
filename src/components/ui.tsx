@@ -134,3 +134,22 @@ export function Field({
 
 export const inputClass =
   'w-full rounded-xl border border-border bg-surface2/50 px-4 py-2.5 text-sm text-text placeholder:text-text-faint outline-none focus:border-accent transition';
+
+// Оценка 1-5 для форм отзыва — кружки-кнопки на radio + peer-checked, без
+// JavaScript, работает в любом браузере. По умолчанию выбрано 5.
+export function RatingInput({ label }: { label: string }) {
+  return (
+    <Field label={label}>
+      <div className="flex gap-2">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <label key={n} className="cursor-pointer">
+            <input type="radio" name="rating" value={n} defaultChecked={n === 5} className="peer sr-only" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-sm font-semibold text-text-dim transition peer-checked:border-accent peer-checked:bg-accent peer-checked:text-on-accent">
+              {n}
+            </span>
+          </label>
+        ))}
+      </div>
+    </Field>
+  );
+}
