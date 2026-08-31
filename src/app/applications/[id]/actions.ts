@@ -95,3 +95,29 @@ export async function updateEditResultAction(formData: FormData) {
   revalidatePath('/dashboard');
   if (campaignId) revalidatePath(`/dashboard/campaigns/${campaignId}`);
 }
+
+// Отзыв эдитора о сотрудничестве по конкретной заявке — доступен только после
+// того, как заявка получила статус 'completed' (RLS reviews_insert_editor
+// проверяет это же условие ещё раз на уровне базы).
+export async function submitEditorReviewAction(formData: FormData) {
+  const applicationId = String(formData.get('application_id') ?? '');
+  const campaignId = String(formData.get('campaign_id') ?? '');
+  const rating = Number(formData.get('rating') ?? 5);
+  const comment = String(formData.get('comment') ?? '').trim() || null;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  await supabase.from('reviews').insert({
+    campaign_id: campaignId,
+    application_id: applicationId,
+    author_role: 'editor',
+    rating,
+    comment,
+  });
+
+  revalidatePath(`/applications/${applicationId}`);
+}
