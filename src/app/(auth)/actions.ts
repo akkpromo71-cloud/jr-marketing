@@ -43,6 +43,8 @@ export async function signUpEditorAction(formData: FormData) {
   const telegram = String(formData.get('telegram') ?? '').trim() || null;
   const instagram = String(formData.get('instagram') ?? '').trim() || null;
   const tiktok = String(formData.get('tiktok') ?? '').trim() || null;
+  const paypalEmail = String(formData.get('paypal_email') ?? '').trim() || null;
+  const cryptoWallet = String(formData.get('crypto_wallet') ?? '').trim() || null;
 
   const { t } = await getDict();
 
@@ -54,6 +56,11 @@ export async function signUpEditorAction(formData: FormData) {
   }
   if (!instagram && !tiktok) {
     redirect(`/signup/editor?error=${encodeURIComponent(t.errors.needOneSocial)}`);
+  }
+  // Без реквизитов выплаты некуда будет отправлять оплату за эдиты —
+  // обязателен хотя бы один способ (PayPal или крипта).
+  if (!paypalEmail && !cryptoWallet) {
+    redirect(`/signup/editor?error=${encodeURIComponent(t.errors.needOnePayout)}`);
   }
 
   const supabase = await createClient();
@@ -75,6 +82,8 @@ export async function signUpEditorAction(formData: FormData) {
         telegram,
         instagram,
         tiktok,
+        paypal_email: paypalEmail,
+        crypto_wallet: cryptoWallet,
       },
     },
   });
