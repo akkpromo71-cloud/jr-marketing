@@ -13,66 +13,168 @@ export default async function LandingPage() {
 
   const { t } = await getDict();
 
+  const highlights = [
+    { icon: '🎯', title: t.landing.highlight1Title, text: t.landing.highlight1Text },
+    { icon: '📈', title: t.landing.highlight2Title, text: t.landing.highlight2Text },
+    { icon: '🤝', title: t.landing.highlight3Title, text: t.landing.highlight3Text },
+  ];
+
+  const steps = [
+    { num: '01', title: t.landing.step1Title, text: t.landing.step1Text },
+    { num: '02', title: t.landing.step2Title, text: t.landing.step2Text },
+    { num: '03', title: t.landing.step3Title, text: t.landing.step3Text },
+  ];
+
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-5xl px-6 py-20">
-        <div className="mx-auto max-w-5xl text-center">
-          <h1 className="font-display text-4xl font-medium leading-tight text-text sm:text-5xl">
-            {t.landing.heroTitle}
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-text-dim sm:text-lg">
-            {t.landing.heroSubtitle}
-          </p>
-        </div>
-
-        <div className="mt-14 grid gap-6 sm:grid-cols-2">
-          <Card className="flex flex-col gap-4 p-8">
-            <span className="text-xs font-semibold uppercase tracking-wide text-text-faint">
-              {t.landing.editorTag}
+      <main>
+        {/* Hero — крупный заголовок и мягкое свечение фона вместо плоского текста */}
+        <section className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div className="absolute left-1/2 top-[-220px] h-[560px] w-[560px] -translate-x-1/2 rounded-full bg-accent/25 blur-[130px]" />
+            <div className="absolute right-[-140px] top-[140px] h-[380px] w-[380px] rounded-full bg-accent2/20 blur-[110px]" />
+          </div>
+          <div className="relative mx-auto max-w-4xl px-6 pb-16 pt-20 text-center sm:pt-28">
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent-tint-bg px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-accent">
+              {t.landing.kicker}
             </span>
-            <h2 className="font-display text-2xl font-medium text-text">{t.landing.editorTitle}</h2>
-            <p className="text-sm text-text-dim">{t.landing.editorText}</p>
-            <div className="mt-2 flex gap-3">
-              <Link
-                href="/signup/editor"
-                className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent shadow-accent"
-              >
-                {t.landing.registerBtn}
-              </Link>
-              <Link
-                href="/login"
-                className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-text-dim hover:text-text transition"
-              >
-                {t.landing.loginBtn}
-              </Link>
+            <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-text sm:text-6xl">
+              {t.landing.heroTitle}
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-text-dim sm:text-lg">
+              {t.landing.heroSubtitle}
+            </p>
+          </div>
+        </section>
+
+        {/* Карточки ролей — вход в регистрацию для эдитора и артиста */}
+        <section className="relative mx-auto max-w-5xl px-6 pb-4">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Card className="group relative overflow-hidden p-8">
+              <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/25" />
+              <div className="relative flex flex-col gap-4">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent-tint-bg text-xl">
+                  ✂️
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                  {t.landing.editorTag}
+                </span>
+                <h2 className="font-display text-2xl font-medium text-text">{t.landing.editorTitle}</h2>
+                <p className="text-sm leading-relaxed text-text-dim">{t.landing.editorText}</p>
+                <div className="mt-2 flex gap-3">
+                  <Link
+                    href="/signup/editor"
+                    className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent shadow-accent transition hover:brightness-105"
+                  >
+                    {t.landing.registerBtn}
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-text-dim transition hover:text-text"
+                  >
+                    {t.landing.loginBtn}
+                  </Link>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="group relative overflow-hidden p-8">
+              <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl transition group-hover:bg-accent/25" />
+              <div className="relative flex flex-col gap-4">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent-tint-bg text-xl">
+                  🎵
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                  {t.landing.artistTag}
+                </span>
+                <h2 className="font-display text-2xl font-medium text-text">{t.landing.artistTitle}</h2>
+                <p className="text-sm leading-relaxed text-text-dim">{t.landing.artistText}</p>
+                <div className="mt-2 flex gap-3">
+                  <Link
+                    href="/signup/artist"
+                    className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent shadow-accent transition hover:brightness-105"
+                  >
+                    {t.landing.registerBtn}
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-text-dim transition hover:text-text"
+                  >
+                    {t.landing.loginBtn}
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </section>
+
+        {/* Три честных преимущества площадки — без выдуманной статистики */}
+        <section className="mx-auto max-w-5xl px-6 py-16">
+          <div className="grid gap-5 sm:grid-cols-3">
+            {highlights.map((h) => (
+              <Card key={h.title} className="p-6">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-tint-bg text-lg">
+                  {h.icon}
+                </span>
+                <h3 className="mt-4 font-display text-lg font-medium text-text">{h.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-text-dim">{h.text}</p>
+                <div className="mt-5 h-1 w-full rounded-full bg-gradient-to-r from-accent to-accent2" />
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        {/* Как это работает — три шага, отражающие текущую модель (админ ведёт кампанию) */}
+        <section className="mx-auto max-w-5xl px-6 py-8">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display text-3xl font-medium text-text sm:text-4xl">
+              {t.landing.howItWorksTitle}
+            </h2>
+            <p className="mt-3 text-sm text-text-dim sm:text-base">{t.landing.howItWorksSubtitle}</p>
+          </div>
+          <div className="mt-12 grid gap-10 sm:grid-cols-3">
+            {steps.map((s) => (
+              <div key={s.num}>
+                <span className="font-display text-4xl font-medium text-accent/40">{s.num}</span>
+                <h3 className="mt-3 font-display text-lg font-medium text-text">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-text-dim">{s.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Финальный призыв к действию перед контактами */}
+        <section className="mx-auto max-w-5xl px-6 py-16">
+          <Card className="relative overflow-hidden px-8 py-14 text-center">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[380px] w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/15 blur-[100px]" />
+            <div className="relative">
+              <h2 className="font-display text-3xl font-medium text-text sm:text-4xl">
+                {t.landing.finalCtaTitle}
+              </h2>
+              <p className="mx-auto mt-3 max-w-md text-sm text-text-dim sm:text-base">
+                {t.landing.finalCtaSubtitle}
+              </p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  href="/signup/artist"
+                  className="rounded-full bg-accent px-7 py-3.5 text-sm font-bold text-on-accent shadow-accent transition hover:brightness-105"
+                >
+                  {t.landing.artistTag}
+                </Link>
+                <Link
+                  href="/signup/editor"
+                  className="rounded-full border border-border px-7 py-3.5 text-sm font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+                >
+                  {t.landing.editorTag}
+                </Link>
+              </div>
             </div>
           </Card>
+        </section>
 
-          <Card className="flex flex-col gap-4 p-8">
-            <span className="text-xs font-semibold uppercase tracking-wide text-text-faint">
-              {t.landing.artistTag}
-            </span>
-            <h2 className="font-display text-2xl font-medium text-text">{t.landing.artistTitle}</h2>
-            <p className="text-sm text-text-dim">{t.landing.artistText}</p>
-            <div className="mt-2 flex gap-3">
-              <Link
-                href="/signup/artist"
-                className="rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent shadow-accent"
-              >
-                {t.landing.registerBtn}
-              </Link>
-              <Link
-                href="/login"
-                className="rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-text-dim hover:text-text transition"
-              >
-                {t.landing.loginBtn}
-              </Link>
-            </div>
-          </Card>
-        </div>
-
-        <div className="mt-16 flex flex-col items-center gap-4">
+        {/* Контакты */}
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-6 pb-20">
           <span className="text-xs text-text-faint">{t.landing.contactLabel}</span>
           <div className="flex flex-wrap items-center justify-center gap-3">
             {[
