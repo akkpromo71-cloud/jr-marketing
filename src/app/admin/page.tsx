@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, Field, inputClass, StatusBadge } from '@/components/ui';
+import { Card, Button, Field, inputClass, StatusBadge, EmptyState } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
@@ -48,9 +48,7 @@ export default async function AdminPage() {
             {t.admin.pendingTitle} ({pendingEditors?.length ?? 0})
           </h2>
           <div className="flex flex-col gap-4">
-            {(pendingEditors ?? []).length === 0 && (
-              <Card className="p-6 text-center text-sm text-text-faint">{t.admin.noNewApplications}</Card>
-            )}
+            {(pendingEditors ?? []).length === 0 && <EmptyState icon="✅" text={t.admin.noNewApplications} />}
             {(pendingEditors as Profile[] | null)?.map((e) => (
               <Card key={e.id} className="p-5">
                 <div className="flex items-start justify-between gap-4">
@@ -116,7 +114,7 @@ export default async function AdminPage() {
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {(approvedEditors as Profile[] | null)?.map((e) => (
-              <Card key={e.id} className="p-4">
+              <Card key={e.id} className="p-4 hover:-translate-y-0.5 hover:border-accent/40">
                 <p className="font-medium text-text">{e.display_name}</p>
                 <p className="mt-1 text-xs text-text-faint">{e.price_min} $</p>
               </Card>
@@ -129,7 +127,7 @@ export default async function AdminPage() {
           <div className="flex flex-col gap-3">
             {(campaigns as (Campaign & { profiles: { display_name: string } })[] | null)?.map((c) => (
               <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
-                <Card className="flex items-center justify-between p-4 transition hover:border-accent/50">
+                <Card className="flex items-center justify-between p-4 hover:-translate-y-0.5 hover:border-accent/50">
                   <div>
                     <p className="font-medium text-text">{c.title}</p>
                     <p className="text-xs text-text-faint">
