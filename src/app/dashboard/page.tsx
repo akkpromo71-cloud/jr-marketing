@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, LinkButton, StatusBadge } from '@/components/ui';
+import { Card, LinkButton, StatusBadge, EmptyState } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
@@ -94,12 +94,10 @@ export default async function DashboardPage({
         <section className="mt-8">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-faint">{t.dashboard.activeLabel}</h2>
           <div className="flex flex-col gap-4">
-            {active.length === 0 && (
-              <Card className="p-8 text-center text-sm text-text-faint">{t.dashboard.noActiveCampaigns}</Card>
-            )}
+            {active.length === 0 && <EmptyState icon="📁" text={t.dashboard.noActiveCampaigns} />}
             {active.map((c: Campaign & { applications: { count: number }[] }) => (
               <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
-                <Card className="p-5 transition hover:border-accent/50">
+                <Card className="p-5 hover:-translate-y-0.5 hover:border-accent/50">
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <h3 className="font-display text-lg font-medium text-text">{c.title}</h3>
@@ -121,7 +119,7 @@ export default async function DashboardPage({
             <div className="flex flex-col gap-4">
               {finished.map((c: Campaign) => (
                 <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
-                  <Card className="p-5 opacity-80 transition hover:opacity-100">
+                  <Card className="p-5 opacity-80 hover:-translate-y-0.5 hover:opacity-100">
                     <div className="flex items-center justify-between gap-4">
                       <h3 className="font-display text-lg font-medium text-text">{c.title}</h3>
                       <StatusBadge status={c.status} />
