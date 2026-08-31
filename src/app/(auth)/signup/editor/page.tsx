@@ -1,5 +1,5 @@
 import { signUpEditorAction } from '@/app/(auth)/actions';
-import { Field, inputClass, Button, Card } from '@/components/ui';
+import { Field, inputClass, Button, Card, BackLink } from '@/components/ui';
 import { getDict } from '@/lib/i18n';
 
 export default async function EditorSignupPage({
@@ -12,6 +12,7 @@ export default async function EditorSignupPage({
 
   return (
     <main className="mx-auto flex min-h-[80vh] max-w-lg flex-col justify-center px-6 py-16">
+      <BackLink href="/" label={t.common.back} />
       <h1 className="mb-1 font-display text-3xl font-medium text-text">{t.signupEditor.title}</h1>
       <p className="mb-8 text-sm text-text-dim">{t.signupEditor.subtitle}</p>
 
@@ -41,14 +42,9 @@ export default async function EditorSignupPage({
               placeholder={t.signupEditor.aboutPlaceholder}
             />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label={t.signupEditor.priceFrom}>
-              <input className={inputClass} type="number" name="price_min" min={1} required placeholder="30" />
-            </Field>
-            <Field label={t.signupEditor.priceTo}>
-              <input className={inputClass} type="number" name="price_max" min={1} required placeholder="80" />
-            </Field>
-          </div>
+          <Field label={t.signupEditor.price}>
+            <input className={inputClass} type="number" name="price" min={1} required placeholder="50" />
+          </Field>
           <p className="text-xs text-text-faint -mt-2">{t.signupEditor.priceHint}</p>
           <Field label={t.signupEditor.instagram}>
             <input className={inputClass} name="instagram" placeholder={t.signupEditor.instagramPlaceholder} />
