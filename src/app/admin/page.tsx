@@ -58,7 +58,7 @@ export default async function AdminPage() {
                     <h3 className="font-display text-lg font-medium text-text">{e.display_name}</h3>
                     {e.bio && <p className="mt-1 max-w-md text-sm text-text-dim">{e.bio}</p>}
                     <p className="mt-2 text-xs text-text-faint">
-                      {t.admin.wishPrice}: {e.price_min ?? '—'}–{e.price_max ?? '—'} $
+                      {t.admin.wishPrice}: {e.price_min ?? '—'} $
                       {e.portfolio_url && (
                         <>
                           {' · '}
@@ -92,14 +92,8 @@ export default async function AdminPage() {
 
                 <form action={approveEditorAction} className="mt-4 flex flex-wrap items-end gap-3 border-t border-border pt-4">
                   <input type="hidden" name="editor_id" value={e.id} />
-                  <Field label={t.admin.priceFrom}>
-                    <input className={`${inputClass} w-28`} type="number" name="price_min" defaultValue={e.price_min ?? ''} />
-                  </Field>
-                  <Field label={t.admin.priceTo}>
-                    <input className={`${inputClass} w-28`} type="number" name="price_max" defaultValue={e.price_max ?? ''} />
-                  </Field>
-                  <Field label={t.admin.orderLimit}>
-                    <input className={`${inputClass} w-24`} type="number" name="active_cap" defaultValue={e.active_cap ?? 3} />
+                  <Field label={t.admin.price}>
+                    <input className={`${inputClass} w-28`} type="number" name="price" defaultValue={e.price_min ?? ''} />
                   </Field>
                   <Button type="submit" variant="primary">
                     {t.admin.approveBtn}
@@ -124,9 +118,7 @@ export default async function AdminPage() {
             {(approvedEditors as Profile[] | null)?.map((e) => (
               <Card key={e.id} className="p-4">
                 <p className="font-medium text-text">{e.display_name}</p>
-                <p className="mt-1 text-xs text-text-faint">
-                  {e.price_min}–{e.price_max} $ · {t.admin.ordersLimit} {e.active_cap} {t.admin.ordersWord}
-                </p>
+                <p className="mt-1 text-xs text-text-faint">{e.price_min} $</p>
               </Card>
             ))}
           </div>
