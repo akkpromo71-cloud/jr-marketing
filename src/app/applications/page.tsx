@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, StatusBadge } from '@/components/ui';
+import { Card, StatusBadge, EmptyState } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
@@ -43,12 +43,10 @@ export default async function ApplicationsPage({
         )}
 
         <div className="mt-8 flex flex-col gap-4">
-          {(applications ?? []).length === 0 && (
-            <Card className="p-8 text-center text-sm text-text-faint">{t.applicationsList.noApplications}</Card>
-          )}
+          {(applications ?? []).length === 0 && <EmptyState icon="📨" text={t.applicationsList.noApplications} />}
           {(applications as (Application & { campaigns: Campaign })[] | null)?.map((a) => (
             <Link key={a.id} href={`/applications/${a.id}`}>
-              <Card className="p-5 transition hover:border-accent/50">
+              <Card className="p-5 hover:-translate-y-0.5 hover:border-accent/50">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <h2 className="font-display text-lg font-medium text-text">{a.campaigns?.title}</h2>
