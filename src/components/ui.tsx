@@ -6,7 +6,7 @@ import { getDict } from '@/lib/i18n';
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`rounded-2xl border border-border bg-surface shadow-card ${className}`}
+      className={`rounded-2xl border border-border bg-surface shadow-card transition ${className}`}
     >
       {children}
     </div>
@@ -15,10 +15,12 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
+// active:scale — тактильный отклик на нажатие для всех вариантов сразу
+// (transform уже входит в набор свойств дефолтного Tailwind `transition`).
 const buttonBase =
-  'inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed';
+  'inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100';
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-on-accent shadow-accent hover:brightness-105',
+  primary: 'bg-accent text-on-accent shadow-accent hover:brightness-105 hover:-translate-y-0.5',
   secondary: 'border border-border bg-surface2/40 text-text hover:bg-surface2',
   ghost: 'text-text-dim hover:text-text',
   danger:
@@ -94,6 +96,22 @@ export function BackLink({ href, label }: { href: string; label: string }) {
       <span aria-hidden="true">←</span>
       {label}
     </Link>
+  );
+}
+
+// Пустое состояние списка (нет треков/заявок/эдиторов и т.д.) — иконка вместо
+// голого текста, чтобы страница не выглядела как ошибка загрузки.
+export function EmptyState({ icon, text }: { icon: string; text: string }) {
+  return (
+    <Card className="flex flex-col items-center gap-3 p-10 text-center">
+      <span
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-tint-bg text-2xl"
+        aria-hidden="true"
+      >
+        {icon}
+      </span>
+      <p className="text-sm text-text-faint">{text}</p>
+    </Card>
   );
 }
 
