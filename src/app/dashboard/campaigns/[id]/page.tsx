@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, StatusBadge } from '@/components/ui';
+import { Card, Button, StatusBadge, BackLink } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { closeCampaignAction } from '@/app/dashboard/actions';
@@ -39,6 +39,7 @@ export default async function CampaignDetailPage({
     <>
       <Nav />
       <main className="mx-auto max-w-3xl px-6 py-12">
+        <BackLink href={isAdmin ? '/admin' : '/dashboard'} label={t.common.back} />
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-medium text-text">{c.title}</h1>
