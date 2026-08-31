@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { closeCampaignAction } from '@/app/dashboard/actions';
 import { getDict } from '@/lib/i18n';
+import { formatCompactNumber } from '@/lib/format';
 import type { Application, Campaign, Profile } from '@/lib/types';
 
 export default async function CampaignDetailPage({
@@ -16,7 +17,7 @@ export default async function CampaignDetailPage({
   const { id } = await params;
   const profile = await getCurrentProfile();
   const supabase = await createClient();
-  const { t } = await getDict();
+  const { t, locale } = await getDict();
 
   const { data: campaign } = await supabase.from('campaigns').select('*').eq('id', id).single();
   if (!campaign) notFound();
@@ -32,6 +33,11 @@ export default async function CampaignDetailPage({
     .eq('campaign_id', id)
     .order('created_at', { ascending: false });
 
+  const totalViews = ((applications ?? []) as Application[]).reduce(
+    (sum: number, a: Application) => sum + (a.views_count ?? 0),
+    0
+  );
+
   return (
     <>
       <Nav />
@@ -43,6 +49,17 @@ export default async function CampaignDetailPage({
           </div>
           <StatusBadge status={c.status} />
         </div>
+
+        {totalViews > 0 && (
+          <Card className="mt-6 inline-flex flex-col p-5">
+            <p className="font-display text-3xl font-medium text-accent">
+              {formatCompactNumber(totalViews, locale)}
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.totalViewsLabel}
+            </p>
+          </Card>
+        )}
 
         {c.status === 'open' && (
           <form action={closeCampaignAction} className="mt-4">
@@ -75,6 +92,11 @@ export default async function CampaignDetailPage({
                     )}
                     {a.cover_note && (
                       <p className="mt-1 line-clamp-2 text-sm text-text-faint">{a.cover_note}</p>
+                    )}
+                    {a.views_count != null && (
+                      <p className="mt-1 text-xs font-semibold text-accent">
+                        {formatCompactNumber(a.views_count, locale)} {t.campaignDetail.viewsShort}
+                      </p>
                     )}
                   </div>
                   <StatusBadge status={a.status} />

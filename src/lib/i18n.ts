@@ -123,6 +123,18 @@ export const dict = {
       noMessages: 'Сообщений пока нет.',
       messagePlaceholder: 'Написать сообщение…',
       sendMessageBtn: 'Отправить',
+      resultFormTitle: 'Результат эдита',
+      resultFormHint:
+        'Залили эдит к себе на аккаунт? Добавьте ссылку и цифры — артист увидит их у себя в кабинете. Можно обновлять по мере роста просмотров.',
+      postedUrlLabel: 'Ссылка на опубликованный эдит',
+      postedUrlPlaceholder: 'Ссылка на видео у вас в профиле',
+      viewsLabel: 'Просмотры',
+      likesLabel: 'Лайки',
+      updateResultBtn: 'Обновить результат',
+      resultTitle: 'Результат',
+      viewPostedEdit: 'Смотреть эдит',
+      updatedAt: 'Обновлено',
+      noResultYet: 'Эдитор ещё не добавил результат.',
     },
     dashboard: {
       title: 'Мои кампании',
@@ -134,6 +146,8 @@ export const dict = {
       noActiveCampaigns: 'Пока нет активных кампаний.',
       responses: 'Откликов',
       finishedLabel: 'Завершённые',
+      totalViewsLabel: 'Суммарный охват',
+      editsCountLabel: 'Эдитов с результатом',
     },
     dashboardNew: {
       title: 'Новый трек',
@@ -151,6 +165,8 @@ export const dict = {
       responses: 'Отклики',
       noResponses: 'Пока никто не откликнулся.',
       closeApplicationsBtn: 'Закрыть приём откликов',
+      totalViewsLabel: 'Суммарный охват по кампании',
+      viewsShort: 'просмотров',
     },
     admin: {
       title: 'Админ-панель',
@@ -305,6 +321,18 @@ export const dict = {
       noMessages: 'No messages yet.',
       messagePlaceholder: 'Write a message…',
       sendMessageBtn: 'Send',
+      resultFormTitle: 'Edit results',
+      resultFormHint:
+        "Posted the edit on your account? Add the link and numbers — the artist will see them in their dashboard. You can update this any time as views grow.",
+      postedUrlLabel: 'Link to the posted edit',
+      postedUrlPlaceholder: 'Link to the video on your profile',
+      viewsLabel: 'Views',
+      likesLabel: 'Likes',
+      updateResultBtn: 'Update results',
+      resultTitle: 'Results',
+      viewPostedEdit: 'View the edit',
+      updatedAt: 'Updated',
+      noResultYet: 'The editor has not added results yet.',
     },
     dashboard: {
       title: 'My campaigns',
@@ -316,6 +344,8 @@ export const dict = {
       noActiveCampaigns: 'No active campaigns yet.',
       responses: 'Applications',
       finishedLabel: 'Finished',
+      totalViewsLabel: 'Total reach',
+      editsCountLabel: 'Edits with results',
     },
     dashboardNew: {
       title: 'New track',
@@ -333,6 +363,8 @@ export const dict = {
       responses: 'Applications',
       noResponses: 'No one has applied yet.',
       closeApplicationsBtn: 'Close applications',
+      totalViewsLabel: 'Total reach for this campaign',
+      viewsShort: 'views',
     },
     admin: {
       title: 'Admin panel',

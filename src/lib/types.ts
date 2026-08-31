@@ -51,6 +51,12 @@ export interface Application {
   price: number | null;
   cover_note: string | null;
   submission_url: string | null;
+  // Результат промо-эдита: эдитор заливает эдит на СВОЙ аккаунт (не артиста),
+  // и сам же вносит сюда ссылку и цифры — только у него есть доступ к статистике поста.
+  posted_url: string | null;
+  views_count: number | null;
+  likes_count: number | null;
+  result_updated_at: string | null;
   created_at: string;
   updated_at: string;
 }

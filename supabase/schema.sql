@@ -51,6 +51,13 @@ create table if not exists public.applications (
   price numeric,
   cover_note text,
   submission_url text,
+  -- Результат промо-эдита: эдитор заливает готовый эдит на СВОЙ аккаунт (не
+  -- артиста) — только у него есть доступ к статистике этого поста, поэтому
+  -- ссылку и цифры вносит он сам, вручную, и может обновлять их со временем.
+  posted_url text,
+  views_count bigint,
+  likes_count bigint,
+  result_updated_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (campaign_id, editor_id)

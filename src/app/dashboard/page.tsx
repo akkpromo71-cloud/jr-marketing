@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { getDict } from '@/lib/i18n';
+import { formatCompactNumber } from '@/lib/format';
 import type { Campaign } from '@/lib/types';
 
 export default async function DashboardPage({
@@ -21,7 +22,7 @@ export default async function DashboardPage({
     redirect(roleHome(profile.role));
   }
   const supabase = await createClient();
-  const { t } = await getDict();
+  const { t, locale } = await getDict();
 
   const { data: campaigns } = profile
     ? await supabase
@@ -33,6 +34,18 @@ export default async function DashboardPage({
 
   const active = (campaigns ?? []).filter((c: Campaign) => c.status !== 'completed' && c.status !== 'closed');
   const finished = (campaigns ?? []).filter((c: Campaign) => c.status === 'completed' || c.status === 'closed');
+
+  // Суммарный охват по всем трекам артиста сразу — берём результаты, которые
+  // эдиторы внесли по своим заявкам на все кампании этого артиста.
+  type ResultRow = { views_count: number | null; posted_url: string | null };
+  const campaignIds = (campaigns ?? []).map((c: Campaign) => c.id);
+  const { data: resultRowsRaw } = campaignIds.length
+    ? await supabase.from('applications').select('views_count, posted_url').in('campaign_id', campaignIds)
+    : { data: [] as ResultRow[] };
+  const resultRows = (resultRowsRaw ?? []) as ResultRow[];
+
+  const totalViews = resultRows.reduce((sum: number, r: ResultRow) => sum + (r.views_count ?? 0), 0);
+  const editsCount = resultRows.filter((r: ResultRow) => r.posted_url || r.views_count != null).length;
 
   return (
     <>
@@ -57,6 +70,25 @@ export default async function DashboardPage({
           <div className="mt-6 rounded-xl border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
             {t.dashboard.createdMsg}
           </div>
+        )}
+
+        {totalViews > 0 && (
+          <Card className="mt-8 flex flex-wrap items-center gap-10 p-6">
+            <div>
+              <p className="font-display text-4xl font-medium text-accent">
+                {formatCompactNumber(totalViews, locale)}
+              </p>
+              <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+                {t.dashboard.totalViewsLabel}
+              </p>
+            </div>
+            <div>
+              <p className="font-display text-4xl font-medium text-text">{editsCount}</p>
+              <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+                {t.dashboard.editsCountLabel}
+              </p>
+            </div>
+          </Card>
         )}
 
         <section className="mt-8">

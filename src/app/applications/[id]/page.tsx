@@ -1,14 +1,16 @@
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, StatusBadge, inputClass } from '@/components/ui';
+import { Card, Button, Field, StatusBadge, inputClass } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import {
   postRevisionMessageAction,
   updateApplicationStatusAction,
   submitWorkAction,
+  updateEditResultAction,
 } from '@/app/applications/[id]/actions';
 import { getDict } from '@/lib/i18n';
+import { formatCompactNumber, formatDate } from '@/lib/format';
 import type { Application, Campaign, Profile, RevisionMessage } from '@/lib/types';
 
 export default async function ApplicationDetailPage({
@@ -19,7 +21,7 @@ export default async function ApplicationDetailPage({
   const { id } = await params;
   const profile = await getCurrentProfile();
   const supabase = await createClient();
-  const { t } = await getDict();
+  const { t, locale } = await getDict();
 
   const { data: application } = await supabase
     .from('applications')
@@ -139,6 +141,99 @@ export default async function ApplicationDetailPage({
               {app.submission_url}
             </a>
           </p>
+        )}
+
+        {isEditor && app.status !== 'pending' && app.status !== 'rejected' && (
+          <Card className="mt-6 p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+              {t.applicationDetail.resultFormTitle}
+            </p>
+            <p className="mt-1 text-xs text-text-faint">{t.applicationDetail.resultFormHint}</p>
+            <form action={updateEditResultAction} className="mt-4 flex flex-col gap-3">
+              <input type="hidden" name="application_id" value={app.id} />
+              <input type="hidden" name="campaign_id" value={app.campaign_id} />
+              <Field label={t.applicationDetail.postedUrlLabel}>
+                <input
+                  className={inputClass}
+                  name="posted_url"
+                  placeholder={t.applicationDetail.postedUrlPlaceholder}
+                  defaultValue={app.posted_url ?? ''}
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={t.applicationDetail.viewsLabel}>
+                  <input
+                    className={inputClass}
+                    type="number"
+                    min={0}
+                    name="views_count"
+                    defaultValue={app.views_count ?? ''}
+                  />
+                </Field>
+                <Field label={t.applicationDetail.likesLabel}>
+                  <input
+                    className={inputClass}
+                    type="number"
+                    min={0}
+                    name="likes_count"
+                    defaultValue={app.likes_count ?? ''}
+                  />
+                </Field>
+              </div>
+              <Button type="submit" variant="primary" className="mt-1 self-start">
+                {t.applicationDetail.updateResultBtn}
+              </Button>
+            </form>
+            {app.result_updated_at && (
+              <p className="mt-3 text-xs text-text-faint">
+                {t.applicationDetail.updatedAt}: {formatDate(app.result_updated_at, locale)}
+              </p>
+            )}
+          </Card>
+        )}
+
+        {!isEditor && (app.posted_url || app.views_count != null) && (
+          <Card className="mt-6 p-6">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">
+              {t.applicationDetail.resultTitle}
+            </p>
+            <div className="flex flex-wrap items-end gap-8">
+              {app.views_count != null && (
+                <div>
+                  <p className="font-display text-4xl font-medium text-accent">
+                    {formatCompactNumber(app.views_count, locale)}
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+                    {t.applicationDetail.viewsLabel}
+                  </p>
+                </div>
+              )}
+              {app.likes_count != null && (
+                <div>
+                  <p className="font-display text-2xl font-medium text-text">
+                    {formatCompactNumber(app.likes_count, locale)}
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+                    {t.applicationDetail.likesLabel}
+                  </p>
+                </div>
+              )}
+            </div>
+            {app.posted_url && (
+              <a
+                href={app.posted_url}
+                target="_blank"
+                className="mt-4 inline-block text-sm text-accent hover:underline"
+              >
+                {t.applicationDetail.viewPostedEdit}
+              </a>
+            )}
+            {app.result_updated_at && (
+              <p className="mt-3 text-xs text-text-faint">
+                {t.applicationDetail.updatedAt}: {formatDate(app.result_updated_at, locale)}
+              </p>
+            )}
+          </Card>
         )}
 
         <Card className="mt-8 p-5">
