@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Field, inputClass, Button } from '@/components/ui';
+import { Card, Field, inputClass, Button, BackLink } from '@/components/ui';
 import { createCampaignAction } from '@/app/dashboard/actions';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
@@ -22,6 +22,7 @@ export default async function NewCampaignPage({
     <>
       <Nav />
       <main className="mx-auto max-w-lg px-6 py-12">
+        <BackLink href="/dashboard" label={t.common.back} />
         <h1 className="font-display text-3xl font-medium text-text">{t.dashboardNew.title}</h1>
         <p className="mt-1 text-sm text-text-dim">{t.dashboardNew.subtitle}</p>
 
