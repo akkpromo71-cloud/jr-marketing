@@ -1,10 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, Field, inputClass, StatusBadge, BackLink, EmptyState } from '@/components/ui';
+import { Card, Button, Field, inputClass, StatusBadge, BackLink, EmptyState, RatingInput } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
-import { closeCampaignAction, updateCampaignMessageAction } from '@/app/dashboard/actions';
+import {
+  closeCampaignAction,
+  updateCampaignMessageAction,
+  submitArtistReviewAction,
+  toggleReviewPublishedAction,
+} from '@/app/dashboard/actions';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
 import type { Application, Campaign, Profile } from '@/lib/types';
@@ -15,6 +20,16 @@ interface CampaignReport {
   completed_count: number;
   total_views: number;
   total_likes: number;
+}
+
+interface Review {
+  id: string;
+  campaign_id: string;
+  application_id: string | null;
+  author_role: 'artist' | 'editor';
+  rating: number;
+  comment: string | null;
+  is_published: boolean;
 }
 
 export default async function CampaignDetailPage({
@@ -79,6 +94,7 @@ export default async function CampaignDetailPage({
               </form>
             </Card>
             <AdminApplications campaignId={id} budget={c.budget} />
+            <ReviewsAdminPanel campaignId={id} />
           </>
         ) : (
           <ArtistReport campaignId={id} />
@@ -100,49 +116,88 @@ async function ArtistReport({ campaignId }: { campaignId: string }) {
   const { data } = await supabase.rpc('get_campaign_report', { p_campaign_id: campaignId });
   const report = (Array.isArray(data) ? data[0] : data) as CampaignReport | undefined;
 
+  const { data: existingReview } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .eq('author_role', 'artist')
+    .maybeSingle();
+
   return (
-    <Card className="mt-10 p-6">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">
-        {t.campaignDetail.reportTitle}
-      </p>
-      <p className="mb-5 text-sm text-text-dim">{t.campaignDetail.reportHint}</p>
-      <div className="flex flex-wrap gap-8">
-        <div>
-          <p className="font-display text-3xl font-medium text-accent">
-            {formatCompactNumber(report?.total_views ?? 0, locale)}
-          </p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-            {t.campaignDetail.totalViewsLabel}
-          </p>
+    <>
+      <Card className="mt-10 p-6">
+        <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">
+          {t.campaignDetail.reportTitle}
+        </p>
+        <p className="mb-5 text-sm text-text-dim">{t.campaignDetail.reportHint}</p>
+        <div className="flex flex-wrap gap-8">
+          <div>
+            <p className="font-display text-3xl font-medium text-accent">
+              {formatCompactNumber(report?.total_views ?? 0, locale)}
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.totalViewsLabel}
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-3xl font-medium text-text">
+              {formatCompactNumber(report?.total_likes ?? 0, locale)}
+            </p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.totalLikesLabel}
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-3xl font-medium text-text">{report?.applications_count ?? 0}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.reportApplicationsLabel}
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-3xl font-medium text-text">{report?.accepted_count ?? 0}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.reportAssignedLabel}
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-3xl font-medium text-text">{report?.completed_count ?? 0}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.reportCompletedLabel}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="font-display text-3xl font-medium text-text">
-            {formatCompactNumber(report?.total_likes ?? 0, locale)}
-          </p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-            {t.campaignDetail.totalLikesLabel}
-          </p>
-        </div>
-        <div>
-          <p className="font-display text-3xl font-medium text-text">{report?.applications_count ?? 0}</p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-            {t.campaignDetail.reportApplicationsLabel}
-          </p>
-        </div>
-        <div>
-          <p className="font-display text-3xl font-medium text-text">{report?.accepted_count ?? 0}</p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-            {t.campaignDetail.reportAssignedLabel}
-          </p>
-        </div>
-        <div>
-          <p className="font-display text-3xl font-medium text-text">{report?.completed_count ?? 0}</p>
-          <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-            {t.campaignDetail.reportCompletedLabel}
-          </p>
-        </div>
-      </div>
-    </Card>
+      </Card>
+
+      {/* Отзыв — только когда есть хоть один завершённый эдит, один отзыв на
+          кампанию целиком (не на конкретного эдитора, см. комментарий в
+          миграции reviews). */}
+      {(report?.completed_count ?? 0) > 0 && (
+        <Card className="mt-4 p-6">
+          {existingReview ? (
+            <p className="text-sm text-text-dim">{t.reviewForm.alreadySubmitted}</p>
+          ) : (
+            <form action={submitArtistReviewAction} className="flex flex-col gap-4">
+              <input type="hidden" name="campaign_id" value={campaignId} />
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                {t.reviewForm.artistTitle}
+              </p>
+              <RatingInput label={t.reviewForm.ratingLabel} />
+              <Field label={t.reviewForm.commentLabel}>
+                <textarea
+                  className={inputClass}
+                  name="comment"
+                  rows={3}
+                  placeholder={t.reviewForm.commentPlaceholder}
+                />
+              </Field>
+              <Button type="submit" variant="primary" className="self-start">
+                {t.reviewForm.submitBtn}
+              </Button>
+            </form>
+          )}
+        </Card>
+      )}
+    </>
   );
 }
 
@@ -237,5 +292,63 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
         ))}
       </div>
     </>
+  );
+}
+
+// Отзывы по кампании (артиста и эдиторов, если уже оставлены) — админ решает,
+// публиковать ли каждый на лендинге.
+async function ReviewsAdminPanel({ campaignId }: { campaignId: string }) {
+  const supabase = await createClient();
+  const { t } = await getDict();
+
+  const { data } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('campaign_id', campaignId)
+    .order('created_at', { ascending: false });
+
+  const reviews = (data ?? []) as Review[];
+
+  return (
+    <div className="mt-10">
+      <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">
+        {t.reviewAdmin.title}
+      </h2>
+      {reviews.length === 0 ? (
+        <p className="text-sm text-text-faint">{t.reviewAdmin.noReviews}</p>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {reviews.map((r) => (
+            <Card key={r.id} className="p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                    {r.author_role === 'artist' ? t.reviewAdmin.artistLabel : t.reviewAdmin.editorLabel}
+                  </p>
+                  <div className="mt-1 text-accent" aria-hidden="true">
+                    {'★'.repeat(r.rating)}
+                    {'☆'.repeat(5 - r.rating)}
+                  </div>
+                  {r.comment && <p className="mt-2 text-sm text-text-dim">«{r.comment}»</p>}
+                </div>
+                {r.is_published && (
+                  <span className="rounded-full border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-2.5 py-1 text-xs font-semibold text-success">
+                    {t.reviewAdmin.publishedBadge}
+                  </span>
+                )}
+              </div>
+              <form action={toggleReviewPublishedAction} className="mt-3">
+                <input type="hidden" name="review_id" value={r.id} />
+                <input type="hidden" name="campaign_id" value={campaignId} />
+                <input type="hidden" name="next_published" value={r.is_published ? '0' : '1'} />
+                <Button type="submit" variant="secondary">
+                  {r.is_published ? t.reviewAdmin.unpublishBtn : t.reviewAdmin.publishBtn}
+                </Button>
+              </form>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
