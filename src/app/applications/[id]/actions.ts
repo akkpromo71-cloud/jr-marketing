@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { fetchTikTokStats } from '@/lib/tiktok';
 import type { ApplicationStatus } from '@/lib/types';
 
 export async function postRevisionMessageAction(formData: FormData) {
@@ -50,17 +51,14 @@ export async function submitWorkAction(formData: FormData) {
   revalidatePath(`/applications/${applicationId}`);
 }
 
-// Эдитор заливает эдит на СВОЙ аккаунт (не артиста) — только у него есть доступ
-// к статистике этого поста, поэтому цифры вносит именно он, вручную, и может
-// обновлять их сколько угодно раз по мере роста просмотров.
+// Эдитор заливает эдит на СВОЙ аккаунт (не артиста) — он только оставляет ссылку.
+// Просмотры и лайки дальше подтягиваются автоматически: сразу при сохранении
+// (для мгновенной обратной связи) и потом раз в сутки кроном (см.
+// src/app/api/cron/tiktok-stats/route.ts), который держит цифры свежими.
 export async function updateEditResultAction(formData: FormData) {
   const applicationId = String(formData.get('application_id') ?? '');
   const campaignId = String(formData.get('campaign_id') ?? '');
   const postedUrl = String(formData.get('posted_url') ?? '').trim() || null;
-  const viewsRaw = String(formData.get('views_count') ?? '').trim();
-  const likesRaw = String(formData.get('likes_count') ?? '').trim();
-  const viewsCount = viewsRaw ? Number(viewsRaw) : null;
-  const likesCount = likesRaw ? Number(likesRaw) : null;
 
   const supabase = await createClient();
   const {
@@ -68,18 +66,33 @@ export async function updateEditResultAction(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // .eq('editor_id', ...) — доп. защита на уровне запроса поверх RLS: обновить
-  // результат может только сам эдитор, приславший эту заявку.
+  // .eq('editor_id', ...) — доп. защита на уровне запроса поверх RLS: сохранить
+  // ссылку может только сам эдитор, приславший эту заявку.
   await supabase
     .from('applications')
-    .update({
-      posted_url: postedUrl,
-      views_count: viewsCount,
-      likes_count: likesCount,
-      result_updated_at: new Date().toISOString(),
-    })
+    .update({ posted_url: postedUrl })
     .eq('id', applicationId)
     .eq('editor_id', user.id);
+
+  // Пробуем сразу забрать цифры, чтобы не ждать сутки до первого запуска крона.
+  // Если TikTok не отдал данные (заблокировал запрос, поменял вёрстку и т.д.) —
+  // молча пропускаем, следующая попытка будет через плановую проверку раз в сутки.
+  if (postedUrl) {
+    // Короче, чем в кроне (там maxDuration=60) — эта попытка идёт синхронно
+    // внутри отправки формы, не хотим держать эдитора дольше пары секунд.
+    const stats = await fetchTikTokStats(postedUrl, 6000);
+    if (stats) {
+      await supabase
+        .from('applications')
+        .update({
+          views_count: stats.views,
+          likes_count: stats.likes,
+          result_updated_at: new Date().toISOString(),
+        })
+        .eq('id', applicationId)
+        .eq('editor_id', user.id);
+    }
+  }
 
   revalidatePath(`/applications/${applicationId}`);
   revalidatePath('/dashboard');
