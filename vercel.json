@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/tiktok-stats",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
