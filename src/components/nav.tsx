@@ -34,6 +34,9 @@ export async function Nav() {
               <Link href="/applications" className="text-text-dim hover:text-text transition">
                 {t.nav.myApplications}
               </Link>
+              <Link href="/settings" className="text-text-dim hover:text-text transition">
+                {t.nav.settings}
+              </Link>
             </>
           )}
           {profile?.role === 'artist' && (
