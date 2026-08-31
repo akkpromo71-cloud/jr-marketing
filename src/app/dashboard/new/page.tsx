@@ -51,14 +51,9 @@ export default async function NewCampaignPage({
             <Field label={t.dashboardNew.spotifyLink}>
               <input className={inputClass} name="spotify_url" placeholder="https://open.spotify.com/..." />
             </Field>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label={t.dashboardNew.budget}>
-                <input className={inputClass} type="number" name="budget" min={0} />
-              </Field>
-              <Field label={t.dashboardNew.maxEditors}>
-                <input className={inputClass} type="number" name="max_editors" min={1} defaultValue={1} />
-              </Field>
-            </div>
+            <Field label={t.dashboardNew.budget}>
+              <input className={inputClass} type="number" name="budget" min={0} />
+            </Field>
             <Button type="submit" variant="primary" className="mt-2 w-full">
               {t.dashboardNew.publishBtn}
             </Button>
