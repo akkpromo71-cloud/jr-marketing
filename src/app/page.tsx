@@ -2,17 +2,58 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
+import { createClient } from '@/lib/supabase/server';
 import { Nav } from '@/components/nav';
 import { Card } from '@/components/ui';
 import { Reveal } from '@/components/reveal';
+import { CursorGlow } from '@/components/cursor-glow';
+import { CountUp } from '@/components/count-up';
 import { getDict } from '@/lib/i18n';
+import { formatCompactNumber } from '@/lib/format';
+
+interface PublicStats {
+  completed_edits: number;
+  total_views: number;
+  active_editors: number;
+}
+
+interface LeaderboardRow {
+  display_name: string;
+  total_views: number;
+  total_likes: number;
+  completed_count: number;
+}
+
+interface PublicReview {
+  author_role: 'artist' | 'editor';
+  rating: number;
+  comment: string | null;
+  campaign_title: string;
+  created_at: string;
+}
 
 export default async function LandingPage() {
   const profile = await getCurrentProfile();
 
   if (profile) redirect(roleHome(profile.role));
 
-  const { t } = await getDict();
+  const { t, locale } = await getDict();
+  const supabase = await createClient();
+
+  // Публичные RPC (security definer, доступны анониму) — реальная сводная
+  // статистика, лидерборд эдиторов по просмотрам и опубликованные админом
+  // отзывы. Никаких выдуманных цифр: если данных ещё нет, секция просто не
+  // рендерится (см. условия ниже), а не показывает пустоту или нули.
+  const [{ data: statsData }, { data: leaderboardData }, { data: reviewsData }] = await Promise.all([
+    supabase.rpc('get_public_platform_stats'),
+    supabase.rpc('get_editor_leaderboard', { p_limit: 10 }),
+    supabase.rpc('get_public_reviews', { p_limit: 6 }),
+  ]);
+
+  const stats = (Array.isArray(statsData) ? statsData[0] : statsData) as PublicStats | undefined;
+  const leaderboard = (leaderboardData ?? []) as LeaderboardRow[];
+  const reviews = (reviewsData ?? []) as PublicReview[];
+  const hasStats = !!stats && (stats.completed_edits > 0 || stats.total_views > 0 || stats.active_editors > 0);
 
   const highlights = [
     { icon: '🎯', title: t.landing.highlight1Title, text: t.landing.highlight1Text },
@@ -26,17 +67,26 @@ export default async function LandingPage() {
     { num: '03', title: t.landing.step3Title, text: t.landing.step3Text },
   ];
 
+  const faqItems = [
+    { q: t.landing.faq1Q, a: t.landing.faq1A },
+    { q: t.landing.faq2Q, a: t.landing.faq2A },
+    { q: t.landing.faq3Q, a: t.landing.faq3A },
+    { q: t.landing.faq4Q, a: t.landing.faq4A },
+    { q: t.landing.faq5Q, a: t.landing.faq5A },
+  ];
+
   return (
     <>
       <Nav />
       <main>
-        {/* Hero — крупный заголовок, мягкое свечение фона и лёгкий "дрейф" пятен вместо
-            статичной картинки: .animate-float-a/b объявлены в globals.css. */}
-        <section className="relative overflow-hidden">
+        {/* Hero — крупный заголовок, мягкое свечение фона, лёгкий "дрейф" пятен и
+            пятно света, следующее за курсором (CursorGlow, только для мыши). */}
+        <section className="group relative overflow-hidden">
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             <div className="absolute left-1/2 top-[-220px] h-[560px] w-[560px] -translate-x-1/2 animate-float-a rounded-full bg-accent/25 blur-[130px]" />
             <div className="absolute right-[-140px] top-[140px] h-[380px] w-[380px] animate-float-b rounded-full bg-accent2/20 blur-[110px]" />
           </div>
+          <CursorGlow />
           <div className="relative mx-auto max-w-4xl px-6 pb-16 pt-20 text-center sm:pt-28">
             <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-[var(--accent-tint-bg)] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.15em] text-accent">
@@ -56,8 +106,43 @@ export default async function LandingPage() {
           </div>
         </section>
 
+        {/* Живая сводная статистика площадки — только настоящие цифры из базы,
+            секция скрывается целиком, пока их нет. */}
+        {hasStats && stats && (
+          <section className="mx-auto max-w-5xl px-6 pb-4 pt-4">
+            <Reveal>
+              <Card className="grid grid-cols-1 gap-8 p-8 text-center sm:grid-cols-3">
+                <div>
+                  <p className="font-display text-4xl font-medium text-accent">
+                    <CountUp target={stats.completed_edits} locale={locale} />
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+                    {t.landing.statsCompletedLabel}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-display text-4xl font-medium text-text">
+                    <CountUp target={stats.total_views} locale={locale} />
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+                    {t.landing.statsViewsLabel}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-display text-4xl font-medium text-text">
+                    <CountUp target={stats.active_editors} locale={locale} />
+                  </p>
+                  <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+                    {t.landing.statsEditorsLabel}
+                  </p>
+                </div>
+              </Card>
+            </Reveal>
+          </section>
+        )}
+
         {/* Карточки ролей — вход в регистрацию для эдитора и артиста */}
-        <section className="relative mx-auto max-w-5xl px-6 pb-4">
+        <section className="relative mx-auto max-w-5xl px-6 pb-4 pt-8">
           <div className="grid gap-6 sm:grid-cols-2">
             <Reveal>
               <Card className="group relative h-full overflow-hidden p-8 hover:-translate-y-1 hover:border-accent/40 hover:shadow-accent">
@@ -159,6 +244,105 @@ export default async function LandingPage() {
                   <h3 className="mt-3 font-display text-lg font-medium text-text">{s.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-dim">{s.text}</p>
                 </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* Лидерборд эдиторов по суммарным просмотрам — по всем кампаниям сразу.
+            Только реальные эдиторы с реальными просмотрами, секция скрыта, пока
+            таких нет. */}
+        {leaderboard.length > 0 && (
+          <section className="mx-auto max-w-4xl px-6 py-16">
+            <Reveal>
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="font-display text-3xl font-medium text-text sm:text-4xl">
+                  {t.landing.leaderboardTitle}
+                </h2>
+                <p className="mt-3 text-sm text-text-dim sm:text-base">{t.landing.leaderboardSubtitle}</p>
+              </div>
+            </Reveal>
+            <div className="mt-10 flex flex-col gap-3">
+              {leaderboard.map((e, i) => (
+                <Reveal key={`${e.display_name}-${i}`} delay={i * 60}>
+                  <Card
+                    className={`flex items-center justify-between gap-4 p-5 hover:-translate-y-0.5 ${
+                      i < 3 ? 'border-accent/40' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="w-9 text-center font-display text-2xl font-medium text-accent/70">
+                        {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+                      </span>
+                      <div>
+                        <p className="font-display text-lg font-medium text-text">{e.display_name}</p>
+                        <p className="text-xs text-text-faint">
+                          {t.landing.leaderboardCompletedLabel}: {e.completed_count}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="font-display text-xl font-medium text-accent">
+                      {formatCompactNumber(e.total_views, locale)}
+                    </p>
+                  </Card>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Отзывы, опубликованные администратором после завершения работ —
+            без выдуманных имён и цифр, честная пустая секция, если их ещё нет. */}
+        {reviews.length > 0 && (
+          <section className="mx-auto max-w-5xl px-6 py-16">
+            <Reveal>
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="font-display text-3xl font-medium text-text sm:text-4xl">
+                  {t.landing.reviewsTitle}
+                </h2>
+              </div>
+            </Reveal>
+            <div className="mt-10 grid gap-5 sm:grid-cols-2">
+              {reviews.map((r, i) => (
+                <Reveal key={i} delay={i * 70}>
+                  <Card className="h-full p-6">
+                    <div className="text-accent" aria-hidden="true">
+                      {'★'.repeat(r.rating)}
+                      {'☆'.repeat(5 - r.rating)}
+                    </div>
+                    {r.comment && <p className="mt-3 text-sm leading-relaxed text-text-dim">«{r.comment}»</p>}
+                    <p className="mt-4 text-xs uppercase tracking-wide text-text-faint">
+                      {r.author_role === 'artist' ? t.landing.reviewFromArtist : t.landing.reviewFromEditor}
+                      {r.campaign_title ? ` · ${r.campaign_title}` : ''}
+                    </p>
+                  </Card>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* FAQ — честные ответы на частые вопросы про модерацию, оплату и правки */}
+        <section className="mx-auto max-w-3xl px-6 py-16">
+          <Reveal>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="font-display text-3xl font-medium text-text sm:text-4xl">{t.landing.faqTitle}</h2>
+            </div>
+          </Reveal>
+          <div className="mt-10 flex flex-col gap-3">
+            {faqItems.map((item, i) => (
+              <Reveal key={item.q} delay={i * 60}>
+                <Card className="p-0">
+                  <details className="group/faq p-5">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-text marker:content-none [&::-webkit-details-marker]:hidden">
+                      {item.q}
+                      <span className="shrink-0 text-lg text-text-faint transition-transform duration-300 group-open/faq:rotate-45">
+                        +
+                      </span>
+                    </summary>
+                    <p className="mt-3 text-sm leading-relaxed text-text-dim">{item.a}</p>
+                  </details>
+                </Card>
               </Reveal>
             ))}
           </div>
