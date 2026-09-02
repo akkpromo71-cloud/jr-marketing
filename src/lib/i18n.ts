@@ -133,6 +133,24 @@ export const dict = {
       noAccount: 'Ещё нет аккаунта?',
       iAmEditor: 'Я эдитор',
       iAmArtist: 'Я артист',
+      forgotPassword: 'Забыли пароль?',
+      resetSuccessMsg: 'Пароль обновлён. Войдите с новым паролем.',
+    },
+    forgotPassword: {
+      title: 'Восстановление пароля',
+      subtitle: 'Введите email, привязанный к аккаунту — пришлём ссылку для сброса пароля.',
+      submitBtn: 'Отправить ссылку',
+      sentMsg:
+        'Если такой email зарегистрирован, на него отправлена ссылка для сброса пароля. Проверьте почту (и папку «Спам»).',
+      backToLogin: 'Вернуться ко входу',
+    },
+    resetPassword: {
+      title: 'Новый пароль',
+      subtitle: 'Придумайте новый пароль для входа.',
+      newPasswordLabel: 'Новый пароль',
+      submitBtn: 'Сохранить пароль',
+      invalidLinkMsg: 'Ссылка для сброса пароля недействительна или устарела.',
+      requestNewLink: 'Запросить новую ссылку',
     },
     signupEditor: {
       title: 'Регистрация эдитора',
@@ -290,6 +308,11 @@ export const dict = {
       noPendingApplications: 'Новых заявок на кампании нет.',
       campaignLabel: 'Кампания',
     },
+    notFound: {
+      title: 'Страница не найдена',
+      text: 'Такой страницы не существует — возможно, ссылка устарела или содержит опечатку.',
+      backHome: 'На главную',
+    },
     status: {
       open: 'Открыт',
       in_progress: 'В работе',
@@ -314,6 +337,8 @@ export const dict = {
       genericAuthError: 'Что-то пошло не так. Попробуйте ещё раз.',
       avatarTooLarge: 'Файл слишком большой — максимум 5 МБ',
       avatarInvalidType: 'Неподдерживаемый формат файла — только JPG, PNG или WebP',
+      activeCapReached: 'У этого эдитора уже максимум активных заказов — сначала должен завершиться один из текущих.',
+      tooManyAttempts: 'Слишком много попыток. Попробуйте снова через несколько минут.',
     },
   },
   en: {
@@ -438,6 +463,24 @@ export const dict = {
       noAccount: "Don't have an account yet?",
       iAmEditor: "I'm an editor",
       iAmArtist: "I'm an artist",
+      forgotPassword: 'Forgot password?',
+      resetSuccessMsg: 'Password updated. Log in with your new password.',
+    },
+    forgotPassword: {
+      title: 'Reset your password',
+      subtitle: "Enter the email linked to your account — we'll send a password reset link.",
+      submitBtn: 'Send reset link',
+      sentMsg:
+        "If that email is registered, we've sent a password reset link to it. Check your inbox (and spam folder).",
+      backToLogin: 'Back to login',
+    },
+    resetPassword: {
+      title: 'New password',
+      subtitle: 'Choose a new password for your account.',
+      newPasswordLabel: 'New password',
+      submitBtn: 'Save password',
+      invalidLinkMsg: 'This password reset link is invalid or expired.',
+      requestNewLink: 'Request a new link',
     },
     signupEditor: {
       title: 'Editor sign-up',
@@ -595,6 +638,11 @@ export const dict = {
       noPendingApplications: 'No new campaign applications.',
       campaignLabel: 'Campaign',
     },
+    notFound: {
+      title: 'Page not found',
+      text: "This page doesn't exist — the link may be outdated or mistyped.",
+      backHome: 'Back to home',
+    },
     status: {
       open: 'Open',
       in_progress: 'In progress',
@@ -619,6 +667,8 @@ export const dict = {
       genericAuthError: 'Something went wrong. Please try again.',
       avatarTooLarge: 'File is too large — 5 MB maximum',
       avatarInvalidType: 'Unsupported file type — JPG, PNG, or WebP only',
+      activeCapReached: 'This editor already has the maximum number of active jobs — one of the current ones needs to finish first.',
+      tooManyAttempts: 'Too many attempts. Please try again in a few minutes.',
     },
   },
 } as const;
