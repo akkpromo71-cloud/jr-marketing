@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Nav } from '@/components/nav';
-import { Card, Button, Field, inputClass, StatusBadge, EmptyState } from '@/components/ui';
+import { Card, Button, Field, inputClass, EmptyState } from '@/components/ui';
+import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
