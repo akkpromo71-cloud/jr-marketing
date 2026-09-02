@@ -65,14 +65,28 @@ export async function updateProfileAction(formData: FormData) {
       redirect(`/settings?error=${encodeURIComponent(t.errors.avatarTooLarge)}`);
     }
 
-    const ext = avatarFile.name.split('.').pop()?.toLowerCase() || 'jpg';
+    // Тип файла и расширение раньше брались из того, что прислал браузер
+    // (avatarFile.type / имя файла) — их легко подделать. Разрешаем только
+    // конкретный список изображений и сами выбираем расширение по нему:
+    // так в публичный бакет нельзя загрузить, например, .svg со встроенным
+    // <script> или .html под видом аватарки.
+    const allowedTypes: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+    };
+    const ext = allowedTypes[avatarFile.type];
+    if (!ext) {
+      redirect(`/settings?error=${encodeURIComponent(t.errors.avatarInvalidType)}`);
+    }
+
     const path = `${user.id}/avatar.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from('avatars')
-      .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type || undefined });
+      .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
 
     if (uploadError) {
-      redirect(`/settings?error=${encodeURIComponent(uploadError.message)}`);
+      redirect(`/settings?error=${encodeURIComponent(t.errors.genericAuthError)}`);
     }
 
     const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(path);
