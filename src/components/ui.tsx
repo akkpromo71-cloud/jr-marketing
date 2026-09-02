@@ -1,7 +1,13 @@
 import Link, { type LinkProps } from 'next/link';
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'react';
-import type { ApplicationStatus, CampaignStatus, EditorStatus } from '@/lib/types';
-import { getDict } from '@/lib/i18n';
+
+// ВАЖНО: этот файл не должен импортировать '@/lib/i18n' (или что-либо ещё,
+// что тянет next/headers) — ui.tsx подключают и клиентские компоненты
+// (например src/app/error.tsx, обязан быть 'use client'). Если сюда попадёт
+// серверный импорт, next build падает с ошибкой webpack ("You're importing a
+// component that needs next/headers... a Client Component"). Компонент
+// StatusBadge, которому нужен getDict(), поэтому вынесен в отдельный файл
+// src/components/status-badge.tsx, импортируемый только из серверных страниц.
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
@@ -48,39 +54,6 @@ export function LinkButton({
     <Link className={`${buttonBase} ${buttonVariants[variant]} ${className}`} {...props}>
       {children}
     </Link>
-  );
-}
-
-const statusStyles: Record<string, string> = {
-  open: 'text-success bg-[var(--success-tint-bg)] border-[var(--success-tint-border)]',
-  in_progress: 'text-accent bg-[var(--accent-tint-bg)] border-[var(--accent-tint-border)]',
-  completed: 'text-success bg-[var(--success-tint-bg)] border-[var(--success-tint-border)]',
-  closed: 'text-text-faint bg-surface2 border-border',
-  pending: 'text-warning bg-[var(--warning-tint-bg)] border-[var(--warning-tint-border)]',
-  accepted: 'text-success bg-[var(--success-tint-bg)] border-[var(--success-tint-border)]',
-  rejected: 'text-danger bg-[var(--danger-tint-bg)] border-[var(--danger-tint-border)]',
-  in_revision: 'text-warning bg-[var(--warning-tint-bg)] border-[var(--warning-tint-border)]',
-  delivered: 'text-accent bg-[var(--accent-tint-bg)] border-[var(--accent-tint-border)]',
-  approved: 'text-success bg-[var(--success-tint-bg)] border-[var(--success-tint-border)]',
-};
-
-// Подписи статусов берутся из словаря i18n (src/lib/i18n.ts) — StatusBadge сам
-// определяет текущий язык по cookie, поэтому вызывающему коду ничего передавать не нужно.
-export async function StatusBadge({
-  status,
-}: {
-  status: CampaignStatus | ApplicationStatus | EditorStatus;
-}) {
-  const { t } = await getDict();
-  const statusLabels: Record<string, string> = t.status;
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${
-        statusStyles[status] ?? 'text-text-faint bg-surface2 border-border'
-      }`}
-    >
-      {statusLabels[status] ?? status}
-    </span>
   );
 }
 
