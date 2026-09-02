@@ -17,10 +17,13 @@ import type { Application, Campaign, Profile } from '@/lib/types';
 
 export default async function ApplicationDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error: statusError } = await searchParams;
   const profile = await getCurrentProfile();
   const supabase = await createClient();
   const { t, locale } = await getDict();
@@ -82,6 +85,12 @@ export default async function ApplicationDetailPage({
           </div>
           <StatusBadge status={app.status} />
         </div>
+
+        {statusError && (
+          <div className="mt-6 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+            {decodeURIComponent(statusError)}
+          </div>
+        )}
 
         {app.cover_note && (
           <Card className="mt-6 p-5">
