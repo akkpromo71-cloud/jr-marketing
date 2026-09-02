@@ -310,6 +310,7 @@ export const dict = {
       invalidEmail: 'Некорректный email',
       genericAuthError: 'Что-то пошло не так. Попробуйте ещё раз.',
       avatarTooLarge: 'Файл слишком большой — максимум 5 МБ',
+      avatarInvalidType: 'Неподдерживаемый формат файла — только JPG, PNG или WebP',
     },
   },
   en: {
@@ -611,6 +612,7 @@ export const dict = {
       invalidEmail: 'Invalid email address',
       genericAuthError: 'Something went wrong. Please try again.',
       avatarTooLarge: 'File is too large — 5 MB maximum',
+      avatarInvalidType: 'Unsupported file type — JPG, PNG, or WebP only',
     },
   },
 } as const;
