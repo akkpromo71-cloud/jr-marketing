@@ -45,6 +45,55 @@ export async function loginAction(formData: FormData) {
   redirect(safeNextPath(next) || roleHome(profile?.role));
 }
 
+// Ссылка в письме ведёт на /auth/callback (уже обрабатывает подтверждение
+// email и magic-link'и) с ?next=/reset-password — callback обменяет код на
+// сессию и отправит пользователя на страницу выбора нового пароля.
+const SITE_URL = 'https://jr-marketing-psi.vercel.app';
+
+export async function forgotPasswordAction(formData: FormData) {
+  const email = String(formData.get('email') ?? '').trim();
+  const { t } = await getDict();
+
+  if (!email) {
+    redirect(`/forgot-password?error=${encodeURIComponent(t.errors.fillRequired)}`);
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${SITE_URL}/auth/callback?next=/reset-password`,
+  });
+
+  // Supabase сам не подтверждает и не опровергает в ответе, зарегистрирован ли
+  // email (защита от user enumeration) — значит и наш редирект не должен,
+  // кроме явных ошибок ввода (например, rate limit на стороне Supabase Auth).
+  if (error) {
+    redirect(`/forgot-password?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
+  }
+
+  redirect('/forgot-password?sent=1');
+}
+
+export async function resetPasswordAction(formData: FormData) {
+  const password = String(formData.get('password') ?? '');
+  const { t } = await getDict();
+
+  if (password.length < 6) {
+    redirect(`/reset-password?error=${encodeURIComponent(t.errors.weakPassword)}`);
+  }
+
+  const supabase = await createClient();
+  // Работает только если пользователь уже в сессии восстановления — её
+  // устанавливает /auth/callback при переходе по ссылке из письма. Страница
+  // /reset-password сама проверяет наличие сессии до показа формы.
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    redirect(`/reset-password?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
+  }
+
+  redirect('/login?reset=1');
+}
+
 export async function signUpEditorAction(formData: FormData) {
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
