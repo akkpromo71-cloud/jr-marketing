@@ -286,6 +286,9 @@ export const dict = {
       approvedTitle: 'Одобренные эдиторы',
       recentCampaignsTitle: 'Последние кампании',
       artist: 'Артист',
+      pendingApplicationsTitle: 'Заявки на кампании',
+      noPendingApplications: 'Новых заявок на кампании нет.',
+      campaignLabel: 'Кампания',
     },
     status: {
       open: 'Открыт',
@@ -588,6 +591,9 @@ export const dict = {
       approvedTitle: 'Approved editors',
       recentCampaignsTitle: 'Recent campaigns',
       artist: 'Artist',
+      pendingApplicationsTitle: 'Campaign applications',
+      noPendingApplications: 'No new campaign applications.',
+      campaignLabel: 'Campaign',
     },
     status: {
       open: 'Open',
