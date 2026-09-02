@@ -12,6 +12,17 @@ export async function signOutAction() {
   redirect('/');
 }
 
+// "next" приходит из query-строки страницы логина (?next=...) — если взять
+// его как есть, получается open redirect: злоумышленник присылает жертве
+// ссылку вида /login?next=https://evil.example, жертва входит под своим
+// реальным аккаунтом на настоящем сайте и тут же улетает на чужой домен.
+// Разрешаем только локальный путь (начинается с одного "/", не с "//" —
+// "//evil.example" браузер тоже воспринимает как переход на другой хост).
+function safeNextPath(next: string): string | null {
+  if (next.startsWith('/') && !next.startsWith('//')) return next;
+  return null;
+}
+
 export async function loginAction(formData: FormData) {
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
@@ -31,7 +42,7 @@ export async function loginAction(formData: FormData) {
   // пользователь никогда не должен "зависать" без роли.
   const profile = await getCurrentProfile();
 
-  redirect(next || roleHome(profile?.role));
+  redirect(safeNextPath(next) || roleHome(profile?.role));
 }
 
 export async function signUpEditorAction(formData: FormData) {
