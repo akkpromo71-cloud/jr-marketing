@@ -23,13 +23,29 @@ export default async function FeedPage({
   const supabase = await createClient();
   const { t } = await getDict();
 
-  // profiles(display_name) — имя артиста в карточке трека, как в мокапе:
-  // "трек · артист" вместо голого названия кампании.
-  const { data: campaigns } = await supabase
+  // Имя/аватар артиста в карточке трека — через отдельный запрос к вью
+  // profiles_public (только безопасные для показа колонки), а не через
+  // прямой join на profiles: колонка profiles.paypal_email/crypto_wallet
+  // не должна быть доступна кому попало, а обычный embed-join типа
+  // "profiles(display_name, avatar_url)" всё равно упирается в RLS на
+  // САМОЙ таблице profiles, которая теперь ограничена "своя строка или
+  // админ" (см. supabase/patch-security-hardening.sql) — join бы просто
+  // молча не находил чужие профили.
+  const { data: campaignsRaw } = await supabase
     .from('campaigns')
-    .select('*, profiles(display_name, avatar_url)')
+    .select('*')
     .eq('status', 'open')
     .order('created_at', { ascending: false });
+
+  const artistIds = [...new Set((campaignsRaw ?? []).map((c) => c.artist_id))];
+  const { data: artistProfiles } = artistIds.length
+    ? await supabase.from('profiles_public').select('id, display_name, avatar_url').in('id', artistIds)
+    : { data: [] as { id: string; display_name: string; avatar_url: string | null }[] };
+  const artistById = new Map((artistProfiles ?? []).map((p) => [p.id, p]));
+  const campaigns = (campaignsRaw ?? []).map((c) => ({
+    ...c,
+    profiles: artistById.get(c.artist_id) ?? null,
+  }));
 
   const { data: myApplications } = profile
     ? await supabase.from('applications').select('*').eq('editor_id', profile.id)
@@ -77,8 +93,8 @@ export default async function FeedPage({
         )}
 
         <div className="mt-8 flex flex-col gap-4">
-          {(campaigns ?? []).length === 0 && <EmptyState icon="🎬" text={t.feed.noOpenCampaigns} />}
-          {(campaigns as (Campaign & { profiles: { display_name: string; avatar_url: string | null } | null })[] | null)?.map((c) => {
+          {campaigns.length === 0 && <EmptyState icon="🎬" text={t.feed.noOpenCampaigns} />}
+          {(campaigns as (Campaign & { profiles: { display_name: string; avatar_url: string | null } | null })[]).map((c) => {
             const already = appliedCampaignIds.has(c.id);
             const canApply = profile?.role === 'editor' && !pending && !rejected;
             return (
