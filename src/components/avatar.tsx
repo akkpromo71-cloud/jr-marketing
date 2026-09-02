@@ -1,8 +1,11 @@
+import Image from 'next/image';
+
 // Простой компонент аватара: если в профиле есть картинка — показываем её,
 // иначе — кружок с первой буквой имени (чтобы в списках/ленте не было "дыр"
-// там, где аватар ещё не загружен). Обычный <img>, а не next/image — URL
-// приходит из Supabase Storage конкретного проекта, домен заранее неизвестен,
-// поэтому remotePatterns настраивать негде.
+// там, где аватар ещё не загружен). Аватарки лежат в Supabase Storage одного
+// известного проекта (**.supabase.co, см. next.config.mjs -> images.remotePatterns),
+// поэтому next/image можно использовать вместо обычного <img> — автоматическая
+// оптимизация/сжатие и правильные srcset вместо полноразмерной картинки.
 export function Avatar({
   url,
   name,
@@ -14,8 +17,7 @@ export function Avatar({
 }) {
   if (url) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={url}
         alt={name ?? ''}
         width={size}
