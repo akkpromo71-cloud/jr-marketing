@@ -7,8 +7,14 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { approveEditorAction, rejectEditorAction } from '@/app/admin/actions';
+import { updateApplicationStatusAction } from '@/app/applications/[id]/actions';
 import { getDict } from '@/lib/i18n';
-import type { Campaign, Profile } from '@/lib/types';
+import type { Application, Campaign, Profile } from '@/lib/types';
+
+type PendingApplication = Application & {
+  profiles: Profile;
+  campaigns: { id: string; title: string } | null;
+};
 
 export default async function AdminPage() {
   const profile = await getCurrentProfile();
@@ -22,6 +28,18 @@ export default async function AdminPage() {
     .select('*')
     .eq('role', 'editor')
     .eq('editor_status', 'pending')
+    .order('created_at', { ascending: true });
+
+  // Заявки эдиторов на конкретные кампании (кто хочет взять трек в работу) —
+  // отдельная очередь от модерации самих эдиторов выше. Пока заявка тут, эдитор
+  // ничего не может сдать — форма сдачи работы открывается только после
+  // status='accepted' (см. src/app/applications/[id]/page.tsx). Решение —
+  // только за администратором: ни артист, ни сам эдитор одобрить/отклонить
+  // заявку не могут (см. supabase/patch-manager-only-applications.sql).
+  const { data: pendingApplications } = await supabase
+    .from('applications')
+    .select('*, profiles(*), campaigns(id, title)')
+    .eq('status', 'pending')
     .order('created_at', { ascending: true });
 
   const { data: approvedEditors } = await supabase
@@ -107,6 +125,55 @@ export default async function AdminPage() {
                     {t.admin.rejectBtn}
                   </Button>
                 </form>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">
+            {t.admin.pendingApplicationsTitle} ({pendingApplications?.length ?? 0})
+          </h2>
+          <div className="flex flex-col gap-4">
+            {(pendingApplications ?? []).length === 0 && (
+              <EmptyState icon="✅" text={t.admin.noPendingApplications} />
+            )}
+            {(pendingApplications as PendingApplication[] | null)?.map((a) => (
+              <Card key={a.id} className="p-5">
+                <div className="flex items-start gap-3">
+                  <Avatar url={a.profiles?.avatar_url ?? null} name={a.profiles?.display_name ?? '?'} size={44} />
+                  <div>
+                    <h3 className="font-display text-lg font-medium text-text">{a.profiles?.display_name}</h3>
+                    <p className="mt-1 text-xs text-text-faint">
+                      {t.admin.campaignLabel}: {a.campaigns?.title ?? '—'}
+                      {a.price ? ` · ${t.applicationDetail.price}: ${a.price} $` : ''}
+                    </p>
+                    {a.cover_note && <p className="mt-2 max-w-md text-sm text-text-dim">{a.cover_note}</p>}
+                  </div>
+                </div>
+
+                <div className="mt-4 flex gap-3 border-t border-border pt-4">
+                  <form action={updateApplicationStatusAction}>
+                    <input type="hidden" name="application_id" value={a.id} />
+                    <input type="hidden" name="status" value="accepted" />
+                    <Button type="submit" variant="primary">
+                      {t.applicationDetail.acceptBtn}
+                    </Button>
+                  </form>
+                  <form action={updateApplicationStatusAction}>
+                    <input type="hidden" name="application_id" value={a.id} />
+                    <input type="hidden" name="status" value="rejected" />
+                    <Button type="submit" variant="danger">
+                      {t.applicationDetail.rejectBtn}
+                    </Button>
+                  </form>
+                  <Link
+                    href={`/applications/${a.id}`}
+                    className="ml-auto self-center text-xs text-text-faint hover:text-accent hover:underline"
+                  >
+                    {locale === 'en' ? 'Details' : 'Подробнее'}
+                  </Link>
+                </div>
               </Card>
             ))}
           </div>
