@@ -114,7 +114,7 @@ export default async function AdminPage() {
                 <form action={approveEditorAction} className="mt-4 flex flex-wrap items-end gap-3 border-t border-border pt-4">
                   <input type="hidden" name="editor_id" value={e.id} />
                   <Field label={t.admin.price}>
-                    <input className={`${inputClass} w-28`} type="number" name="price" defaultValue={e.price_min ?? ''} />
+                    <input className={`${inputClass} w-28`} type="number" name="price" min={0} defaultValue={e.price_min ?? ''} />
                   </Field>
                   <Button type="submit" variant="primary">
                     {t.admin.approveBtn}
