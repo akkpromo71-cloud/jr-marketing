@@ -6,9 +6,9 @@ import { getDict } from '@/lib/i18n';
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; next?: string }>;
+  searchParams: Promise<{ error?: string; next?: string; reset?: string }>;
 }) {
-  const { error, next } = await searchParams;
+  const { error, next, reset } = await searchParams;
   const { t } = await getDict();
 
   return (
@@ -18,6 +18,11 @@ export default async function LoginPage({
       <p className="mb-8 text-sm text-text-dim">{t.login.subtitle}</p>
 
       <Card className="p-6">
+        {reset && !error && (
+          <div className="mb-4 rounded-xl border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
+            {t.login.resetSuccessMsg}
+          </div>
+        )}
         {error && (
           <div className="mb-4 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
             {decodeURIComponent(error)}
@@ -31,6 +36,9 @@ export default async function LoginPage({
           <Field label={t.login.password}>
             <input className={inputClass} type="password" name="password" required placeholder="••••••••" />
           </Field>
+          <Link href="/forgot-password" className="self-end text-xs text-text-faint hover:text-accent hover:underline">
+            {t.login.forgotPassword}
+          </Link>
           <Button type="submit" variant="primary" className="mt-2 w-full">
             {t.login.submitBtn}
           </Button>
