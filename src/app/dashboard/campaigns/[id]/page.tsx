@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, Field, inputClass, StatusBadge, BackLink, EmptyState, RatingInput } from '@/components/ui';
+import { Card, Button, Field, inputClass, BackLink, EmptyState, RatingInput } from '@/components/ui';
+import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
