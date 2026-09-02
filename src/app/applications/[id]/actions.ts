@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { fetchTikTokStats } from '@/lib/tiktok';
+import { safeUrl, clampRating } from '@/lib/validate';
 import type { ApplicationStatus } from '@/lib/types';
 
 // Принимать/отклонять отклик и принимать/возвращать сданную работу теперь
@@ -37,13 +38,22 @@ export async function updateApplicationStatusAction(formData: FormData) {
 
 export async function submitWorkAction(formData: FormData) {
   const applicationId = String(formData.get('application_id') ?? '');
-  const submissionUrl = String(formData.get('submission_url') ?? '');
+  const submissionUrl = safeUrl(formData.get('submission_url'));
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  // .eq('editor_id', ...) — доп. защита на уровне запроса поверх RLS: сдать
+  // работу может только сам эдитор, приславший эту заявку (раньше этой
+  // проверки здесь не было вовсе, в отличие от соседнего updateEditResultAction).
   await supabase
     .from('applications')
     .update({ submission_url: submissionUrl, status: 'delivered' })
-    .eq('id', applicationId);
+    .eq('id', applicationId)
+    .eq('editor_id', user.id);
 
   revalidatePath(`/applications/${applicationId}`);
 }
@@ -55,7 +65,7 @@ export async function submitWorkAction(formData: FormData) {
 export async function updateEditResultAction(formData: FormData) {
   const applicationId = String(formData.get('application_id') ?? '');
   const campaignId = String(formData.get('campaign_id') ?? '');
-  const postedUrl = String(formData.get('posted_url') ?? '').trim() || null;
+  const postedUrl = safeUrl(formData.get('posted_url'));
 
   const supabase = await createClient();
   const {
@@ -102,7 +112,7 @@ export async function updateEditResultAction(formData: FormData) {
 export async function submitEditorReviewAction(formData: FormData) {
   const applicationId = String(formData.get('application_id') ?? '');
   const campaignId = String(formData.get('campaign_id') ?? '');
-  const rating = Number(formData.get('rating') ?? 5);
+  const rating = clampRating(formData.get('rating'));
   const comment = String(formData.get('comment') ?? '').trim() || null;
 
   const supabase = await createClient();
