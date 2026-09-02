@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { fetchTikTokStats } from '@/lib/tiktok';
 import { safeUrl, clampRating } from '@/lib/validate';
+import { getDict } from '@/lib/i18n';
 import type { ApplicationStatus } from '@/lib/types';
 
 // Принимать/отклонять отклик и принимать/возвращать сданную работу теперь
@@ -28,12 +29,22 @@ export async function updateApplicationStatusAction(formData: FormData) {
     .single();
   if (profile?.role !== 'admin') redirect('/dashboard');
 
-  await supabase.from('applications').update({ status }).eq('id', applicationId);
+  const { error } = await supabase.from('applications').update({ status }).eq('id', applicationId);
 
   revalidatePath(`/applications/${applicationId}`);
   revalidatePath('/dashboard');
   revalidatePath('/applications');
   revalidatePath('/admin');
+
+  // Триггер check_application_transition в БД может отклонить переход — например,
+  // если у эдитора уже максимум активных заказов (см.
+  // supabase/patch-active-cap-enforcement.sql). Раньше ошибка от Supabase молча
+  // проглатывалась и страница просто "не менялась" без объяснений.
+  if (error) {
+    const { t } = await getDict();
+    const message = error.message.includes('active job') ? t.errors.activeCapReached : error.message;
+    redirect(`/applications/${applicationId}?error=${encodeURIComponent(message)}`);
+  }
 }
 
 export async function submitWorkAction(formData: FormData) {
