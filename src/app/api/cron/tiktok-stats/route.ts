@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import { fetchTikTokStats } from '@/lib/tiktok';
+import { logError } from '@/lib/log-error';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -23,6 +24,7 @@ export async function GET(req: NextRequest) {
     .not('posted_url', 'is', null);
 
   if (error) {
+    logError('cron/tiktok-stats:select', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
@@ -55,6 +57,19 @@ export async function GET(req: NextRequest) {
       if (ok) updated += 1;
       else failed += 1;
     }
+  }
+
+  // "failed" тут — либо TikTok не отдал цифры (см. logError внутри
+  // fetchTikTokStats — там уже отличили реальный сбой от "пока нет данных"),
+  // либо не прошло само обновление строки в БД. Отдельно логируем только
+  // сводку по всему прогону крона, чтобы было видно в Vercel Function Logs,
+  // если доля неудач стала подозрительно большой.
+  if (failed > 0) {
+    logError('cron/tiktok-stats:summary', new Error(`${failed} of ${items.length} updates failed`), {
+      checked: items.length,
+      updated,
+      failed,
+    });
   }
 
   return NextResponse.json({ checked: items.length, updated, failed });
