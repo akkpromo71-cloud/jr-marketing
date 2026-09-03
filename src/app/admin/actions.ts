@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { roleHome } from '@/lib/role-home';
 import { positiveNumberOrNull } from '@/lib/validate';
+import { logError } from '@/lib/log-error';
 
 // Обе функции ниже раньше не проверяли роль вызывающего вовсе — их
 // "защищала" только RLS-политика profiles_update_self_or_admin (id =
@@ -31,7 +32,7 @@ export async function approveEditorAction(formData: FormData) {
   const price = positiveNumberOrNull(formData.get('price'));
 
   const supabase = await requireAdmin();
-  await supabase
+  const { error } = await supabase
     .from('profiles')
     .update({
       editor_status: 'approved',
@@ -40,12 +41,18 @@ export async function approveEditorAction(formData: FormData) {
     })
     .eq('id', editorId);
 
+  // Например, если price окажется отрицательным — теперь это отклонит
+  // CHECK-ограничение в БД (см. supabase/patch-numeric-check-constraints.sql),
+  // и раньше эта ошибка терялась бы молча.
+  if (error) logError('approveEditorAction', error, { editorId });
+
   revalidatePath('/admin');
 }
 
 export async function rejectEditorAction(formData: FormData) {
   const editorId = String(formData.get('editor_id') ?? '');
   const supabase = await requireAdmin();
-  await supabase.from('profiles').update({ editor_status: 'rejected' }).eq('id', editorId);
+  const { error } = await supabase.from('profiles').update({ editor_status: 'rejected' }).eq('id', editorId);
+  if (error) logError('rejectEditorAction', error, { editorId });
   revalidatePath('/admin');
 }
