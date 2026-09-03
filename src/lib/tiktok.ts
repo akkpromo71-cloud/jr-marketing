@@ -7,6 +7,11 @@
 // блокировать запросы с серверов Vercel, проверка перестанет находить цифры,
 // пока это не поправят. При сбое функция просто возвращает null и старые
 // сохранённые цифры не трогаются — сайт не падает и не затирает данные.
+// Ошибку при этом логируем (см. logError ниже) — раньше сбой был виден,
+// только если специально смотреть в код: молчаливый null неотличим от
+// "TikTok просто пока не отдал цифры".
+
+import { logError } from '@/lib/log-error';
 
 export interface TikTokStats {
   views: number;
@@ -53,7 +58,11 @@ export async function fetchTikTokStats(url: string, timeoutMs = 8000): Promise<T
     if (views === 0 && likes === 0) return null;
 
     return { views, likes };
-  } catch {
+  } catch (err) {
+    // Логируем только реальные сбои (сеть, парсинг JSON) — а не "TikTok пока
+    // не отдал цифры по этой ссылке" (та ветка просто return null выше, без
+    // исключения): иначе лог захлёбывался бы шумом на каждой обычной ссылке.
+    logError('fetchTikTokStats', err, { url });
     return null;
   } finally {
     clearTimeout(timeout);
