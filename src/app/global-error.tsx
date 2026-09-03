@@ -1,12 +1,16 @@
 'use client';
 
 import { useEffect } from 'react';
+import { logError } from '@/lib/log-error';
 
 // Срабатывает только если упал сам корневой layout.tsx (а не обычная
 // страница) — в этом случае Next.js подменяет ВЕСЬ документ целиком, поэтому
 // здесь нужны свои <html>/<body> и никаких импортов из components/ui —
 // если сломался layout, лучше не тянуть за собой ничего, что могло сломаться
 // вместе с ним. Простая, максимально независимая аварийная страница.
+// lib/log-error.ts — намеренно не серверный модуль (без next/headers и
+// подобного), его можно безопасно тянуть даже сюда — см. комментарий в
+// самом файле.
 export default function GlobalError({
   error,
   reset,
@@ -15,8 +19,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.error('[global-error.tsx]', error);
+    logError('global-error.tsx', error, { digest: error.digest });
   }, [error]);
 
   return (
