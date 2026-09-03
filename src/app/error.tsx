@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, Button, LinkButton } from '@/components/ui';
+import { logError } from '@/lib/log-error';
 
 // Next.js требует, чтобы error.tsx был Client Component (получает error/reset
 // как пропсы, reset — интерактивная кнопка) — поэтому здесь нельзя использовать
@@ -27,10 +28,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
   const [locale, setLocale] = useState<'ru' | 'en'>('ru');
 
   useEffect(() => {
-    // Ошибку стоит видеть хотя бы в логах Vercel (Functions -> Logs), даже
-    // если внешний мониторинг (Sentry) ещё не подключен.
-    // eslint-disable-next-line no-console
-    console.error('[error.tsx]', error);
+    logError('error.tsx', error, { digest: error.digest });
     const match = document.cookie.match(/(?:^|; )locale=([^;]+)/);
     if (match?.[1] === 'en') setLocale('en');
   }, [error]);
