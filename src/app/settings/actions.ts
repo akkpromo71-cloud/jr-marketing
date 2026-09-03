@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDict } from '@/lib/i18n';
+import { logError } from '@/lib/log-error';
 
 // Эдитор сам меняет реквизиты выплаты (RLS: profiles_update_self_or_admin
 // разрешает пользователю обновлять только свою строку — см. supabase/schema.sql
@@ -24,10 +25,12 @@ export async function updatePayoutAction(formData: FormData) {
     redirect(`/settings?error=${encodeURIComponent(t.errors.needOnePayout)}`);
   }
 
-  await supabase
+  const { error } = await supabase
     .from('profiles')
     .update({ paypal_email: paypalEmail, crypto_wallet: cryptoWallet })
     .eq('id', user.id);
+
+  if (error) logError('updatePayoutAction', error, { userId: user.id });
 
   revalidatePath('/settings');
   revalidatePath('/feed');
@@ -86,6 +89,7 @@ export async function updateProfileAction(formData: FormData) {
       .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
 
     if (uploadError) {
+      logError('updateProfileAction:avatar-upload', uploadError, { userId: user.id });
       redirect(`/settings?error=${encodeURIComponent(t.errors.genericAuthError)}`);
     }
 
@@ -95,7 +99,8 @@ export async function updateProfileAction(formData: FormData) {
     updates.avatar_url = `${publicUrlData.publicUrl}?t=${Date.now()}`;
   }
 
-  await supabase.from('profiles').update(updates).eq('id', user.id);
+  const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+  if (error) logError('updateProfileAction', error, { userId: user.id });
 
   revalidatePath('/settings');
   revalidatePath('/feed');
