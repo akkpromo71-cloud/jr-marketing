@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { getDict, translateAuthError } from '@/lib/i18n';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function signOutAction() {
   const supabase = await createClient();
@@ -28,11 +29,21 @@ export async function loginAction(formData: FormData) {
   const password = String(formData.get('password') ?? '');
   const next = String(formData.get('next') ?? '');
 
+  const { t } = await getDict();
+  // 8 попыток за 5 минут с одного IP — защита от перебора пароля. Считаем
+  // каждую попытку входа, а не только неудачные: если это уже перебор, все
+  // они всё равно неудачные, а легитимный пользователь за 5 минут 8 раз
+  // подряд пароль не перепутает.
+  const ip = await getClientIp();
+  const allowed = await checkRateLimit(`login:${ip}`, 8, 5 * 60);
+  if (!allowed) {
+    redirect(`/login?error=${encodeURIComponent(t.errors.tooManyAttempts)}${next ? `&next=${encodeURIComponent(next)}` : ''}`);
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    const { t } = await getDict();
     const message = translateAuthError(error.message, t);
     redirect(`/login?error=${encodeURIComponent(message)}${next ? `&next=${encodeURIComponent(next)}` : ''}`);
   }
@@ -56,6 +67,15 @@ export async function forgotPasswordAction(formData: FormData) {
 
   if (!email) {
     redirect(`/forgot-password?error=${encodeURIComponent(t.errors.fillRequired)}`);
+  }
+
+  // 5 попыток за 15 минут с одного IP — форма отправляет письмо, без лимита
+  // ей можно закидать чужой почтовый ящик (или впустую расходовать квоту
+  // Supabase на отправку писем).
+  const ip = await getClientIp();
+  const allowed = await checkRateLimit(`forgot-password:${ip}`, 5, 15 * 60);
+  if (!allowed) {
+    redirect(`/forgot-password?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
   }
 
   const supabase = await createClient();
@@ -123,6 +143,14 @@ export async function signUpEditorAction(formData: FormData) {
     redirect(`/signup/editor?error=${encodeURIComponent(t.errors.needOnePayout)}`);
   }
 
+  // 5 регистраций за 10 минут с одного IP — без лимита можно скриптом
+  // наплодить кучу фейковых анкет эдиторов.
+  const ip = await getClientIp();
+  const allowed = await checkRateLimit(`signup:${ip}`, 5, 10 * 60);
+  if (!allowed) {
+    redirect(`/signup/editor?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
+  }
+
   const supabase = await createClient();
   // Профиль создаётся автоматически триггером public.handle_new_user() в БД
   // (см. supabase/schema.sql) на основе этих metadata — так регистрация работает
@@ -165,6 +193,14 @@ export async function signUpArtistAction(formData: FormData) {
 
   if (!displayName || !bio) {
     redirect(`/signup/artist?error=${encodeURIComponent(t.errors.fillRequired)}`);
+  }
+
+  // Тот же лимит и тот же общий счётчик "signup:<ip>", что и у регистрации
+  // эдитора — с точки зрения защиты от спама неважно, какую роль выбирают.
+  const ip = await getClientIp();
+  const allowed = await checkRateLimit(`signup:${ip}`, 5, 10 * 60);
+  if (!allowed) {
+    redirect(`/signup/artist?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
   }
 
   const supabase = await createClient();
