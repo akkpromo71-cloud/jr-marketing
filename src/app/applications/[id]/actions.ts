@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { fetchTikTokStats } from '@/lib/tiktok';
 import { safeUrl, clampRating } from '@/lib/validate';
 import { getDict } from '@/lib/i18n';
+import { logError } from '@/lib/log-error';
 import type { ApplicationStatus } from '@/lib/types';
 
 // Принимать/отклонять отклик и принимать/возвращать сданную работу теперь
@@ -60,11 +61,14 @@ export async function submitWorkAction(formData: FormData) {
   // .eq('editor_id', ...) — доп. защита на уровне запроса поверх RLS: сдать
   // работу может только сам эдитор, приславший эту заявку (раньше этой
   // проверки здесь не было вовсе, в отличие от соседнего updateEditResultAction).
-  await supabase
+  const { error } = await supabase
     .from('applications')
     .update({ submission_url: submissionUrl, status: 'delivered' })
     .eq('id', applicationId)
     .eq('editor_id', user.id);
+
+  // Раньше ошибка здесь терялась полностью молча — ни в логах, ни на экране.
+  if (error) logError('submitWorkAction', error, { applicationId });
 
   revalidatePath(`/applications/${applicationId}`);
 }
@@ -86,21 +90,24 @@ export async function updateEditResultAction(formData: FormData) {
 
   // .eq('editor_id', ...) — доп. защита на уровне запроса поверх RLS: сохранить
   // ссылку может только сам эдитор, приславший эту заявку.
-  await supabase
+  const { error: postedUrlError } = await supabase
     .from('applications')
     .update({ posted_url: postedUrl })
     .eq('id', applicationId)
     .eq('editor_id', user.id);
 
+  if (postedUrlError) logError('updateEditResultAction:posted_url', postedUrlError, { applicationId });
+
   // Пробуем сразу забрать цифры, чтобы не ждать сутки до первого запуска крона.
   // Если TikTok не отдал данные (заблокировал запрос, поменял вёрстку и т.д.) —
-  // молча пропускаем, следующая попытка будет через плановую проверку раз в сутки.
+  // молча пропускаем (сам fetchTikTokStats уже логирует реальные сбои),
+  // следующая попытка будет через плановую проверку раз в сутки.
   if (postedUrl) {
     // Короче, чем в кроне (там maxDuration=60) — эта попытка идёт синхронно
     // внутри отправки формы, не хотим держать эдитора дольше пары секунд.
     const stats = await fetchTikTokStats(postedUrl, 6000);
     if (stats) {
-      await supabase
+      const { error: statsError } = await supabase
         .from('applications')
         .update({
           views_count: stats.views,
@@ -109,6 +116,7 @@ export async function updateEditResultAction(formData: FormData) {
         })
         .eq('id', applicationId)
         .eq('editor_id', user.id);
+      if (statsError) logError('updateEditResultAction:stats', statsError, { applicationId });
     }
   }
 
@@ -132,13 +140,15 @@ export async function submitEditorReviewAction(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  await supabase.from('reviews').insert({
+  const { error } = await supabase.from('reviews').insert({
     campaign_id: campaignId,
     application_id: applicationId,
     author_role: 'editor',
     rating,
     comment,
   });
+
+  if (error) logError('submitEditorReviewAction', error, { applicationId });
 
   revalidatePath(`/applications/${applicationId}`);
 }
