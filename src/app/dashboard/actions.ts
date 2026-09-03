@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getDict, translateAuthError } from '@/lib/i18n';
 import { roleHome } from '@/lib/role-home';
 import { safeUrl, clampRating, positiveNumberOrNull } from '@/lib/validate';
+import { logError } from '@/lib/log-error';
 
 export async function createCampaignAction(formData: FormData) {
   const title = String(formData.get('title') ?? '');
@@ -79,7 +80,8 @@ async function requireAdmin() {
 export async function closeCampaignAction(formData: FormData) {
   const campaignId = String(formData.get('campaign_id') ?? '');
   const supabase = await requireCampaignOwnerOrAdmin(campaignId);
-  await supabase.from('campaigns').update({ status: 'closed' }).eq('id', campaignId);
+  const { error } = await supabase.from('campaigns').update({ status: 'closed' }).eq('id', campaignId);
+  if (error) logError('closeCampaignAction', error, { campaignId });
   revalidatePath('/dashboard');
   revalidatePath('/feed');
 }
@@ -92,7 +94,8 @@ export async function updateCampaignMessageAction(formData: FormData) {
   const campaignId = String(formData.get('campaign_id') ?? '');
   const message = String(formData.get('manager_message') ?? '').trim() || null;
   const supabase = await requireAdmin();
-  await supabase.from('campaigns').update({ manager_message: message }).eq('id', campaignId);
+  const { error } = await supabase.from('campaigns').update({ manager_message: message }).eq('id', campaignId);
+  if (error) logError('updateCampaignMessageAction', error, { campaignId });
   revalidatePath(`/dashboard/campaigns/${campaignId}`);
   revalidatePath('/feed');
 }
@@ -112,13 +115,15 @@ export async function submitArtistReviewAction(formData: FormData) {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  await supabase.from('reviews').insert({
+  const { error } = await supabase.from('reviews').insert({
     campaign_id: campaignId,
     application_id: null,
     author_role: 'artist',
     rating,
     comment,
   });
+
+  if (error) logError('submitArtistReviewAction', error, { campaignId });
 
   revalidatePath(`/dashboard/campaigns/${campaignId}`);
 }
@@ -132,7 +137,8 @@ export async function toggleReviewPublishedAction(formData: FormData) {
   const nextPublished = formData.get('next_published') === '1';
 
   const supabase = await requireAdmin();
-  await supabase.from('reviews').update({ is_published: nextPublished }).eq('id', reviewId);
+  const { error } = await supabase.from('reviews').update({ is_published: nextPublished }).eq('id', reviewId);
+  if (error) logError('toggleReviewPublishedAction', error, { reviewId });
 
   revalidatePath(`/dashboard/campaigns/${campaignId}`);
   revalidatePath('/');
