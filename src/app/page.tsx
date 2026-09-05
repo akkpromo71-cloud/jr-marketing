@@ -408,6 +408,9 @@ export default async function LandingPage() {
               )
             )}
           </div>
+          <Link href="/terms" className="text-xs text-text-faint transition hover:text-text hover:underline">
+            {t.terms.pageTitle}
+          </Link>
         </div>
       </main>
     </>
