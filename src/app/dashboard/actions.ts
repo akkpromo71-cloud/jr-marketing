@@ -15,12 +15,21 @@ export async function createCampaignAction(formData: FormData) {
   const spotifyUrl = safeUrl(formData.get('spotify_url'));
   const budget = positiveNumberOrNull(formData.get('budget'));
   const maxEditors = Number(formData.get('max_editors') ?? 1) || 1;
+  const termsAccepted = formData.get('terms_accepted') === '1';
 
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  // Чекбокс согласия с условиями кампании — HTML required можно обойти,
+  // отправив запрос напрямую, поэтому проверяем ещё раз на сервере (тот же
+  // приём, что и в signUpEditorAction/signUpArtistAction).
+  if (!termsAccepted) {
+    const { t } = await getDict();
+    redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.termsRequired)}`);
+  }
 
   const { error } = await supabase.from('campaigns').insert({
     artist_id: user!.id,
@@ -30,6 +39,7 @@ export async function createCampaignAction(formData: FormData) {
     spotify_url: spotifyUrl,
     budget,
     max_editors: maxEditors,
+    terms_accepted_at: new Date().toISOString(),
   });
 
   if (error) {
