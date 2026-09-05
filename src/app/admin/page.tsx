@@ -10,12 +10,15 @@ import { roleHome } from '@/lib/role-home';
 import { approveEditorAction, rejectEditorAction } from '@/app/admin/actions';
 import { updateApplicationStatusAction } from '@/app/applications/[id]/actions';
 import { getDict } from '@/lib/i18n';
+import { formatCompactNumber } from '@/lib/format';
 import type { Application, Campaign, Profile } from '@/lib/types';
 
 type PendingApplication = Application & {
   profiles: Profile;
   campaigns: { id: string; title: string } | null;
 };
+
+type EditorAvgViews = { editor_id: string; avg_views: number | null; completed_count: number };
 
 export default async function AdminPage() {
   const profile = await getCurrentProfile();
@@ -56,6 +59,25 @@ export default async function AdminPage() {
     .order('created_at', { ascending: false })
     .limit(20);
 
+  // Средние просмотры по прошлым эдитам — рядом с ценой и соцсетями в заявках
+  // и в модерации, чтобы было проще оценить реального кандидата, а не только
+  // его самозаявленные подписчики. Один RPC-вызов на всех эдиторов сразу.
+  const editorIds = Array.from(
+    new Set(
+      [
+        ...((pendingEditors as Profile[] | null) ?? []).map((e) => e.id),
+        ...((pendingApplications as PendingApplication[] | null) ?? []).map((a) => a.profiles?.id).filter(Boolean),
+        ...((approvedEditors as Profile[] | null) ?? []).map((e) => e.id),
+      ] as string[]
+    )
+  );
+  const { data: avgViewsRows } = editorIds.length
+    ? await supabase.rpc('get_editor_avg_views', { p_editor_ids: editorIds })
+    : { data: [] as EditorAvgViews[] };
+  const avgViewsMap = new Map(
+    ((avgViewsRows as EditorAvgViews[] | null) ?? []).map((r) => [r.editor_id, r])
+  );
+
   return (
     <>
       <Nav />
@@ -89,6 +111,11 @@ export default async function AdminPage() {
                         )}
                       </p>
                       <div className="mt-1 flex gap-2 text-xs text-text-faint">
+                        {e.followers != null && (
+                          <span>
+                            {t.admin.followersLabel}: {formatCompactNumber(e.followers, locale)}
+                          </span>
+                        )}
                         {e.telegram && <span>TG: {e.telegram}</span>}
                         {e.instagram &&
                           (e.instagram.startsWith('http') ? (
@@ -149,6 +176,20 @@ export default async function AdminPage() {
                       {t.admin.campaignLabel}: {a.campaigns?.title ?? '—'}
                       {a.price ? ` · ${t.applicationDetail.price}: ${a.price} $` : ''}
                     </p>
+                    <p className="mt-1 text-xs text-text-faint">
+                      {a.profiles?.followers != null && (
+                        <>
+                          {t.admin.followersLabel}: {formatCompactNumber(a.profiles.followers, locale)}
+                        </>
+                      )}
+                      {a.profiles?.followers != null && avgViewsMap.get(a.profiles.id)?.avg_views != null && ' · '}
+                      {avgViewsMap.get(a.profiles.id)?.avg_views != null && (
+                        <>
+                          {t.admin.avgViewsLabel}:{' '}
+                          {formatCompactNumber(Math.round(avgViewsMap.get(a.profiles.id)!.avg_views!), locale)}
+                        </>
+                      )}
+                    </p>
                     {a.cover_note && <p className="mt-2 max-w-md text-sm text-text-dim">{a.cover_note}</p>}
                   </div>
                 </div>
@@ -190,7 +231,12 @@ export default async function AdminPage() {
                 <Avatar url={e.avatar_url} name={e.display_name} size={36} />
                 <div>
                   <p className="font-medium text-text">{e.display_name}</p>
-                  <p className="mt-1 text-xs text-text-faint">{e.price_min} $</p>
+                  <p className="mt-1 text-xs text-text-faint">
+                    {e.price_min} $
+                    {e.followers != null && ` · ${t.admin.followersLabel}: ${formatCompactNumber(e.followers, locale)}`}
+                    {avgViewsMap.get(e.id)?.avg_views != null &&
+                      ` · ${t.admin.avgViewsLabel}: ${formatCompactNumber(Math.round(avgViewsMap.get(e.id)!.avg_views!), locale)}`}
+                  </p>
                 </div>
               </Card>
             ))}
