@@ -6,6 +6,7 @@ import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { getDict, translateAuthError } from '@/lib/i18n';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { nonNegativeIntOrNull } from '@/lib/validate';
 
 export async function signOutAction() {
   const supabase = await createClient();
@@ -125,6 +126,8 @@ export async function signUpEditorAction(formData: FormData) {
   const tiktok = String(formData.get('tiktok') ?? '').trim() || null;
   const paypalEmail = String(formData.get('paypal_email') ?? '').trim() || null;
   const cryptoWallet = String(formData.get('crypto_wallet') ?? '').trim() || null;
+  const followers = nonNegativeIntOrNull(formData.get('followers'));
+  const termsAccepted = formData.get('terms_accepted') === '1';
 
   const { t } = await getDict();
 
@@ -141,6 +144,12 @@ export async function signUpEditorAction(formData: FormData) {
   // обязателен хотя бы один способ (PayPal или крипта).
   if (!paypalEmail && !cryptoWallet) {
     redirect(`/signup/editor?error=${encodeURIComponent(t.errors.needOnePayout)}`);
+  }
+  // Чекбокс согласия с условиями использования — HTML required можно обойти
+  // тем же способом, что и остальные обязательные поля выше, поэтому
+  // проверяем ещё раз на сервере перед регистрацией.
+  if (!termsAccepted) {
+    redirect(`/signup/editor?error=${encodeURIComponent(t.errors.termsRequired)}`);
   }
 
   // 5 регистраций за 10 минут с одного IP — без лимита можно скриптом
@@ -172,6 +181,8 @@ export async function signUpEditorAction(formData: FormData) {
         tiktok,
         paypal_email: paypalEmail,
         crypto_wallet: cryptoWallet,
+        followers,
+        terms_accepted_at: new Date().toISOString(),
       },
     },
   });
@@ -188,11 +199,17 @@ export async function signUpArtistAction(formData: FormData) {
   const password = String(formData.get('password') ?? '');
   const displayName = String(formData.get('display_name') ?? '').trim();
   const bio = String(formData.get('bio') ?? '').trim();
+  const termsAccepted = formData.get('terms_accepted') === '1';
 
   const { t } = await getDict();
 
   if (!displayName || !bio) {
     redirect(`/signup/artist?error=${encodeURIComponent(t.errors.fillRequired)}`);
+  }
+  // См. комментарий в signUpEditorAction — тот же чекбокс, та же серверная
+  // проверка поверх HTML required.
+  if (!termsAccepted) {
+    redirect(`/signup/artist?error=${encodeURIComponent(t.errors.termsRequired)}`);
   }
 
   // Тот же лимит и тот же общий счётчик "signup:<ip>", что и у регистрации
@@ -212,6 +229,7 @@ export async function signUpArtistAction(formData: FormData) {
         role: 'artist',
         display_name: displayName,
         bio,
+        terms_accepted_at: new Date().toISOString(),
       },
     },
   });
