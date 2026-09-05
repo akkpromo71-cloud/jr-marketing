@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { signUpArtistAction } from '@/app/(auth)/actions';
 import { Field, inputClass, Button, Card, BackLink } from '@/components/ui';
 import { getDict } from '@/lib/i18n';
@@ -43,6 +44,18 @@ export default async function ArtistSignupPage({
             />
           </Field>
           <p className="text-xs text-text-faint -mt-2">{t.signupArtist.requiredNote}</p>
+
+          <label className="flex items-start gap-2 text-xs text-text-dim">
+            <input type="checkbox" name="terms_accepted" value="1" required className="mt-0.5" />
+            <span>
+              {t.terms.agreePrefix}
+              <Link href="/terms" target="_blank" className="text-accent hover:underline">
+                {t.terms.agreeLinkText}
+              </Link>
+              {t.terms.agreeSuffix}
+            </span>
+          </label>
+
           <Button type="submit" variant="primary" className="mt-2 w-full">
             {t.signupArtist.submitBtn}
           </Button>
