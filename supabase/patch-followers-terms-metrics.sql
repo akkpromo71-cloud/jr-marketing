@@ -67,7 +67,12 @@ create trigger on_auth_user_created
 --    прислали ссылку на готовый эдит, независимо от того, принят ли он
 --    администратором как completed).
 -- =========================================================
-create or replace function public.get_campaign_report(p_campaign_id uuid)
+-- Postgres не разрешает поменять набор возвращаемых колонок у существующей
+-- table-функции через create or replace — только через drop + create,
+-- поэтому старую версию (без total_spent/edits_count) сначала удаляем.
+drop function if exists public.get_campaign_report(uuid);
+
+create function public.get_campaign_report(p_campaign_id uuid)
 returns table (
   applications_count bigint,
   accepted_count bigint,
@@ -115,4 +120,3 @@ returns table (
 $$ language sql stable security definer set search_path = public;
 
 grant execute on function public.get_editor_avg_views(uuid[]) to authenticated;
-
