@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { signUpEditorAction } from '@/app/(auth)/actions';
 import { Field, inputClass, Button, Card, BackLink } from '@/components/ui';
 import { getDict } from '@/lib/i18n';
@@ -46,6 +47,10 @@ export default async function EditorSignupPage({
             <input className={inputClass} type="number" name="price" min={1} required placeholder="50" />
           </Field>
           <p className="text-xs text-text-faint -mt-2">{t.signupEditor.priceHint}</p>
+          <Field label={t.signupEditor.followers}>
+            <input className={inputClass} type="number" name="followers" min={0} placeholder={t.signupEditor.followersPlaceholder} />
+          </Field>
+          <p className="text-xs text-text-faint -mt-2">{t.signupEditor.followersHint}</p>
           <Field label={t.signupEditor.instagram}>
             <input className={inputClass} name="instagram" placeholder={t.signupEditor.instagramPlaceholder} />
           </Field>
@@ -73,6 +78,18 @@ export default async function EditorSignupPage({
           </div>
 
           <p className="text-xs text-text-faint -mt-2">{t.signupEditor.requiredNote}</p>
+
+          <label className="flex items-start gap-2 text-xs text-text-dim">
+            <input type="checkbox" name="terms_accepted" value="1" required className="mt-0.5" />
+            <span>
+              {t.terms.agreePrefix}
+              <Link href="/terms" target="_blank" className="text-accent hover:underline">
+                {t.terms.agreeLinkText}
+              </Link>
+              {t.terms.agreeSuffix}
+            </span>
+          </label>
+
           <Button type="submit" variant="primary" className="mt-2 w-full">
             {t.signupEditor.submitBtn}
           </Button>
