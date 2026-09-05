@@ -32,3 +32,13 @@ export function positiveNumberOrNull(input: FormDataEntryValue | null | undefine
   if (!Number.isFinite(n) || n <= 0) return null;
   return n;
 }
+
+// Счётчики вроде подписчиков — только целое неотрицательное число (0 — тоже
+// валидное значение, в отличие от positiveNumberOrNull выше) или отсутствует.
+export function nonNegativeIntOrNull(input: FormDataEntryValue | null | undefined): number | null {
+  const raw = String(input ?? '').trim();
+  if (!raw) return null;
+  const n = Math.floor(Number(raw));
+  if (!Number.isFinite(n) || n < 0) return null;
+  return n;
+}
