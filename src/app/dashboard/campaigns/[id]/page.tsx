@@ -22,6 +22,14 @@ interface CampaignReport {
   completed_count: number;
   total_views: number;
   total_likes: number;
+  total_spent: number;
+  edits_count: number;
+}
+
+interface EditorAvgViews {
+  editor_id: string;
+  avg_views: number | null;
+  completed_count: number;
 }
 
 interface Review {
@@ -167,6 +175,18 @@ async function ArtistReport({ campaignId }: { campaignId: string }) {
               {t.campaignDetail.reportCompletedLabel}
             </p>
           </div>
+          <div>
+            <p className="font-display text-3xl font-medium text-text">{report?.edits_count ?? 0}</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.editsCountLabel}
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-3xl font-medium text-text">{report?.total_spent ?? 0} $</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
+              {t.campaignDetail.totalSpentLabel}
+            </p>
+          </div>
         </div>
       </Card>
 
@@ -216,6 +236,15 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
     .order('created_at', { ascending: false });
 
   const apps = (applications ?? []) as (Application & { profiles: Profile })[];
+
+  // Средние просмотры по прошлым эдитам каждого заявителя — тот же RPC, что
+  // и в /admin, здесь только на эдиторов, откликнувшихся именно на эту кампанию.
+  const editorIds = Array.from(new Set(apps.map((a) => a.profiles?.id).filter(Boolean))) as string[];
+  const { data: avgViewsRows } = editorIds.length
+    ? await supabase.rpc('get_editor_avg_views', { p_editor_ids: editorIds })
+    : { data: [] as EditorAvgViews[] };
+  const avgViewsMap = new Map(((avgViewsRows as EditorAvgViews[] | null) ?? []).map((r) => [r.editor_id, r]));
+
   const totalViews = apps.reduce((sum, a) => sum + (a.views_count ?? 0), 0);
   const committed = apps
     .filter((a) => a.status === 'accepted' || a.status === 'in_revision' || a.status === 'delivered' || a.status === 'completed')
@@ -275,6 +304,18 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
                     )}
                     {a.cover_note && (
                       <p className="mt-1 line-clamp-2 text-sm text-text-faint">{a.cover_note}</p>
+                    )}
+                    {(a.profiles?.followers != null || avgViewsMap.get(a.profiles?.id)?.avg_views != null) && (
+                      <p className="mt-1 text-xs text-text-faint">
+                        {a.profiles?.followers != null &&
+                          `${t.admin.followersLabel}: ${formatCompactNumber(a.profiles.followers, locale)}`}
+                        {a.profiles?.followers != null && avgViewsMap.get(a.profiles.id)?.avg_views != null && ' · '}
+                        {avgViewsMap.get(a.profiles?.id)?.avg_views != null &&
+                          `${t.admin.avgViewsLabel}: ${formatCompactNumber(
+                            Math.round(avgViewsMap.get(a.profiles.id)!.avg_views!),
+                            locale
+                          )}`}
+                      </p>
                     )}
                     {(a.profiles?.paypal_email || a.profiles?.crypto_wallet) && (
                       <p className="mt-1 text-xs text-text-faint">
