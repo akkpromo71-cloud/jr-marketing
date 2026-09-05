@@ -32,6 +32,11 @@ export interface Profile {
   // изменить в /settings. Хотя бы одно из двух обязательно для эдитора.
   paypal_email: string | null;
   crypto_wallet: string | null;
+  // Подписчики — само-заявленное число, как и соцсети выше (не проверяется
+  // автоматически), помогает админу оценить охват эдитора при выборе на заявку.
+  followers: number | null;
+  // Когда пользователь принял условия использования при регистрации.
+  terms_accepted_at: string | null;
   created_at: string;
 }
 
@@ -50,6 +55,9 @@ export interface Campaign {
   budget: number | null;
   status: CampaignStatus;
   max_editors: number;
+  // Когда артист принял условия кампании (права на трек, охват — не
+  // гарантия) при публикации трека — отдельно от согласия при регистрации.
+  terms_accepted_at: string | null;
   created_at: string;
 }
 
