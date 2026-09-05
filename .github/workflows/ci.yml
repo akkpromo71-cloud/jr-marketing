@@ -1,0 +1,44 @@
+name: CI
+
+# Проверка на каждый пуш/PR в main: lint, проверка типов, юнит-тесты и сборка
+# продакшен-билда — то же самое, что сейчас проверяет Vercel при деплое, но
+# здесь это видно ДО деплоя, отдельным зелёным/красным статусом на коммите.
+# Не заменяет проверку самого деплоя на Vercel (переменные окружения ниже —
+# заглушки только для того, чтобы сборка не падала на их отсутствии, реальные
+# значения остаются только в Vercel).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      - run: npm run test
+
+      - name: Build
+        run: npm run build
+        env:
+          # Заглушки — билд лишь проверяет, что код собирается, реальные
+          # запросы к Supabase на этом этапе не выполняются.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+          CRON_SECRET: placeholder-cron-secret
+
