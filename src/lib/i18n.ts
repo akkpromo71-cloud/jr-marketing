@@ -164,6 +164,9 @@ export const dict = {
         'Что монтируете: аниме, фильмы/сериалы, стримеров, просто ирл или другое — опишите сами',
       price: 'Ваша цена за эдит, $ *',
       priceHint: 'Это ваше пожелание по цене — финальную цену согласует администратор при одобрении.',
+      followers: 'Подписчики (примерно)',
+      followersPlaceholder: 'Например, 50000',
+      followersHint: 'Необязательно — так администратору проще подобрать вас под кампанию.',
       telegram: 'Telegram',
       telegramPlaceholder: '@username или ссылка на Telegram',
       instagram: 'Ссылка на Instagram *',
@@ -268,6 +271,11 @@ export const dict = {
       spotifyLink: 'Ссылка на Spotify (необязательно)',
       budget: 'Бюджет, $',
       maxEditors: 'Сколько эдиторов нужно',
+      budgetHintTitle: 'Рекомендуемый бюджет',
+      budgetHintDisclaimer:
+        'Ориентир на основе средней ставки наших эдиторов — не гарантия конкретного охвата или числа просмотров.',
+      budgetTooLowConfirm:
+        'Бюджет ниже рекомендованного ({min}–{max} $) для выбранного числа эдиторов. Продолжить всё равно?',
       publishBtn: 'Опубликовать',
     },
     campaignDetail: {
@@ -287,6 +295,8 @@ export const dict = {
       budgetTotalLabel: 'Бюджет',
       budgetSpentLabel: 'Занято эдиторами',
       budgetLeftLabel: 'Остаток (комиссия)',
+      totalSpentLabel: 'Потрачено',
+      editsCountLabel: 'Эдитов сдано',
       managerMessageLabel: 'Сообщение для эдиторов',
       managerMessagePlaceholder: 'Например: нужен монтаж подешевле, референс — стиль X',
       saveMessageBtn: 'Сохранить сообщение',
@@ -307,6 +317,17 @@ export const dict = {
       pendingApplicationsTitle: 'Заявки на кампании',
       noPendingApplications: 'Новых заявок на кампании нет.',
       campaignLabel: 'Кампания',
+      followersLabel: 'Подписчики',
+      avgViewsLabel: 'Ср. просмотры',
+    },
+    terms: {
+      pageTitle: 'Условия использования',
+      agreePrefix: 'Я принимаю ',
+      agreeLinkText: 'условия использования и пользовательское соглашение',
+      agreeSuffix: '.',
+      campaignAgreePrefix: 'Подтверждаю права на трек и соглашаюсь с ',
+      campaignAgreeLinkText: 'условиями кампании',
+      campaignAgreeSuffix: ' — точный охват и число просмотров не гарантируются.',
     },
     notFound: {
       title: 'Страница не найдена',
@@ -339,6 +360,7 @@ export const dict = {
       avatarInvalidType: 'Неподдерживаемый формат файла — только JPG, PNG или WebP',
       activeCapReached: 'У этого эдитора уже максимум активных заказов — сначала должен завершиться один из текущих.',
       tooManyAttempts: 'Слишком много попыток. Попробуйте снова через несколько минут.',
+      termsRequired: 'Необходимо принять условия использования',
     },
   },
   en: {
@@ -494,6 +516,9 @@ export const dict = {
         'What do you edit: anime, movies/TV shows, streamers, just IRL content, or something else — describe it yourself',
       price: 'Your price per edit, $ *',
       priceHint: "This is your price preference — the admin will confirm the final price on approval.",
+      followers: 'Followers (approx.)',
+      followersPlaceholder: 'E.g. 50000',
+      followersHint: "Optional — helps the admin match you to the right campaign.",
       telegram: 'Telegram',
       telegramPlaceholder: '@username or Telegram link',
       instagram: 'Instagram link *',
@@ -598,6 +623,11 @@ export const dict = {
       spotifyLink: 'Spotify link (optional)',
       budget: 'Budget, $',
       maxEditors: 'How many editors do you need',
+      budgetHintTitle: 'Recommended budget',
+      budgetHintDisclaimer:
+        "An estimate based on our editors' average rate — not a guarantee of any specific reach or view count.",
+      budgetTooLowConfirm:
+        'This budget is below the recommended range ({min}–{max} $) for the number of editors you chose. Continue anyway?',
       publishBtn: 'Publish',
     },
     campaignDetail: {
@@ -617,6 +647,8 @@ export const dict = {
       budgetTotalLabel: 'Budget',
       budgetSpentLabel: 'Committed to editors',
       budgetLeftLabel: 'Remaining (your commission)',
+      totalSpentLabel: 'Amount spent',
+      editsCountLabel: 'Edits delivered',
       managerMessageLabel: 'Message for editors',
       managerMessagePlaceholder: 'e.g. keep it budget-friendly, reference style X',
       saveMessageBtn: 'Save message',
@@ -637,6 +669,17 @@ export const dict = {
       pendingApplicationsTitle: 'Campaign applications',
       noPendingApplications: 'No new campaign applications.',
       campaignLabel: 'Campaign',
+      followersLabel: 'Followers',
+      avgViewsLabel: 'Avg. views',
+    },
+    terms: {
+      pageTitle: 'Terms of Service',
+      agreePrefix: 'I accept the ',
+      agreeLinkText: 'Terms of Service and User Agreement',
+      agreeSuffix: '.',
+      campaignAgreePrefix: 'I confirm I hold the rights to this track and agree to the ',
+      campaignAgreeLinkText: 'campaign terms',
+      campaignAgreeSuffix: " — exact reach and view counts are not guaranteed.",
     },
     notFound: {
       title: 'Page not found',
@@ -669,6 +712,7 @@ export const dict = {
       avatarInvalidType: 'Unsupported file type — JPG, PNG, or WebP only',
       activeCapReached: 'This editor already has the maximum number of active jobs — one of the current ones needs to finish first.',
       tooManyAttempts: 'Too many attempts. Please try again in a few minutes.',
+      termsRequired: 'You must accept the Terms of Service',
     },
   },
 } as const;
