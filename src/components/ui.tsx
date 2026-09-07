@@ -9,11 +9,13 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from 'reac
 // StatusBadge, которому нужен getDict(), поэтому вынесен в отдельный файл
 // src/components/status-badge.tsx, импортируемый только из серверных страниц.
 
+// Редизайн под Monopo Saigon (design-pack/): карточки/панели — 0px радиус,
+// без тени (design-pack/design.md, Elevation — "deliberately avoids shadow
+// elevation"; design-pack/migration-map.md §3-4). Разделение с фоном страницы
+// теперь только через hairline-обводку var(--border).
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div
-      className={`rounded-2xl border border-border bg-surface shadow-card transition ${className}`}
-    >
+    <div className={`rounded-none border border-border bg-surface transition ${className}`}>
       {children}
     </div>
   );
@@ -23,11 +25,17 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 // active:scale — тактильный отклик на нажатие для всех вариантов сразу
 // (transform уже входит в набор свойств дефолтного Tailwind `transition`).
+// rounded-full уже совпадает с эталонным --radius-buttons: 75px — форму не меняем.
 const buttonBase =
   'inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100';
+// Ghost Pill (design-pack/design.md): прозрачный фон, обводка/текст var(--accent)
+// (чёрный на светлой поверхности, белый на тёмной — токен уже меняется местами
+// через .dark), без заливки и без тени. Основное и второстепенное действия
+// выглядят похоже — эталон сознательно не вводит отдельный цвет primary-кнопки
+// ("no distinct primary action color"), различие даёт только контекст.
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-on-accent shadow-accent hover:brightness-105 hover:-translate-y-0.5',
-  secondary: 'border border-border bg-surface2/40 text-text hover:bg-surface2',
+  primary: 'border border-accent bg-transparent text-accent hover:opacity-70',
+  secondary: 'border border-border bg-transparent text-text hover:opacity-70',
   ghost: 'text-text-dim hover:text-text',
   danger:
     'border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] text-danger hover:brightness-105',
@@ -105,11 +113,14 @@ export function Field({
   );
 }
 
+// rounded-none — токен --radius-inputs: 0px (design-pack/design.md).
 export const inputClass =
-  'w-full rounded-xl border border-border bg-surface2/50 px-4 py-2.5 text-sm text-text placeholder:text-text-faint outline-none focus:border-accent transition';
+  'w-full rounded-none border border-border bg-surface2/50 px-4 py-2.5 text-sm text-text placeholder:text-text-faint outline-none focus:border-accent transition';
 
 // Оценка 1-5 для форм отзыва — кружки-кнопки на radio + peer-checked, без
-// JavaScript, работает в любом браузере. По умолчанию выбрано 5.
+// JavaScript, работает в любом браузере. По умолчанию выбрано 5. Круглая форма
+// (rounded-full) здесь — не "карточка/инпут", а тег-подобный UI-элемент, поэтому
+// пилюльный радиус уместен и без изменений совпадает с эталоном.
 export function RatingInput({ label }: { label: string }) {
   return (
     <Field label={label}>
