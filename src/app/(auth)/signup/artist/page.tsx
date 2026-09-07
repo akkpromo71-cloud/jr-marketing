@@ -19,7 +19,7 @@ export default async function ArtistSignupPage({
 
       <Card className="p-6">
         {error && (
-          <div className="mb-4 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+          <div className="mb-4 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
             {decodeURIComponent(error)}
           </div>
         )}
