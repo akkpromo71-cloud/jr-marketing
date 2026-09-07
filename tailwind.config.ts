@@ -21,15 +21,39 @@ const config: Config = {
         'on-accent': 'var(--on-accent)',
       },
       fontFamily: {
-        display: ['var(--font-fraunces)', 'serif'],
-        sans: ['var(--font-manrope)', 'sans-serif'],
+        // Редизайн под Monopo Saigon (design-pack/): у эталона один шрифт
+        // (Roobert) на весь интерфейс — заголовки, навигация, текст.
+        // Inter — кириллица-совместимая замена (design-pack/design.md сам
+        // называет Inter официальным substitute для Roobert). font-display
+        // и font-sans намеренно указывают на один и тот же шрифт: так все
+        // ~50 существующих мест с классом font-display остаются рабочими
+        // без правки каждого файла по отдельности.
+        display: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      fontWeight: {
+        // Эталон разрешает только веса 300/400/600 (design-pack/design.md,
+        // Don't: "Never use bold or heavy weights (600+) above 45px").
+        // Переопределяем сами именованные веса Tailwind вместо правки
+        // ~100 мест использования font-medium/font-semibold/font-bold/
+        // font-extrabold по всему проекту — medium/bold/extrabold схлопываются
+        // к ближайшему разрешённому весу.
+        light: '300',
+        normal: '400',
+        medium: '400',
+        semibold: '600',
+        bold: '600',
+        extrabold: '600',
       },
       boxShadow: {
-        card: 'var(--card-shadow)',
-        accent: 'var(--accent-shadow)',
+        // Эталон запрещает elevation/box-shadow полностью (design-pack/design.md,
+        // Elevation: "deliberately avoids shadow elevation"). Обнулено здесь на
+        // случай мест, ещё не зачищенных от классов shadow-card/shadow-accent.
+        card: 'none',
+        accent: 'none',
       },
       borderRadius: {
-        xl2: '20px',
+        xl2: '0px',
       },
     },
   },
