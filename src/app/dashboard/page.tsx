@@ -63,12 +63,12 @@ export default async function DashboardPage({
         </div>
 
         {welcome === 'artist' && (
-          <div className="mt-6 rounded-xl border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
+          <div className="mt-6 rounded-none border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
             {t.dashboard.welcomeArtist}
           </div>
         )}
         {created === '1' && (
-          <div className="mt-6 rounded-xl border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
+          <div className="mt-6 rounded-none border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
             {t.dashboard.createdMsg}
           </div>
         )}
