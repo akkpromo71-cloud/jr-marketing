@@ -19,12 +19,12 @@ export default async function LoginPage({
 
       <Card className="p-6">
         {reset && !error && (
-          <div className="mb-4 rounded-xl border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
+          <div className="mb-4 rounded-none border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
             {t.login.resetSuccessMsg}
           </div>
         )}
         {error && (
-          <div className="mb-4 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+          <div className="mb-4 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
             {decodeURIComponent(error)}
           </div>
         )}
