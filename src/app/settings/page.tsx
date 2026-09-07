@@ -38,7 +38,7 @@ export default async function SettingsPage() {
               <Avatar url={profile.avatar_url} name={profile.display_name} size={56} />
               <Field label={t.settings.avatarLabel}>
                 <input
-                  className={`${inputClass} file:mr-3 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-2 file:text-xs file:font-semibold file:text-on-accent file:transition hover:file:brightness-105`}
+                  className={`${inputClass} file:mr-3 file:rounded-full file:border file:border-accent file:bg-transparent file:px-4 file:py-2 file:text-xs file:font-semibold file:text-accent file:transition hover:file:opacity-70`}
                   type="file"
                   name="avatar"
                   accept="image/png,image/jpeg,image/webp"
