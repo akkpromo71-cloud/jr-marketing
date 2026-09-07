@@ -73,22 +73,22 @@ export default async function FeedPage({
         <p className="mt-1 text-sm text-text-dim">{t.feed.subtitle}</p>
 
         {welcome === 'editor' && (
-          <div className="mt-6 rounded-xl border border-[var(--warning-tint-border)] bg-[var(--warning-tint-bg)] px-4 py-3 text-sm text-warning">
+          <div className="mt-6 rounded-none border border-[var(--warning-tint-border)] bg-[var(--warning-tint-bg)] px-4 py-3 text-sm text-warning">
             {t.feed.welcomeEditor}
           </div>
         )}
         {error && (
-          <div className="mt-6 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+          <div className="mt-6 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
             {decodeURIComponent(error)}
           </div>
         )}
         {pending && !welcome && (
-          <div className="mt-6 rounded-xl border border-[var(--warning-tint-border)] bg-[var(--warning-tint-bg)] px-4 py-3 text-sm text-warning">
+          <div className="mt-6 rounded-none border border-[var(--warning-tint-border)] bg-[var(--warning-tint-bg)] px-4 py-3 text-sm text-warning">
             {t.feed.pendingMsg}
           </div>
         )}
         {rejected && (
-          <div className="mt-6 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+          <div className="mt-6 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
             {t.feed.rejectedMsg}
           </div>
         )}
@@ -154,7 +154,7 @@ export default async function FeedPage({
 
                 {/* Сообщение от менеджера — заметка от администратора для эдиторов по этому треку */}
                 {c.manager_message && (
-                  <div className="mt-4 flex gap-2 rounded-xl border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
+                  <div className="mt-4 flex gap-2 rounded-none border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
                     <span aria-hidden="true">💬</span>
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-accent">
