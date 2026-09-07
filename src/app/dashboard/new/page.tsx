@@ -51,7 +51,7 @@ export default async function NewCampaignPage({
 
         <Card className="mt-8 p-6">
           {error && (
-            <div className="mb-4 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+            <div className="mb-4 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
               {decodeURIComponent(error)}
             </div>
           )}
@@ -87,7 +87,7 @@ export default async function NewCampaignPage({
                 а при попытке отправить форму с бюджетом заметно ниже
                 рекомендованного — показывает подтверждение через confirm(),
                 не блокируя публикацию (это ориентир, а не жёсткое правило). */}
-            <div className="-mt-2 rounded-xl border border-border bg-surface2/30 px-4 py-3">
+            <div className="-mt-2 rounded-none border border-border bg-surface2/30 px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
                 {t.dashboardNew.budgetHintTitle}: <span id="budget-hint-range" className="normal-case text-accent">—</span>
               </p>
