@@ -227,7 +227,7 @@ export default async function AdminPage() {
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {(approvedEditors as Profile[] | null)?.map((e) => (
-              <Card key={e.id} className="flex items-center gap-3 p-4 hover:-translate-y-0.5 hover:border-accent/40">
+              <Card key={e.id} className="flex items-center gap-3 p-4 hover:border-accent/40">
                 <Avatar url={e.avatar_url} name={e.display_name} size={36} />
                 <div>
                   <p className="font-medium text-text">{e.display_name}</p>
@@ -249,7 +249,7 @@ export default async function AdminPage() {
             {(campaigns as (Campaign & { profiles: { display_name: string; avatar_url: string | null } })[] | null)?.map(
               (c) => (
                 <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
-                  <Card className="flex items-center justify-between p-4 hover:-translate-y-0.5 hover:border-accent/50">
+                  <Card className="flex items-center justify-between p-4 hover:border-accent/50">
                     <div className="flex items-center gap-3">
                       <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={36} />
                       <div>
