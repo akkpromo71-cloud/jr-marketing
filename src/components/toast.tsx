@@ -52,7 +52,7 @@ function ToastInner({
   return (
     <div
       role="status"
-      className={`animate-toast-in fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border px-5 py-3 text-sm font-semibold shadow-card ${
+      className={`animate-toast-in fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border px-5 py-3 text-sm font-semibold ${
         toast.kind === 'error'
           ? 'border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] text-danger'
           : 'border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] text-success'
