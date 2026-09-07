@@ -1,22 +1,20 @@
 import type { Metadata } from 'next';
-import { Fraunces, Manrope } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { getLocale } from '@/lib/i18n';
 
-const fraunces = Fraunces({
-  // У Fraunces нет кириллического набора — используем его для латиницы/цифр,
-  // кириллический текст в заголовках попадёт на системный serif-фоллбэк (см. tailwind.config.ts)
-  subsets: ['latin'],
-  variable: '--font-fraunces',
-  weight: ['400', '500', '600'],
-});
-
-const manrope = Manrope({
+// Редизайн под Monopo Saigon (design-pack/): один шрифт на весь интерфейс
+// вместо прежней пары Fraunces (только латиница) + Manrope — у эталона
+// Roobert используется одинаково в заголовках, навигации и теле текста.
+// Inter выбран как кириллица-совместимая замена (design-pack/design.md,
+// раздел Roobert: "Substitute: Inter or Söhne"), веса ограничены 300/400/600
+// (design-pack/design.md, Don't: "Never use bold or heavy weights (600+)") —
+// см. tailwind.config.ts, где fontWeight.medium/bold/extrabold схлопнуты
+// к ближайшему разрешённому весу без правки каждого файла.
+const inter = Inter({
   subsets: ['latin', 'cyrillic'],
-  variable: '--font-manrope',
-  // 800 добавлен ради жирного заголовка на лендинге (font-extrabold) — без него
-  // браузер подделывал бы жирность синтетически поверх 700.
-  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-inter',
+  weight: ['300', '400', '600'],
 });
 
 // applicationName/icons/openGraph.siteName — чтобы бренд "J/R marketing" был виден
@@ -61,22 +59,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale();
   return (
     <html lang={locale}>
-      <body className={`${fraunces.variable} ${manrope.variable} font-sans antialiased`}>
-        <script
-          // Ставим класс .dark до гидратации, чтобы не было "мигания" светлой темой
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var t = localStorage.getItem('theme');
-                if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                  document.documentElement.classList.add('dark');
-                }
-              } catch (e) {}
-            `,
-          }}
-        />
-        {children}
-      </body>
+      {/* Редизайн под Monopo Saigon: пользовательская тёмная тема убирается
+          (design-pack/migration-map.md §8) — у эталона нет тумблера темы,
+          есть только чёрные full-bleed секции внутри светлой страницы.
+          Скрипт установки .dark до гидратации больше не нужен — класс .dark
+          в globals.css остаётся как честная инверсия palette на переходный
+          период, пока Фаза 2 не уберёт сам переключатель (theme-toggle.tsx,
+          кнопка в nav.tsx). */}
+      <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
     </html>
   );
 }
