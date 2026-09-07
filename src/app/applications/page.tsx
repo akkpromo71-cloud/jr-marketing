@@ -39,7 +39,7 @@ export default async function ApplicationsPage() {
           {(applications ?? []).length === 0 && <EmptyState icon="📨" text={t.applicationsList.noApplications} />}
           {(applications as (Application & { campaigns: Campaign })[] | null)?.map((a) => (
             <Link key={a.id} href={`/applications/${a.id}`}>
-              <Card className="p-5 hover:-translate-y-0.5 hover:border-accent/50">
+              <Card className="p-5 hover:border-accent/50">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <h2 className="font-display text-lg font-medium text-text">{a.campaigns?.title}</h2>
