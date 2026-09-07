@@ -3,64 +3,77 @@
 @tailwind utilities;
 
 /* ============================================================
-   Label Noir — дизайн-система J/R marketing
-   Портировано из design-canvas мокапа (Main.dc.html / AdminPanel / EditorProfile)
+   Monopo Saigon — дизайн-система J/R marketing (редизайн)
+   Извлечено из monopo.vn (design-pack/design.md), портировано на токен-слой,
+   который уже использует весь проект (см. design-pack/migration-map.md).
+   Радикальный чёрно-белый монохром: единственный цветной элемент во всём
+   интерфейсе — hero-градиент на лендинге (--gradient-iridescent-fade),
+   он не используется как заливка UI нигде, кроме hero-секции.
    ============================================================ */
 
 :root {
-  --bg: oklch(0.93 0.014 75);
-  --surface: oklch(0.975 0.008 78);
-  --surface-2: oklch(0.88 0.018 72);
-  --border: oklch(0.6 0.025 65 / 0.4);
-  --text: oklch(0.17 0.014 50);
-  --text-dim: oklch(0.38 0.02 55);
-  --text-faint: oklch(0.54 0.02 58);
-  --accent: oklch(0.44 0.12 62);
-  --accent-2: oklch(0.36 0.12 38);
-  --success: oklch(0.42 0.09 145);
-  --warning: oklch(0.48 0.13 40);
-  --danger: oklch(0.46 0.13 27);
-  --on-accent: oklch(0.99 0.004 75);
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #9a9a9a;
+  --border: #000000;
+  --text: #000000;
+  --text-dim: #181818;
+  --text-faint: #6d6d6d;
+  --accent: #000000;
+  --accent-2: #6d6d6d;
+  --on-accent: #ffffff;
 
-  --accent-tint-bg: oklch(0.44 0.12 62 / 0.12);
-  --accent-tint-border: oklch(0.44 0.12 62 / 0.32);
-  --success-tint-bg: oklch(0.42 0.09 145 / 0.12);
-  --success-tint-border: oklch(0.42 0.09 145 / 0.32);
-  --warning-tint-bg: oklch(0.48 0.13 40 / 0.14);
-  --warning-tint-border: oklch(0.48 0.13 40 / 0.38);
-  --danger-tint-bg: oklch(0.46 0.13 27 / 0.12);
-  --danger-tint-border: oklch(0.46 0.13 27 / 0.34);
+  /* Статусы заявок/кампаний (StatusBadge) — единственное сознательное
+     отступление от чистого чёрно-белого интерфейса (эталон — маркетинговая
+     витрина без статусов, J/R marketing — маркетплейс, статусы нужны для
+     работы). Специально приглушены и уведены от ярких оттенков
+     hero-градиента (sage/amber/oxblood), используются только в бейджах.
+     См. design-pack/migration-map.md, раздел про --success/--warning/--danger. */
+  --success: #2f5c40;
+  --warning: #6b5a2e;
+  --danger: #6b3430;
 
-  --card-shadow: 0 1px 2px oklch(0.3 0.03 55 / 0.07), 0 10px 28px oklch(0.3 0.03 55 / 0.1);
-  --accent-shadow: 0 4px 14px oklch(0.44 0.12 62 / 0.3);
+  --accent-tint-bg: #00000014;
+  --accent-tint-border: #00000059;
+  --success-tint-bg: #2f5c4014;
+  --success-tint-border: #2f5c4059;
+  --warning-tint-bg: #6b5a2e14;
+  --warning-tint-border: #6b5a2e59;
+  --danger-tint-bg: #6b343014;
+  --danger-tint-border: #6b343059;
+
+  /* Единственный цветной токен во всей системе — только для hero-секции лендинга. */
+  --gradient-iridescent-fade: linear-gradient(90deg, rgb(160, 224, 171), rgb(255, 172, 46) 50%, rgb(165, 45, 37));
 }
 
+/* Тёмная тема технически ещё поддержана переключателем (src/components/theme-toggle.tsx)
+   до Фазы 2 редизайна, где тумблер убирается (design-pack/migration-map.md §8 — у эталона
+   нет пользовательской тёмной темы, есть только чёрные full-bleed секции внутри светлой
+   страницы). Здесь — честная инверсия palette на время переходного периода. */
 .dark {
-  --bg: oklch(0.16 0.006 60);
-  --surface: oklch(0.205 0.007 60);
-  --surface-2: oklch(0.25 0.009 60);
-  --border: oklch(0.36 0.012 60 / 0.5);
-  --text: oklch(0.95 0.008 75);
-  --text-dim: oklch(0.7 0.014 70);
-  --text-faint: oklch(0.52 0.014 65);
-  --accent: oklch(0.74 0.14 85);
-  --accent-2: oklch(0.66 0.13 50);
-  --success: oklch(0.68 0.1 145);
-  --warning: oklch(0.7 0.14 45);
-  --danger: oklch(0.6 0.13 27);
-  --on-accent: oklch(0.14 0.01 60);
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #808080;
+  --border: rgba(255, 255, 255, 0.3);
+  --text: #ffffff;
+  --text-dim: #e5e5e5;
+  --text-faint: #9a9a9a;
+  --accent: #ffffff;
+  --accent-2: #9a9a9a;
+  --on-accent: #000000;
 
-  --accent-tint-bg: oklch(0.74 0.14 85 / 0.14);
-  --accent-tint-border: oklch(0.74 0.14 85 / 0.35);
-  --success-tint-bg: oklch(0.68 0.1 145 / 0.14);
-  --success-tint-border: oklch(0.68 0.1 145 / 0.35);
-  --warning-tint-bg: oklch(0.7 0.14 45 / 0.16);
-  --warning-tint-border: oklch(0.7 0.14 45 / 0.4);
-  --danger-tint-bg: oklch(0.6 0.13 27 / 0.16);
-  --danger-tint-border: oklch(0.6 0.13 27 / 0.4);
+  --success: #6fae87;
+  --warning: #b79b5e;
+  --danger: #b3706a;
 
-  --card-shadow: 0 1px 2px oklch(0 0 0 / 0.35), 0 10px 26px oklch(0 0 0 / 0.4);
-  --accent-shadow: 0 4px 18px oklch(0.74 0.14 85 / 0.22);
+  --accent-tint-bg: #ffffff14;
+  --accent-tint-border: #ffffff59;
+  --success-tint-bg: #6fae8714;
+  --success-tint-border: #6fae8759;
+  --warning-tint-bg: #b79b5e14;
+  --warning-tint-border: #b79b5e59;
+  --danger-tint-bg: #b3706a14;
+  --danger-tint-border: #b3706a59;
 }
 
 * {
@@ -88,76 +101,22 @@ button {
   background: var(--accent-tint-bg);
 }
 
-/* Едва заметное зерно поверх всего сайта — придаёт тёмной/светлой теме
-   фактуру вместо плоской заливки, как у премиальных музыкальных брендов.
-   pointer-events: none, поэтому не мешает кликам. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-.dark body::after {
-  opacity: 0.05;
-}
-
 /* Клавиатурная навигация — свой заметный focus-ring вместо браузерного дефолта,
-   не мешает мышью/тачем (:focus-visible срабатывает только для клавиатуры). */
+   не мешает мышью/тачем (:focus-visible срабатывает только для клавиатуры).
+   border-radius: 0 — эталон не допускает промежуточных радиусов (design.md, Don't). */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 0;
 }
 
 /* ============================================================
-   Motion — мягкое "оживление" интерфейса: плавающие акценты на лендинге
-   и появление секций при прокрутке. Всё выключено при prefers-reduced-motion,
-   чтобы не мешать людям, чувствительным к анимации.
+   Motion — эталонная кривая cubic-bezier(0.19, 1, 0.22, 1), "патient glide"
+   вместо стандартного ease (design-pack/design.md, Motion Personality).
+   Всё выключено при prefers-reduced-motion, чтобы не мешать людям,
+   чувствительным к анимации.
    ============================================================ */
 @media (prefers-reduced-motion: no-preference) {
-  @keyframes float-a {
-    0%,
-    100% {
-      transform: translate(-50%, 0);
-    }
-    50% {
-      transform: translate(-50%, 26px);
-    }
-  }
-  @keyframes float-b {
-    0%,
-    100% {
-      transform: translate(0, 0);
-    }
-    50% {
-      transform: translate(-18px, 22px);
-    }
-  }
-  /* Вариант для пятна, отцентрованного по обеим осям (left-1/2 top-1/2
-     -translate-x-1/2 -translate-y-1/2) — база -50%/-50% сохраняется в каждом кадре. */
-  @keyframes float-c {
-    0%,
-    100% {
-      transform: translate(-50%, -50%);
-    }
-    50% {
-      transform: translate(-50%, calc(-50% + 22px));
-    }
-  }
-  .animate-float-a {
-    animation: float-a 9s ease-in-out infinite;
-  }
-  .animate-float-b {
-    animation: float-b 11s ease-in-out infinite;
-  }
-  .animate-float-c {
-    animation: float-c 10s ease-in-out infinite;
-  }
-
   @keyframes toast-in {
     from {
       opacity: 0;
@@ -168,6 +127,11 @@ body::after {
       transform: translateY(0) scale(1);
     }
   }
+  /* Тост — функциональная обратная связь (успех/ошибка формы), а не
+     атмосферный жест: сознательно оставлен быстрым (0.3s ease-out), а не
+     переведён на медленный "patient glide" 0.8-1.25s — см. design-pack/design.md,
+     Motion Personality: "Shorter easing uses plain 'ease' at 0.4s for color
+     and opacity micro-transitions" — это тот самый случай. */
   .animate-toast-in {
     animation: toast-in 0.3s ease-out;
   }
@@ -196,7 +160,9 @@ body::after {
 }
 
 /* Reveal — начальное состояние для src/components/reveal.tsx, снимается
-   добавлением класса .reveal-visible через IntersectionObserver на клиенте. */
+   добавлением класса .reveal-visible через IntersectionObserver на клиенте.
+   0.8s cubic-bezier(0.19, 1, 0.22, 1) — эталонная "patient glide" кривая для
+   появления секций при скролле (design-pack/design.md, Motion Personality). */
 .reveal {
   opacity: 0;
   transform: translateY(22px);
@@ -204,7 +170,9 @@ body::after {
 .reveal-visible {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transition:
+    opacity 0.8s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal {
