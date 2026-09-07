@@ -291,7 +291,7 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
         {apps.length === 0 && <EmptyState icon="👀" text={t.campaignDetail.noResponses} />}
         {apps.map((a) => (
           <Link key={a.id} href={`/applications/${a.id}`}>
-            <Card className="p-5 hover:-translate-y-0.5 hover:border-accent/50">
+            <Card className="p-5 hover:border-accent/50">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <Avatar url={a.profiles?.avatar_url ?? null} name={a.profiles?.display_name ?? '?'} size={40} />
