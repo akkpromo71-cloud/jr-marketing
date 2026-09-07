@@ -87,7 +87,7 @@ export default async function ApplicationDetailPage({
         </div>
 
         {statusError && (
-          <div className="mt-6 rounded-xl border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+          <div className="mt-6 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
             {decodeURIComponent(statusError)}
           </div>
         )}
