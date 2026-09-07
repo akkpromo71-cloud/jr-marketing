@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCurrentProfile } from '@/lib/current-profile';
-import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Avatar } from '@/components/avatar';
 import { signOutAction } from '@/app/(auth)/actions';
@@ -56,7 +55,6 @@ export async function Nav() {
             </Link>
           )}
           <LanguageSwitcher locale={locale} />
-          <ThemeToggle label={locale === 'en' ? 'Toggle theme' : 'Переключить тему'} />
           {profile ? (
             <>
               {hasProfilePage && (
@@ -69,9 +67,12 @@ export async function Nav() {
               </form>
             </>
           ) : (
+            // Ghost Pill вместо заливки — design-pack/design.md: "no distinct
+            // primary action color", основное действие оформляется прозрачной
+            // pill-кнопкой с обводкой, а не цветной заливкой.
             <Link
               href="/login"
-              className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-on-accent shadow-accent"
+              className="rounded-full border border-accent px-4 py-2 text-xs font-semibold text-accent transition hover:opacity-70"
             >
               {t.nav.login}
             </Link>
