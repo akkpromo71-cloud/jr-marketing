@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Nav } from '@/components/nav';
-import { Card, Button, Field, inputClass, EmptyState } from '@/components/ui';
+import { Button, Field, inputClass, EmptyState } from '@/components/ui';
+import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
@@ -24,14 +25,7 @@ export default async function FeedPage({
   const supabase = await createClient();
   const { t } = await getDict();
 
-  // Имя/аватар артиста в карточке трека — через отдельный запрос к вью
-  // profiles_public (только безопасные для показа колонки), а не через
-  // прямой join на profiles: колонка profiles.paypal_email/crypto_wallet
-  // не должна быть доступна кому попало, а обычный embed-join типа
-  // "profiles(display_name, avatar_url)" всё равно упирается в RLS на
-  // САМОЙ таблице profiles, которая теперь ограничена "своя строка или
-  // админ" (см. supabase/patch-security-hardening.sql) — join бы просто
-  // молча не находил чужие профили.
+  // Данные и запросы НЕ менялись (REDESIGN_PLAN.md §6) — только раскладка.
   const { data: campaignsRaw } = await supabase
     .from('campaigns')
     .select('*')
@@ -57,145 +51,185 @@ export default async function FeedPage({
   const pending = profile?.editor_status === 'pending';
   const rejected = profile?.editor_status === 'rejected';
 
-  // Куда придёт оплата за эдит — берём из профиля эдитора (см. /settings).
-  // Без этого не даём откликаться: иначе площадка не будет знать, куда платить.
   const payout = profile?.paypal_email
     ? { label: t.payout.paypal, value: profile.paypal_email }
     : profile?.crypto_wallet
       ? { label: t.payout.crypto, value: profile.crypto_wallet }
       : null;
 
+  const statusText = pending
+    ? t.status.pending
+    : rejected
+      ? t.status.rejected
+      : profile?.role === 'editor'
+        ? t.feed.statusReady
+        : '—';
+
+  type FeedCampaign = Campaign & { profiles: { display_name: string; avatar_url: string | null } | null };
+  const list = campaigns as FeedCampaign[];
+
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-4xl px-6 py-12">
-        <h1 className="font-display text-3xl font-medium text-text">{t.feed.title}</h1>
-        <p className="mt-1 text-sm text-text-dim">{t.feed.subtitle}</p>
-
-        {welcome === 'editor' && (
-          <div className="mt-6 rounded-none border border-[var(--warning-tint-border)] bg-[var(--warning-tint-bg)] px-4 py-3 text-sm text-warning">
-            {t.feed.welcomeEditor}
-          </div>
-        )}
-        {error && (
-          <div className="mt-6 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
-            {decodeURIComponent(error)}
-          </div>
-        )}
-        {pending && !welcome && (
-          <div className="mt-6 rounded-none border border-[var(--warning-tint-border)] bg-[var(--warning-tint-bg)] px-4 py-3 text-sm text-warning">
-            {t.feed.pendingMsg}
-          </div>
-        )}
-        {rejected && (
-          <div className="mt-6 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
-            {t.feed.rejectedMsg}
-          </div>
-        )}
-
-        <div className="mt-8 flex flex-col gap-4">
-          {campaigns.length === 0 && <EmptyState icon="🎬" text={t.feed.noOpenCampaigns} />}
-          {(campaigns as (Campaign & { profiles: { display_name: string; avatar_url: string | null } | null })[]).map((c) => {
-            const already = appliedCampaignIds.has(c.id);
-            const canApply = profile?.role === 'editor' && !pending && !rejected;
-            return (
-              <Card key={c.id} className="p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3">
-                    <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={40} />
-                    <div>
-                      <h2 className="font-display text-xl font-medium text-text">{c.title}</h2>
-                      {c.profiles?.display_name && (
-                        <p className="mt-0.5 text-xs text-text-faint">
-                          {t.feed.artistLabel}: {c.profiles.display_name}
-                        </p>
-                      )}
-                      <p className="mt-2 text-sm text-text-dim">{c.description}</p>
-                    </div>
-                  </div>
-                  <StatusBadge status={c.status} />
+      <main className="py-12">
+        <Container>
+          <Grid>
+            {/* Левый meta-рельс — «режим доски»: счётчик и собственный статус
+                эдитора, алерты тонкими строками вместо широких плашек. */}
+            <aside className="flex flex-col gap-6 md:col-span-3 md:sticky md:top-24 md:self-start">
+              <div>
+                <p className="text-display-sm tabular text-text">{list.length}</p>
+                <p className="mt-1 text-meta text-text-faint">{t.feed.openTracksLabel}</p>
+              </div>
+              {profile?.role === 'editor' && (
+                <div className="border-t border-border pt-4">
+                  <p className="text-meta text-text-faint">{t.feed.yourStatusLabel}</p>
+                  <p className="mt-1 text-sm text-text">{statusText}</p>
                 </div>
+              )}
 
-                {/* Звук в TikTok / Spotify — отдельными кнопками, как ссылки на сам трек */}
-                {(c.track_url || c.spotify_url) && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {c.track_url && (
-                      <a
-                        href={c.track_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:-translate-y-0.5 hover:border-accent/50 hover:text-text"
-                      >
-                        🎵 {t.feed.soundTiktok}
-                      </a>
-                    )}
-                    {c.spotify_url && (
-                      <a
-                        href={c.spotify_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:-translate-y-0.5 hover:border-accent/50 hover:text-text"
-                      >
-                        🎧 {t.feed.soundSpotify}
-                      </a>
-                    )}
-                    {c.budget && (
-                      <span className="ml-auto text-xs text-text-faint">
-                        {t.feed.budgetLabel}: {c.budget} $
-                      </span>
-                    )}
-                  </div>
-                )}
-                {!c.track_url && !c.spotify_url && c.budget && (
-                  <p className="mt-3 text-xs text-text-faint">
-                    {t.feed.budgetLabel}: {c.budget} $
-                  </p>
-                )}
+              {welcome === 'editor' && (
+                <p className="border-l-2 border-[var(--warning-tint-border)] pl-3 text-xs text-warning">
+                  {t.feed.welcomeEditor}
+                </p>
+              )}
+              {error && (
+                <p className="border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">
+                  {decodeURIComponent(error)}
+                </p>
+              )}
+              {pending && !welcome && (
+                <p className="border-l-2 border-[var(--warning-tint-border)] pl-3 text-xs text-warning">
+                  {t.feed.pendingMsg}
+                </p>
+              )}
+              {rejected && (
+                <p className="border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">
+                  {t.feed.rejectedMsg}
+                </p>
+              )}
+            </aside>
 
-                {/* Сообщение от менеджера — заметка от администратора для эдиторов по этому треку */}
-                {c.manager_message && (
-                  <div className="mt-4 flex gap-2 rounded-none border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
-                    <span aria-hidden="true">💬</span>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-accent">
-                        {t.feed.managerMessageLabel}
-                      </p>
-                      <p className="mt-1 text-sm text-text-dim">{c.manager_message}</p>
-                    </div>
-                  </div>
-                )}
+            <div className="md:col-span-9">
+              <h1 className="text-headline text-text">{t.feed.title}</h1>
+              <p className="mt-1 text-body text-text-dim">{t.feed.subtitle}</p>
 
-                {already ? (
-                  <p className="mt-4 text-sm text-text-faint">{t.feed.alreadyApplied}</p>
-                ) : canApply && !payout ? (
-                  <div className="mt-5 flex flex-col gap-2 border-t border-border pt-5">
-                    <p className="text-sm text-warning">{t.feed.noPayoutWarning}</p>
-                    <Link
-                      href="/settings"
-                      className="self-start rounded-full border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:-translate-y-0.5 hover:border-accent/50 hover:text-text active:scale-95"
+              <div className="mt-8 flex flex-col gap-4">
+                {list.length === 0 && <EmptyState icon="🎬" text={t.feed.noOpenCampaigns} />}
+                {list.map((c) => {
+                  const already = appliedCampaignIds.has(c.id);
+                  const canApply = profile?.role === 'editor' && !pending && !rejected;
+                  // Приоритетная карточка — есть бюджет или заметка менеджера:
+                  // крупнее, с акцентной засечкой, бюджет дисплейным размером.
+                  const priority = !!c.budget || !!c.manager_message;
+
+                  return (
+                    <article
+                      key={c.id}
+                      className={`border border-border bg-surface ${
+                        priority ? 'border-l-2 border-l-accent p-6 md:p-8' : 'p-5 md:max-w-3xl'
+                      }`}
                     >
-                      {t.feed.goToSettings}
-                    </Link>
-                  </div>
-                ) : canApply && payout ? (
-                  <form action={applyToCampaignAction} className="mt-5 flex flex-col gap-3 border-t border-border pt-5">
-                    <input type="hidden" name="campaign_id" value={c.id} />
-                    <Field label={t.feed.coverNote}>
-                      <textarea className={inputClass} name="cover_note" rows={2} placeholder={t.feed.coverNotePlaceholder} />
-                    </Field>
-                    <p className="text-xs text-text-faint">
-                      {t.feed.applyPriceNote} {profile?.price_min ?? '—'} $. {t.feed.payoutWillArrive}{' '}
-                      {payout.label}: {payout.value}. {t.feed.payoutHint}
-                    </p>
-                    <Button type="submit" variant="primary" className="self-start">
-                      {t.feed.applyBtn}
-                    </Button>
-                  </form>
-                ) : null}
-              </Card>
-            );
-          })}
-        </div>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3">
+                          <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={40} />
+                          <div>
+                            {priority && (
+                              <p className="mb-1 text-meta text-text-faint">{t.feed.priorityLabel}</p>
+                            )}
+                            <h2 className={priority ? 'text-title text-text sm:text-headline' : 'text-title text-text'}>
+                              {c.title}
+                            </h2>
+                            {c.profiles?.display_name && (
+                              <p className="mt-0.5 text-xs text-text-faint">
+                                {t.feed.artistLabel}: {c.profiles.display_name}
+                              </p>
+                            )}
+                            <p className="mt-2 text-sm text-text-dim">{c.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-2">
+                          <StatusBadge status={c.status} />
+                          {c.budget && (
+                            <p className="text-right">
+                              <span className={priority ? 'block text-display-sm tabular text-text' : 'block text-lg tabular text-text'}>
+                                {c.budget} $
+                              </span>
+                              <span className="text-micro uppercase text-text-faint">{t.feed.budgetLabel}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {(c.track_url || c.spotify_url) && (
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {c.track_url && (
+                            <a
+                              href={c.track_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+                            >
+                              🎵 {t.feed.soundTiktok}
+                            </a>
+                          )}
+                          {c.spotify_url && (
+                            <a
+                              href={c.spotify_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+                            >
+                              🎧 {t.feed.soundSpotify}
+                            </a>
+                          )}
+                        </div>
+                      )}
+
+                      {c.manager_message && (
+                        <div className="mt-4 flex gap-2 border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
+                          <span aria-hidden="true">💬</span>
+                          <div>
+                            <p className="text-meta text-accent">{t.feed.managerMessageLabel}</p>
+                            <p className="mt-1 text-sm text-text-dim">{c.manager_message}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {already ? (
+                        <p className="mt-4 text-sm text-text-faint">{t.feed.alreadyApplied}</p>
+                      ) : canApply && !payout ? (
+                        <div className="mt-5 flex flex-col gap-2 border-t border-border pt-5">
+                          <p className="text-sm text-warning">{t.feed.noPayoutWarning}</p>
+                          <Link
+                            href="/settings"
+                            className="self-start rounded-full border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text active:scale-95"
+                          >
+                            {t.feed.goToSettings}
+                          </Link>
+                        </div>
+                      ) : canApply && payout ? (
+                        <form action={applyToCampaignAction} className="mt-5 flex flex-col gap-3 border-t border-border pt-5">
+                          <input type="hidden" name="campaign_id" value={c.id} />
+                          <Field label={t.feed.coverNote}>
+                            <textarea className={inputClass} name="cover_note" rows={2} placeholder={t.feed.coverNotePlaceholder} />
+                          </Field>
+                          <p className="text-xs text-text-faint">
+                            {t.feed.applyPriceNote} {profile?.price_min ?? '—'} $. {t.feed.payoutWillArrive}{' '}
+                            {payout.label}: {payout.value}. {t.feed.payoutHint}
+                          </p>
+                          <Button type="submit" variant="primary" className="self-start">
+                            {t.feed.applyBtn}
+                          </Button>
+                        </form>
+                      ) : null}
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+          </Grid>
+        </Container>
       </main>
     </>
   );
