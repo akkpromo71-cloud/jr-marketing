@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { Nav } from '@/components/nav';
 import { Card, Button, Field, inputClass, BackLink, RatingInput } from '@/components/ui';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
@@ -61,14 +60,12 @@ export default async function ApplicationDetailPage({
     : { data: null };
 
   return (
-    <>
-      <Nav />
-      <main className="mx-auto max-w-3xl px-6 py-12">
-        <BackLink
-          href={isAdmin ? `/dashboard/campaigns/${app.campaign_id}` : '/applications'}
-          label={t.common.back}
-        />
-        <div className="flex items-start justify-between gap-4">
+    <div>
+      <BackLink
+        href={isAdmin ? `/dashboard/campaigns/${app.campaign_id}` : '/applications'}
+        label={t.common.back}
+      />
+      <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
             <Avatar
               url={(editorProfile as Profile | null)?.avatar_url ?? null}
@@ -262,7 +259,6 @@ export default async function ApplicationDetailPage({
             )}
           </Card>
         )}
-      </main>
-    </>
+    </div>
   );
 }
