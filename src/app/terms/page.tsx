@@ -1,5 +1,5 @@
 import { Nav } from '@/components/nav';
-import { Card, BackLink } from '@/components/ui';
+import { BackLink } from '@/components/ui';
 import { getDict } from '@/lib/i18n';
 
 // Публичная страница условий использования — доступна без входа в аккаунт,
@@ -138,23 +138,33 @@ export default async function TermsPage() {
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-2xl px-6 py-12">
+      <main className="mx-auto max-w-container-text px-6 py-12">
         <BackLink href="/" label={t.common.back} />
-        <h1 className="font-display text-3xl font-medium text-text">{c.title}</h1>
-        <p className="mt-1 text-sm text-text-faint">{c.updated}</p>
+        <h1 className="text-headline text-text">{c.title}</h1>
+        <p className="mt-2 text-meta text-text-faint">{c.updated}</p>
 
-        <Card className="mt-8 flex flex-col gap-8 p-6 sm:p-8">
-          {c.sections.map((section) => (
-            <div key={section.title}>
-              <h2 className="font-display text-lg font-medium text-text">{section.title}</h2>
-              {section.body.map((paragraph, i) => (
-                <p key={i} className="mt-2 text-sm leading-relaxed text-text-dim">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-          ))}
-        </Card>
+        <div className="mt-10">
+          {c.sections.map((section) => {
+            // Номер раздела свисает в левое поле (редакторский приём).
+            const [num, ...rest] = section.title.split(' ');
+            return (
+              <section
+                key={section.title}
+                className="grid grid-cols-[2.5rem_1fr] gap-x-4 border-t border-border py-8"
+              >
+                <span className="text-meta tabular text-text-faint">{num}</span>
+                <div>
+                  <h2 className="text-title text-text">{rest.join(' ')}</h2>
+                  {section.body.map((paragraph, i) => (
+                    <p key={i} className="mt-3 text-body text-text-dim">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
       </main>
     </>
   );

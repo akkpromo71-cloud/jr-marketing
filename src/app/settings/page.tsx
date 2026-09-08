@@ -22,16 +22,16 @@ export default async function SettingsPage() {
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-lg px-6 py-12">
+      <main className="mx-auto max-w-container-text px-6 py-12">
         <BackLink href={backHref} label={t.common.back} />
-        <h1 className="font-display text-3xl font-medium text-text">{t.settings.title}</h1>
-        <p className="mt-1 text-sm text-text-dim">{t.settings.subtitle}</p>
+        <h1 className="text-headline text-text">{t.settings.title}</h1>
+        <p className="mt-2 text-body text-text-dim">{t.settings.subtitle}</p>
 
         <Toast successParam="saved" successMessage={t.settings.savedMsg} errorParam="error" />
 
         <Card className="mt-8 p-6">
           <form action={updateProfileAction} className="flex flex-col gap-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+            <p className="text-meta text-text-faint">
               {t.settings.profileTitle}
             </p>
             <div className="flex items-center gap-4">
@@ -73,7 +73,7 @@ export default async function SettingsPage() {
         {profile.role === 'editor' && (
           <Card className="mt-6 p-6">
             <form action={updatePayoutAction} className="flex flex-col gap-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">{t.payout.title}</p>
+              <p className="text-meta text-text-faint">{t.payout.title}</p>
               <Field label={t.payout.paypal}>
                 <input
                   className={inputClass}
