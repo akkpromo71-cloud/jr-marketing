@@ -55,9 +55,9 @@ const config: Config = {
         body: ['1rem', { lineHeight: '1.65' }],
         'body-lg': ['1.0625rem', { lineHeight: '1.6' }],
         title: ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
-        headline: ['clamp(1.9rem, 1.15rem + 3.4vw, 3.25rem)', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
-        'display-sm': ['clamp(2.4rem, 1.3rem + 5vw, 4.5rem)', { lineHeight: '0.96', letterSpacing: '-0.03em' }],
-        display: ['clamp(2.9rem, 0.9rem + 9vw, 8rem)', { lineHeight: '0.92', letterSpacing: '-0.035em' }],
+        headline: ['clamp(1.6rem, 1.1rem + 2.4vw, 2.5rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'display-sm': ['clamp(2.1rem, 1.2rem + 4vw, 3.75rem)', { lineHeight: '1', letterSpacing: '-0.03em' }],
+        display: ['clamp(2.75rem, 1rem + 7vw, 6rem)', { lineHeight: '0.95', letterSpacing: '-0.035em' }],
       },
       maxWidth: {
         container: '72rem',

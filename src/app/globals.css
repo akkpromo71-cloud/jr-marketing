@@ -174,25 +174,6 @@ button {
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
   }
-
-  /* «Лента» (REDESIGN_PLAN.md §3) — единственный авторский motion-жест на
-     лендинге. Дорожка внутри дублирует свой контент, поэтому сдвиг ровно на
-     -50% зацикливается бесшовно. Пауза по наведению — чтобы можно было
-     прочитать конкретную строку. */
-  @keyframes tape-scroll {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  .animate-tape {
-    animation: tape-scroll 42s linear infinite;
-  }
-  .animate-tape:hover {
-    animation-play-state: paused;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   .skeleton {
@@ -222,5 +203,30 @@ button {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Hero-reveal (REDESIGN_PLAN.md §3) — единственный авторский motion-жест:
+   слова дисплейного заголовка всплывают снизу вверх один раз при загрузке.
+   Прогрессивное улучшение: без JS (или пока идёт гидратация) слова просто
+   видны. Класс data-armed навешивается на клиенте сразу после монтирования
+   и запускает разовую анимацию; при prefers-reduced-motion она не проигрывается. */
+.hero-word {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-armed='true'] .hero-word {
+    animation: hero-word-in 0.7s cubic-bezier(0.19, 1, 0.22, 1) both;
+    animation-delay: var(--hero-word-delay, 0ms);
+  }
+  @keyframes hero-word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5em);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
