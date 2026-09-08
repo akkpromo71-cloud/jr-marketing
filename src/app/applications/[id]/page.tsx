@@ -73,7 +73,7 @@ export default async function ApplicationDetailPage({
               size={44}
             />
             <div>
-              <h1 className="font-display text-3xl font-medium text-text">{app.campaigns?.title}</h1>
+              <h1 className="text-headline text-text">{app.campaigns?.title}</h1>
               <p className="mt-1 text-sm text-text-dim">
                 {t.applicationDetail.editor}: {(editorProfile as Profile | null)?.display_name ?? '—'}
                 {app.price ? ` · ${t.applicationDetail.price}: ${app.price} $` : ''}
@@ -91,7 +91,7 @@ export default async function ApplicationDetailPage({
 
         {app.cover_note && (
           <Card className="mt-6 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+            <p className="text-meta text-text-faint">
               {t.applicationDetail.editorMessage}
             </p>
             <p className="mt-2 text-sm text-text">{app.cover_note}</p>
@@ -138,7 +138,7 @@ export default async function ApplicationDetailPage({
 
         {isEditor && (app.status === 'accepted' || app.status === 'in_revision') && (
           <Card className="mt-6 p-5">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-faint">
+            <p className="mb-3 text-meta text-text-faint">
               {t.applicationDetail.submitWork}
             </p>
             <form action={submitWorkAction} className="flex gap-3">
@@ -168,7 +168,7 @@ export default async function ApplicationDetailPage({
 
         {isEditor && app.status !== 'pending' && app.status !== 'rejected' && (
           <Card className="mt-6 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+            <p className="text-meta text-text-faint">
               {t.applicationDetail.resultFormTitle}
             </p>
             <p className="mt-1 text-xs text-text-faint">{t.applicationDetail.resultFormHint}</p>
@@ -190,27 +190,21 @@ export default async function ApplicationDetailPage({
 
         {app.posted_url && (
           <Card className="mt-6 p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-wide text-text-faint">
-              {t.applicationDetail.resultTitle}
-            </p>
+            <p className="mb-4 text-meta text-text-faint">{t.applicationDetail.resultTitle}</p>
             {app.views_count != null ? (
-              <div className="flex flex-wrap items-end gap-8">
+              <div className="flex flex-wrap items-end gap-10">
                 <div>
-                  <p className="font-display text-4xl font-medium text-accent">
+                  <p className="text-display-sm tabular text-accent">
                     {formatCompactNumber(app.views_count, locale)}
                   </p>
-                  <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-                    {t.applicationDetail.viewsLabel}
-                  </p>
+                  <p className="mt-1 text-meta text-text-faint">{t.applicationDetail.viewsLabel}</p>
                 </div>
                 {app.likes_count != null && (
                   <div>
-                    <p className="font-display text-2xl font-medium text-text">
+                    <p className="text-xl tabular text-text">
                       {formatCompactNumber(app.likes_count, locale)}
                     </p>
-                    <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-                      {t.applicationDetail.likesLabel}
-                    </p>
+                    <p className="mt-1 text-meta text-text-faint">{t.applicationDetail.likesLabel}</p>
                   </div>
                 )}
               </div>
@@ -240,7 +234,7 @@ export default async function ApplicationDetailPage({
               <form action={submitEditorReviewAction} className="flex flex-col gap-4">
                 <input type="hidden" name="application_id" value={app.id} />
                 <input type="hidden" name="campaign_id" value={app.campaign_id} />
-                <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
+                <p className="text-meta text-text-faint">
                   {t.reviewForm.editorTitle}
                 </p>
                 <RatingInput label={t.reviewForm.ratingLabel} />

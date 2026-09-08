@@ -17,7 +17,7 @@ export default async function NotFound() {
           <p className="text-5xl" aria-hidden="true">
             🔍
           </p>
-          <h1 className="mt-4 font-display text-2xl font-medium text-text">{t.notFound.title}</h1>
+          <h1 className="mt-4 text-headline text-text">{t.notFound.title}</h1>
           <p className="mt-2 text-sm text-text-dim">{t.notFound.text}</p>
           <LinkButton href="/" variant="primary" className="mt-6">
             {t.notFound.backHome}

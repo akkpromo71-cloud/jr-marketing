@@ -41,7 +41,7 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
         <p className="text-5xl" aria-hidden="true">
           ⚠️
         </p>
-        <h1 className="mt-4 font-display text-2xl font-medium text-text">{t.title}</h1>
+        <h1 className="mt-4 text-headline text-text">{t.title}</h1>
         <p className="mt-2 text-sm text-text-dim">{t.text}</p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Button variant="primary" onClick={reset}>
