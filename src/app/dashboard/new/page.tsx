@@ -44,10 +44,10 @@ export default async function NewCampaignPage({
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-lg px-6 py-12">
+      <main className="mx-auto max-w-container-text px-6 py-12">
         <BackLink href="/dashboard" label={t.common.back} />
-        <h1 className="font-display text-3xl font-medium text-text">{t.dashboardNew.title}</h1>
-        <p className="mt-1 text-sm text-text-dim">{t.dashboardNew.subtitle}</p>
+        <h1 className="text-headline text-text">{t.dashboardNew.title}</h1>
+        <p className="mt-2 text-body text-text-dim">{t.dashboardNew.subtitle}</p>
 
         <Card className="mt-8 p-6">
           {error && (
@@ -88,8 +88,8 @@ export default async function NewCampaignPage({
                 рекомендованного — показывает подтверждение через confirm(),
                 не блокируя публикацию (это ориентир, а не жёсткое правило). */}
             <div className="-mt-2 rounded-none border border-border bg-surface2/30 px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-text-faint">
-                {t.dashboardNew.budgetHintTitle}: <span id="budget-hint-range" className="normal-case text-accent">—</span>
+              <p className="text-meta text-text-faint">
+                {t.dashboardNew.budgetHintTitle}: <span id="budget-hint-range" className="normal-case tracking-normal text-accent">—</span>
               </p>
               <p className="mt-1 text-xs text-text-faint">{t.dashboardNew.budgetHintDisclaimer}</p>
             </div>

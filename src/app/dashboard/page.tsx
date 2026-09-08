@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, LinkButton, EmptyState } from '@/components/ui';
+import { LinkButton, EmptyState } from '@/components/ui';
+import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
@@ -10,6 +11,14 @@ import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
 import type { Campaign } from '@/lib/types';
 
+// Засечка статуса слева от строки кампании — «пульт управления» считывается
+// взглядом: активные — акцентная засечка, завершённые/закрытые — приглушённая.
+function tickClass(status: string) {
+  return status === 'completed' || status === 'closed'
+    ? 'border-l-2 border-l-border'
+    : 'border-l-2 border-l-accent';
+}
+
 export default async function DashboardPage({
   searchParams,
 }: {
@@ -17,14 +26,13 @@ export default async function DashboardPage({
 }) {
   const { created, welcome } = await searchParams;
   const profile = await getCurrentProfile();
-  // Эта страница только для артистов (и админа, который может подглядывать) —
-  // эдитора, который сюда случайно попал, отправляем на его настоящую домашнюю страницу.
   if (profile && profile.role !== 'artist' && profile.role !== 'admin') {
     redirect(roleHome(profile.role));
   }
   const supabase = await createClient();
   const { t, locale } = await getDict();
 
+  // Данные и запросы НЕ менялись (REDESIGN_PLAN.md §6).
   const { data: campaigns } = profile
     ? await supabase
         .from('campaigns')
@@ -33,104 +41,107 @@ export default async function DashboardPage({
         .order('created_at', { ascending: false })
     : { data: [] };
 
-  const active = (campaigns ?? []).filter((c: Campaign) => c.status !== 'completed' && c.status !== 'closed');
-  const finished = (campaigns ?? []).filter((c: Campaign) => c.status === 'completed' || c.status === 'closed');
+  const all = (campaigns ?? []) as (Campaign & { applications: { count: number }[] })[];
+  const active = all.filter((c) => c.status !== 'completed' && c.status !== 'closed');
+  const finished = all.filter((c) => c.status === 'completed' || c.status === 'closed');
 
-  // Суммарный охват по всем трекам артиста сразу — берём результаты, которые
-  // эдиторы внесли по своим заявкам на все кампании этого артиста.
   type ResultRow = { views_count: number | null; posted_url: string | null };
-  const campaignIds = (campaigns ?? []).map((c: Campaign) => c.id);
+  const campaignIds = all.map((c) => c.id);
   const { data: resultRowsRaw } = campaignIds.length
     ? await supabase.from('applications').select('views_count, posted_url').in('campaign_id', campaignIds)
     : { data: [] as ResultRow[] };
   const resultRows = (resultRowsRaw ?? []) as ResultRow[];
 
-  const totalViews = resultRows.reduce((sum: number, r: ResultRow) => sum + (r.views_count ?? 0), 0);
-  const editsCount = resultRows.filter((r: ResultRow) => r.posted_url || r.views_count != null).length;
+  const totalViews = resultRows.reduce((sum, r) => sum + (r.views_count ?? 0), 0);
+  const editsCount = resultRows.filter((r) => r.posted_url || r.views_count != null).length;
+
+  const RailRow = ({ c }: { c: Campaign & { applications: { count: number }[] } }) => (
+    <Link
+      href={`/dashboard/campaigns/${c.id}`}
+      className={`flex items-center justify-between gap-3 bg-surface py-3 pl-4 pr-3 transition hover:bg-surface2/20 ${tickClass(
+        c.status
+      )} ${c.status === 'completed' || c.status === 'closed' ? 'opacity-70' : ''}`}
+    >
+      <span className="min-w-0">
+        <span className="block truncate text-sm text-text">{c.title}</span>
+        <span className="text-micro uppercase text-text-faint">
+          {t.dashboard.responses}: {c.applications?.[0]?.count ?? 0}
+        </span>
+      </span>
+      <StatusBadge status={c.status} />
+    </Link>
+  );
 
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-4xl px-6 py-12">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="font-display text-3xl font-medium text-text">{t.dashboard.title}</h1>
-            <p className="mt-1 text-sm text-text-dim">{t.dashboard.subtitle}</p>
-          </div>
-          <LinkButton href="/dashboard/new" variant="primary">
-            {t.dashboard.newTrackBtn}
-          </LinkButton>
-        </div>
+      <main className="py-12">
+        <Container>
+          <Grid>
+            {/* Левый рельс — постоянный список кампаний артиста. */}
+            <aside className="flex flex-col gap-3 md:col-span-4 md:sticky md:top-24 md:self-start">
+              <div className="flex items-center justify-between">
+                <h1 className="text-meta text-text-faint">{t.dashboard.campaignsRailLabel}</h1>
+                <LinkButton href="/dashboard/new" variant="primary" className="!px-3 !py-1.5 text-xs">
+                  {t.dashboard.newTrackBtn}
+                </LinkButton>
+              </div>
 
-        {welcome === 'artist' && (
-          <div className="mt-6 rounded-none border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
-            {t.dashboard.welcomeArtist}
-          </div>
-        )}
-        {created === '1' && (
-          <div className="mt-6 rounded-none border border-[var(--success-tint-border)] bg-[var(--success-tint-bg)] px-4 py-3 text-sm text-success">
-            {t.dashboard.createdMsg}
-          </div>
-        )}
+              {all.length === 0 && <EmptyState icon="📁" text={t.dashboard.noActiveCampaigns} />}
 
-        {totalViews > 0 && (
-          <Card className="mt-8 flex flex-wrap items-center gap-10 p-6">
-            <div>
-              <p className="font-display text-4xl font-medium text-accent">
-                {formatCompactNumber(totalViews, locale)}
-              </p>
-              <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-                {t.dashboard.totalViewsLabel}
-              </p>
-            </div>
-            <div>
-              <p className="font-display text-4xl font-medium text-text">{editsCount}</p>
-              <p className="mt-1 text-xs uppercase tracking-wide text-text-faint">
-                {t.dashboard.editsCountLabel}
-              </p>
-            </div>
-          </Card>
-        )}
-
-        <section className="mt-8">
-          <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-faint">{t.dashboard.activeLabel}</h2>
-          <div className="flex flex-col gap-4">
-            {active.length === 0 && <EmptyState icon="📁" text={t.dashboard.noActiveCampaigns} />}
-            {active.map((c: Campaign & { applications: { count: number }[] }) => (
-              <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
-                <Card className="p-5 hover:-translate-y-0.5 hover:border-accent/50">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <h3 className="font-display text-lg font-medium text-text">{c.title}</h3>
-                      <p className="mt-1 text-sm text-text-faint">
-                        {t.dashboard.responses}: {c.applications?.[0]?.count ?? 0}
-                      </p>
-                    </div>
-                    <StatusBadge status={c.status} />
+              {active.length > 0 && (
+                <div className="flex flex-col border border-border">
+                  {active.map((c) => (
+                    <RailRow key={c.id} c={c} />
+                  ))}
+                </div>
+              )}
+              {finished.length > 0 && (
+                <>
+                  <p className="mt-2 text-micro uppercase text-text-faint">{t.dashboard.finishedLabel}</p>
+                  <div className="flex flex-col border border-border">
+                    {finished.map((c) => (
+                      <RailRow key={c.id} c={c} />
+                    ))}
                   </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
+                </>
+              )}
+            </aside>
 
-        {finished.length > 0 && (
-          <section className="mt-10">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-faint">{t.dashboard.finishedLabel}</h2>
-            <div className="flex flex-col gap-4">
-              {finished.map((c: Campaign) => (
-                <Link key={c.id} href={`/dashboard/campaigns/${c.id}`}>
-                  <Card className="p-5 opacity-80 hover:-translate-y-0.5 hover:opacity-100">
-                    <div className="flex items-center justify-between gap-4">
-                      <h3 className="font-display text-lg font-medium text-text">{c.title}</h3>
-                      <StatusBadge status={c.status} />
-                    </div>
-                  </Card>
-                </Link>
-              ))}
+            {/* Правая область — сводка по всем трекам (детали открываются в
+                отдельной кампании). */}
+            <div className="md:col-span-8">
+              {welcome === 'artist' && (
+                <p className="mb-6 border-l-2 border-[var(--success-tint-border)] pl-3 text-xs text-success">
+                  {t.dashboard.welcomeArtist}
+                </p>
+              )}
+              {created === '1' && (
+                <p className="mb-6 border-l-2 border-[var(--success-tint-border)] pl-3 text-xs text-success">
+                  {t.dashboard.createdMsg}
+                </p>
+              )}
+
+              <h2 className="text-headline text-text">{t.dashboard.allTracksTitle}</h2>
+              <p className="mt-2 text-body text-text-dim">{t.dashboard.allTracksHint}</p>
+
+              {totalViews > 0 && (
+                <dl className="mt-10 max-w-md">
+                  <div className="flex items-baseline justify-between border-t border-border py-5">
+                    <dt className="text-meta text-text-faint">{t.dashboard.totalViewsLabel}</dt>
+                    <dd className="text-display-sm tabular text-text">
+                      {formatCompactNumber(totalViews, locale)}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between border-t border-border py-5">
+                    <dt className="text-meta text-text-faint">{t.dashboard.editsCountLabel}</dt>
+                    <dd className="text-display-sm tabular text-text">{editsCount}</dd>
+                  </div>
+                </dl>
+              )}
             </div>
-          </section>
-        )}
+          </Grid>
+        </Container>
       </main>
     </>
   );
