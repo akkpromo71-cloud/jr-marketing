@@ -13,6 +13,7 @@ export const dict = {
   ru: {
     common: {
       back: 'Назад',
+      earlyAccess: 'Идёт первый набор',
     },
     payout: {
       title: 'Способ получения оплаты',
@@ -123,6 +124,20 @@ export const dict = {
         'Нет — чтобы избежать нечестных сделок в обход площадки, подбором и приёмкой работы занимается наша команда. Вы получаете сводный отчёт по результатам.',
       faq5Q: 'Это безопасно?',
       faq5A: 'Цену согласует администратор ещё до начала работы, скрытых комиссий нет.',
+      boardHeading: 'Пока идёт первый набор',
+      boardIntro: 'Никаких выдуманных цифр — здесь только то, что уже произошло на площадке.',
+      tapePlatform: 'Площадка',
+      tapeEditsWord: 'эдитов',
+      tapeViewsWord: 'просмотров',
+      tapeActiveWord: 'эдиторов в работе',
+      heroIndexBoard: 'Ведомость',
+      heroIndexHow: 'Как это работает',
+      heroIndexRoles: 'Кто вы',
+      heroIndexFaq: 'Вопросы',
+      rolesTitle: 'Кто вы',
+      finalCtaLead: 'Готовы?',
+      finalCtaArtistLink: 'Начать как артист',
+      finalCtaEditorLink: 'или как эдитор',
     },
     login: {
       title: 'С возвращением',
@@ -176,6 +191,7 @@ export const dict = {
       socialHint: 'Нужна хотя бы одна ссылка — на Instagram или TikTok. Telegram — по желанию.',
       requiredNote: '* — обязательные поля',
       submitBtn: 'Отправить заявку',
+      brandLine: 'Монтаж — в доход',
     },
     signupArtist: {
       title: 'Регистрация артиста',
@@ -188,6 +204,7 @@ export const dict = {
       aboutPlaceholder: 'Кто вы, какая музыка, что нужно от эдитора',
       requiredNote: '* — обязательные поля',
       submitBtn: 'Создать аккаунт',
+      brandLine: 'Трек — в охваты',
     },
     feed: {
       title: 'Лента треков',
@@ -214,6 +231,10 @@ export const dict = {
       noPayoutWarning: 'Прежде чем откликаться, укажите способ оплаты в настройках.',
       goToSettings: 'Перейти в настройки',
       applyBtn: 'Взять в работу',
+      openTracksLabel: 'Открытых треков',
+      yourStatusLabel: 'Ваш статус',
+      statusReady: 'Готов откликаться',
+      priorityLabel: 'С бюджетом',
     },
     applicationsList: {
       title: 'Мои заявки',
@@ -221,6 +242,8 @@ export const dict = {
       appliedMsg: 'Заявка отправлена — её рассмотрит наша команда.',
       noApplications: 'Заявок пока нет.',
       yourPrice: 'Ваша цена',
+      queueLabel: 'Очередь',
+      selectPrompt: 'Выберите заявку из списка, чтобы открыть её.',
     },
     applicationDetail: {
       editor: 'Эдитор',
@@ -259,6 +282,9 @@ export const dict = {
       finishedLabel: 'Завершённые',
       totalViewsLabel: 'Суммарный охват',
       editsCountLabel: 'Эдитов с результатом',
+      campaignsRailLabel: 'Кампании',
+      allTracksTitle: 'Сводка по всем трекам',
+      allTracksHint: 'Выберите кампанию в списке слева, чтобы открыть её.',
     },
     dashboardNew: {
       title: 'Новый трек',
@@ -319,6 +345,7 @@ export const dict = {
       campaignLabel: 'Кампания',
       followersLabel: 'Подписчики',
       avgViewsLabel: 'Ср. просмотры',
+      queuesLabel: 'Очереди',
     },
     terms: {
       pageTitle: 'Условия использования',
@@ -366,6 +393,7 @@ export const dict = {
   en: {
     common: {
       back: 'Back',
+      earlyAccess: 'First cohort forming',
     },
     payout: {
       title: 'Payout method',
@@ -475,6 +503,20 @@ export const dict = {
         'No — to avoid deals going around the platform, our team handles matching and reviewing the work. You get a summary report of the results.',
       faq5Q: 'Is this safe?',
       faq5A: 'The price is approved by the admin before work starts, and there are no hidden fees.',
+      boardHeading: 'The board so far',
+      boardIntro: 'No invented figures — only what has actually happened on the platform.',
+      tapePlatform: 'Platform',
+      tapeEditsWord: 'edits',
+      tapeViewsWord: 'views',
+      tapeActiveWord: 'editors working',
+      heroIndexBoard: 'The board',
+      heroIndexHow: 'How it works',
+      heroIndexRoles: 'Who you are',
+      heroIndexFaq: 'Questions',
+      rolesTitle: 'Who you are',
+      finalCtaLead: 'Ready?',
+      finalCtaArtistLink: 'Start as an artist',
+      finalCtaEditorLink: 'or as an editor',
     },
     login: {
       title: 'Welcome back',
@@ -528,6 +570,7 @@ export const dict = {
       socialHint: 'At least one link is required — Instagram or TikTok. Telegram is optional.',
       requiredNote: '* — required fields',
       submitBtn: 'Submit application',
+      brandLine: 'Editing into income',
     },
     signupArtist: {
       title: 'Artist sign-up',
@@ -540,6 +583,7 @@ export const dict = {
       aboutPlaceholder: 'Who you are, what kind of music, what you need from an editor',
       requiredNote: '* — required fields',
       submitBtn: 'Create account',
+      brandLine: 'Tracks into reach',
     },
     feed: {
       title: 'Track feed',
@@ -566,6 +610,10 @@ export const dict = {
       noPayoutWarning: 'Add a payout method in Settings before applying.',
       goToSettings: 'Go to Settings',
       applyBtn: 'Take this track',
+      openTracksLabel: 'Open tracks',
+      yourStatusLabel: 'Your status',
+      statusReady: 'Ready to apply',
+      priorityLabel: 'Has budget',
     },
     applicationsList: {
       title: 'My applications',
@@ -573,6 +621,8 @@ export const dict = {
       appliedMsg: "Application sent — our team will review it.",
       noApplications: 'No applications yet.',
       yourPrice: 'Your price',
+      queueLabel: 'Queue',
+      selectPrompt: 'Pick an application from the list to open it.',
     },
     applicationDetail: {
       editor: 'Editor',
@@ -611,6 +661,9 @@ export const dict = {
       finishedLabel: 'Finished',
       totalViewsLabel: 'Total reach',
       editsCountLabel: 'Edits with results',
+      campaignsRailLabel: 'Campaigns',
+      allTracksTitle: 'All tracks at a glance',
+      allTracksHint: 'Pick a campaign in the list on the left to open it.',
     },
     dashboardNew: {
       title: 'New track',
@@ -671,6 +724,7 @@ export const dict = {
       campaignLabel: 'Campaign',
       followersLabel: 'Followers',
       avgViewsLabel: 'Avg. views',
+      queuesLabel: 'Queues',
     },
     terms: {
       pageTitle: 'Terms of Service',

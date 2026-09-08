@@ -46,10 +46,10 @@
   --gradient-iridescent-fade: linear-gradient(90deg, rgb(160, 224, 171), rgb(255, 172, 46) 50%, rgb(165, 45, 37));
 }
 
-/* Тёмная тема технически ещё поддержана переключателем (src/components/theme-toggle.tsx)
-   до Фазы 2 редизайна, где тумблер убирается (design-pack/migration-map.md §8 — у эталона
-   нет пользовательской тёмной темы, есть только чёрные full-bleed секции внутри светлой
-   страницы). Здесь — честная инверсия palette на время переходного периода. */
+/* Пользовательского переключателя тёмной темы больше нет (компонент удалён при
+   перестройке структуры, REDESIGN_PLAN.md §2.5). Класс .dark оставлен: на него
+   ещё есть ссылки, и это честная инверсия palette. Язык лендинга/auth —
+   light-first с осознанными чёрными full-bleed полосами внутри светлой страницы. */
 .dark {
   --bg: #000000;
   --surface: #000000;
@@ -91,6 +91,31 @@ html.dark {
 body {
   background: var(--bg);
   color: var(--text);
+  /* full-bleed секции выходят за контейнер на 100vw — гасим побочный
+     горизонтальный скролл (особенно на Windows, где полоса прокрутки
+     занимает место). overflow-x: clip не создаёт scroll-контейнер,
+     в отличие от hidden, поэтому sticky внутри страницы продолжает работать. */
+  overflow-x: clip;
+}
+
+/* ============================================================
+   Раскладка «ведомости» (REDESIGN_PLAN.md §2): утилиты сетки/ритма
+   поверх токен-слоя. Ничего из старых токенов не удалено.
+   ============================================================ */
+@layer utilities {
+  /* Ровные столбцы цифр в лидерборде, отчётах, «Ленте». */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Секция «в край экрана»: выходит за центрированный контейнер, оставляя
+     только естественные боковые поля внутри самой секции. Без transform,
+     чтобы не конфликтовать с hover/active-скейлами внутри. */
+  .full-bleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
 }
 
 button {
@@ -148,6 +173,25 @@ button {
     background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
+  }
+
+  /* «Лента» (REDESIGN_PLAN.md §3) — единственный авторский motion-жест на
+     лендинге. Дорожка внутри дублирует свой контент, поэтому сдвиг ровно на
+     -50% зацикливается бесшовно. Пауза по наведению — чтобы можно было
+     прочитать конкретную строку. */
+  @keyframes tape-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .animate-tape {
+    animation: tape-scroll 42s linear infinite;
+  }
+  .animate-tape:hover {
+    animation-play-state: paused;
   }
 }
 @media (prefers-reduced-motion: reduce) {

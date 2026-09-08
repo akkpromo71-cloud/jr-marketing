@@ -59,13 +59,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale();
   return (
     <html lang={locale}>
-      {/* Редизайн под Monopo Saigon: пользовательская тёмная тема убирается
-          (design-pack/migration-map.md §8) — у эталона нет тумблера темы,
-          есть только чёрные full-bleed секции внутри светлой страницы.
-          Скрипт установки .dark до гидратации больше не нужен — класс .dark
-          в globals.css остаётся как честная инверсия palette на переходный
-          период, пока Фаза 2 не уберёт сам переключатель (theme-toggle.tsx,
-          кнопка в nav.tsx). */}
+      {/* Пользовательской тёмной темы нет (переключатель удалён при перестройке
+          структуры, REDESIGN_PLAN.md §2.5) — есть только чёрные full-bleed
+          секции внутри светлой страницы. Класс .dark в globals.css оставлен
+          как честная инверсия palette. */}
       <body className={`${inter.variable} font-sans antialiased`}>{children}</body>
     </html>
   );

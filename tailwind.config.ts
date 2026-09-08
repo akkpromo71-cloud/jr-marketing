@@ -45,6 +45,28 @@ const config: Config = {
         bold: '600',
         extrabold: '600',
       },
+      // Типографическая шкала «ведомости» (REDESIGN_PLAN.md §2.1) — резкий
+      // контраст дисплейного и служебного размеров (~10×), которого не было.
+      // Через extend, поэтому дефолтные text-xs…text-6xl остаются рабочими
+      // для нетронутых мест.
+      fontSize: {
+        micro: ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0.06em' }],
+        meta: ['0.75rem', { lineHeight: '1.3', letterSpacing: '0.14em' }],
+        body: ['1rem', { lineHeight: '1.65' }],
+        'body-lg': ['1.0625rem', { lineHeight: '1.6' }],
+        title: ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        headline: ['clamp(1.9rem, 1.15rem + 3.4vw, 3.25rem)', { lineHeight: '1.05', letterSpacing: '-0.02em' }],
+        'display-sm': ['clamp(2.4rem, 1.3rem + 5vw, 4.5rem)', { lineHeight: '0.96', letterSpacing: '-0.03em' }],
+        display: ['clamp(2.9rem, 0.9rem + 9vw, 8rem)', { lineHeight: '0.92', letterSpacing: '-0.035em' }],
+      },
+      maxWidth: {
+        container: '72rem',
+        'container-text': '42rem',
+      },
+      spacing: {
+        section: 'clamp(4rem, 2rem + 9vw, 9rem)',
+        gutter: '1.5rem',
+      },
       boxShadow: {
         // Эталон запрещает elevation/box-shadow полностью (design-pack/design.md,
         // Elevation: "deliberately avoids shadow elevation"). Обнулено здесь на
