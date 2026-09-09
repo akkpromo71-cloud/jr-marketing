@@ -23,18 +23,21 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 
 type ButtonVariant = 'primary' | 'artist' | 'secondary' | 'ghost' | 'danger';
 
-// active:scale — тактильный отклик на нажатие. rounded-full — пилюльный радиус
-// для кнопок/тегов (бинарные радиусы: пилюля у кнопок, 4px у карточек/полей).
+// btn-pop (globals.css) — пружинистый «поп» на hover/active. rounded-full —
+// пилюльный радиус (бинарные радиусы: пилюля у кнопок, 4px у карточек/полей).
 const buttonBase =
-  'inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100';
+  'btn-pop inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
 // primary — единственное доминирующее действие в поле зрения: сплошная
-// timeline-blue заливка. artist — сплошная magenta (сторона артиста в развилке).
-// secondary/ghost — хайрлайн-пилюля и текстовая ссылка для неглавных путей.
+// timeline-blue заливка. artist — сплошная magenta (сторона артиста).
+// secondary/ghost — хайрлайн-пилюля и текстовая ссылка. На hover — мягкое
+// свечение в цвете самой кнопки (не тень-«коробка»).
 const buttonVariants: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-on-accent hover:brightness-110',
-  artist: 'bg-primary text-on-primary hover:brightness-110',
+  primary:
+    'bg-accent text-on-accent hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgba(59,130,246,0.55)]',
+  artist:
+    'bg-primary text-on-primary hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgba(236,72,153,0.55)]',
   secondary:
-    'border border-border bg-transparent text-text hover:border-white/25 hover:bg-white/[0.04]',
+    'border border-border bg-transparent text-text hover:border-white/25 hover:bg-white/[0.04] hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.16)]',
   ghost: 'text-text-dim hover:text-text',
   danger:
     'border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] text-danger hover:brightness-110',

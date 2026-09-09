@@ -78,7 +78,7 @@ export async function Nav() {
               {/* Единственная доминирующая CTA в шапке — сплошная timeline-blue. */}
               <Link
                 href="/signup/artist"
-                className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-on-accent transition hover:brightness-110 active:scale-95"
+                className="btn-pop rounded-full bg-accent px-4 py-2 text-xs font-semibold text-on-accent hover:brightness-110 hover:shadow-[0_10px_28px_-8px_rgba(59,130,246,0.55)]"
               >
                 {t.nav.startCta}
               </Link>

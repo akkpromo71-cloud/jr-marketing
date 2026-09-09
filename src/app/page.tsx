@@ -8,7 +8,6 @@ import {
   BadgeCheck,
   Wallet,
   Star,
-  Plus,
   ArrowRight,
 } from 'lucide-react';
 import { getCurrentProfile } from '@/lib/current-profile';
@@ -20,6 +19,7 @@ import { LinkButton } from '@/components/ui';
 import { HeroReveal } from '@/components/hero-reveal';
 import { HeroVisual } from '@/components/hero-visual';
 import { Ticker } from '@/components/ticker';
+import { Faq } from '@/components/faq';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
 
@@ -132,11 +132,21 @@ export default async function LandingPage() {
                   {t.landing.heroSubtitle}
                 </p>
                 <div className="mt-9 flex flex-wrap gap-3">
-                  <LinkButton href="/signup/artist" variant="artist">
+                  <LinkButton
+                    href="/signup/artist"
+                    variant="artist"
+                    className="pop-in"
+                    style={{ ['--pop-delay' as string]: '120ms' }}
+                  >
                     <AudioLines size={16} strokeWidth={2} aria-hidden="true" />
                     {t.landing.heroPrimaryCta}
                   </LinkButton>
-                  <LinkButton href="/signup/editor" variant="secondary">
+                  <LinkButton
+                    href="/signup/editor"
+                    variant="secondary"
+                    className="pop-in"
+                    style={{ ['--pop-delay' as string]: '220ms' }}
+                  >
                     <Scissors size={16} strokeWidth={2} aria-hidden="true" />
                     {t.landing.heroSecondaryCta}
                   </LinkButton>
@@ -403,37 +413,22 @@ export default async function LandingPage() {
           </section>
         )}
 
-        {/* ── FAQ как блок доверия: полноценная секция, не мелкий текст ── */}
+        {/* ── FAQ как блок доверия: крупные пронумерованные вопросы ── */}
         <section id="faq" className="scroll-mt-24 border-b border-border">
           <Container className="py-section-lg">
-            <Grid>
-              <div className="md:col-span-4">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
                 <p className="inline-flex items-center gap-2 text-meta text-success">
                   <ShieldCheck size={15} strokeWidth={2} aria-hidden="true" />
-                  {t.common.earlyAccess}
+                  {t.landing.faqEyebrow}
                 </p>
                 <h2 className="mt-3 text-headline text-text">{t.landing.faqTitle}</h2>
-                <p className="mt-4 max-w-container-text text-body text-text-dim">
-                  {t.landing.faqReassurance}
-                </p>
               </div>
-              <div className="md:col-span-7 md:col-start-6">
-                {faqItems.map((item) => (
-                  <details
-                    key={item.q}
-                    className="group border-t border-border py-5 last:border-b"
-                  >
-                    <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-title text-text marker:content-none [&::-webkit-details-marker]:hidden">
-                      {item.q}
-                      <span className="mt-1 shrink-0 text-text-faint transition-transform duration-200 group-open:rotate-45">
-                        <Plus size={18} strokeWidth={2} aria-hidden="true" />
-                      </span>
-                    </summary>
-                    <p className="mt-3 max-w-container-text text-body-lg text-text-dim">{item.a}</p>
-                  </details>
-                ))}
-              </div>
-            </Grid>
+              <p className="max-w-xs text-body text-text-faint sm:text-right">
+                {t.landing.faqReassurance}
+              </p>
+            </div>
+            <Faq items={faqItems} />
           </Container>
         </section>
 

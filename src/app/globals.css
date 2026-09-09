@@ -231,6 +231,127 @@ button {
 }
 
 /* ============================================================
+   Ночной визуал хиро (src/components/hero-visual.tsx) — плавное «дыхание»
+   волны. Каждый штрих масштабируется по вертикали вокруг своего центра со
+   своим сдвигом фазы (--wb-delay) — получается медленная бегущая волна.
+   Всё выключается при prefers-reduced-motion.
+   ============================================================ */
+.hero-visual-in {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-visual-in {
+    animation: hero-visual-in 0.9s cubic-bezier(0.19, 1, 0.22, 1) 0.1s both;
+  }
+  @keyframes hero-visual-in {
+    from {
+      opacity: 0;
+      transform: scale(1.04);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .hero-wave__bar {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hero-wave-breathe var(--wb-dur, 3.2s) ease-in-out var(--wb-delay, 0s) infinite alternate;
+    will-change: transform, opacity;
+  }
+  @keyframes hero-wave-breathe {
+    from {
+      transform: scaleY(0.58);
+      opacity: 0.66;
+    }
+    to {
+      transform: scaleY(1.14);
+      opacity: 1;
+    }
+  }
+
+  .hero-wave__clip {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: hero-wave-clip var(--wb-dur, 4s) ease-in-out var(--wb-delay, 0s) infinite alternate;
+  }
+  @keyframes hero-wave-clip {
+    from {
+      opacity: 0.5;
+      transform: scaleY(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scaleY(1.06);
+    }
+  }
+
+  .hero-wave__playhead {
+    animation: hero-wave-playhead 7.5s cubic-bezier(0.55, 0, 0.45, 1) infinite;
+  }
+  @keyframes hero-wave-playhead {
+    0% {
+      opacity: 0;
+      transform: translateX(calc(-1 * var(--ph-travel, 180px)));
+    }
+    10% {
+      opacity: 0.85;
+    }
+    82% {
+      opacity: 0.85;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(0);
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual-in {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Кнопки — «поп»: пружинистый подъём на hover с мягким свечением в цвете
+   кнопки, короткая осадка на active. Плюс разовое появление (.pop-in) для
+   главных CTA. Тонко: масштаб не выше 1.03. Всё гаснет при reduced-motion.
+   ============================================================ */
+.btn-pop {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease,
+    filter 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn-pop:hover {
+    transform: translateY(-2px) scale(1.025);
+  }
+  .btn-pop:active {
+    transform: translateY(0) scale(0.975);
+    transition-duration: 0.09s;
+  }
+  .pop-in {
+    animation: pop-in 0.55s cubic-bezier(0.34, 1.4, 0.64, 1) backwards;
+    animation-delay: var(--pop-delay, 0ms);
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+/* ============================================================
    «Лента» — бегущая строка реальных цифр площадки (src/components/ticker.tsx).
    Две одинаковые копии подряд; трек сдвигается ровно на половину своей
    ширины, поэтому склейка бесшовная и полоса всегда заполнена целиком.

@@ -1,8 +1,9 @@
 // Ночной визуал хиро: звуковая волна (magenta) слева перетекает в блоки
 // монтажного таймлайна (blue) справа. Никаких хроматических градиентов —
-// два сплошных цвета сторон + плоский синий vignette (разрешённый в системе
-// единственный градиент). Статично, без анимации. Чистый inline-SVG,
-// серверный компонент, детерминированные высоты (SSR == CSR).
+// два сплошных цвета сторон + плоский синий vignette. Плавная анимация
+// «дыхания» волны — чистый CSS (см. globals.css, .hero-wave__*), у каждого
+// штриха свой сдвиг фазы, поэтому идёт медленная бегущая волна. Всё гаснет
+// при prefers-reduced-motion. Серверный компонент, детерминированная форма.
 const BARS = [
   0.22, 0.38, 0.3, 0.52, 0.44, 0.7, 0.58, 0.86, 0.64, 0.95, 0.8, 0.62, 0.9, 0.5,
   0.72, 0.4, 0.56, 0.34, 0.46, 0.26, 0.6, 0.42, 0.78, 0.5, 0.66, 0.36, 0.54, 0.3,
@@ -14,15 +15,15 @@ export function HeroVisual({ label }: { label: string }) {
   const mid = height / 2;
   const count = BARS.length;
   const gap = width / count;
-  // Точка «склейки»: слева — волна, справа — клипы таймлайна.
   const splitIndex = Math.round(count * 0.6);
+  const playheadX = splitIndex * gap + gap / 2;
 
   return (
     <svg
       role="img"
       aria-label={label}
       viewBox={`0 0 ${width} ${height}`}
-      className="h-full w-full"
+      className="hero-visual-in h-full w-full"
       preserveAspectRatio="xMidYMid meet"
     >
       <defs>
@@ -35,26 +36,37 @@ export function HeroVisual({ label }: { label: string }) {
 
       <rect x="0" y="0" width={width} height={height} fill="url(#jr-hero-glow)" />
 
-      {/* baseline / playhead */}
+      {/* baseline */}
       <line x1="0" y1={mid} x2={width} y2={mid} stroke="rgba(255,255,255,0.10)" strokeWidth="1" />
-      <line
-        x1={splitIndex * gap + gap / 2}
-        y1="24"
-        x2={splitIndex * gap + gap / 2}
-        y2={height - 24}
-        stroke="rgba(255,255,255,0.22)"
-        strokeWidth="1"
-        strokeDasharray="2 4"
-      />
+
+      {/* сканирующий playhead — медленно проходит по волне к линии склейки */}
+      <g
+        className="hero-wave__playhead"
+        style={{ ['--ph-travel' as string]: `${(playheadX - 14).toFixed(0)}px` }}
+      >
+        <line
+          x1={playheadX}
+          y1="20"
+          x2={playheadX}
+          y2={height - 20}
+          stroke="rgba(255,255,255,0.28)"
+          strokeWidth="1"
+          strokeDasharray="2 4"
+        />
+      </g>
 
       {BARS.map((amp, i) => {
         const x = i * gap + gap / 2;
+        // Фаза бежит слева направо, длительность слегка гуляет по индексу.
+        const phase = { ['--wb-delay' as string]: `${(i * 0.11).toFixed(2)}s`, ['--wb-dur' as string]: `${(2.9 + (i % 5) * 0.28).toFixed(2)}s` };
+
         if (i < splitIndex) {
-          // Волна: симметричная вертикальная линия от центра, magenta.
           const half = (amp * height) / 2.4;
           return (
             <line
               key={i}
+              className="hero-wave__bar"
+              style={phase}
               x1={x}
               y1={mid - half}
               x2={x}
@@ -66,12 +78,13 @@ export function HeroVisual({ label }: { label: string }) {
             />
           );
         }
-        // Таймлайн: прямоугольные клипы ровной высоты, blue, с зазором.
         const clipH = 30 + (i % 3) * 16;
         const clipW = gap * 0.66;
         return (
           <rect
             key={i}
+            className="hero-wave__clip"
+            style={phase}
             x={x - clipW / 2}
             y={mid - clipH / 2}
             width={clipW}
@@ -85,7 +98,7 @@ export function HeroVisual({ label }: { label: string }) {
         );
       })}
 
-      {/* верхняя/нижняя монтажные дорожки справа — намёк на треки в таймлайне */}
+      {/* верхняя/нижняя монтажные дорожки справа */}
       {[mid - 96, mid + 96].map((y, k) => (
         <g key={k} opacity="0.5">
           {[0, 1, 2].map((j) => {
