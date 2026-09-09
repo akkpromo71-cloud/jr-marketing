@@ -68,17 +68,15 @@ export const dict = {
     },
     landing: {
       kicker: 'Продвижение в TikTok и Reels',
-      heroTitle: 'Место, где артисты продвигают треки, а эдиторы превращают монтаж в доход',
+      heroTitle: 'Трек артиста. Монтаж эдитора. Просмотры.',
       heroSubtitle:
-        'J/R marketing — пространство для коротких видео TikTok и Reels, где артисты находят эдиторов под трек, а эдиторы — стабильный поток заказов. Заявки, правки и модерация — в одном месте.',
+        'Публикуете трек и бюджет — получаете монтаж под клип. Подбор эдитора и приёмку берём на себя.',
       editorTag: 'Я эдитор',
       editorTitle: 'Монтирую видео',
-      editorText:
-        'Один раз укажите цену при регистрации — дальше просто откликайтесь на треки артистов и берите заказ за заказом. Опыт и доход растут вместе.',
+      editorText: 'Цена — один раз. Дальше берёте треки из ленты.',
       artistTag: 'Я артист',
       artistTitle: 'Ищу эдитора',
-      artistText:
-        'Публикуйте трек и бюджет — эдиторов подберёт наша команда, а вы получите монтаж, который поднимает охваты и прослушивания.',
+      artistText: 'Трек и бюджет — с вас. Эдитора подберём мы.',
       highlight1Title: 'Эдитора подбираем мы',
       highlight1Text:
         'Не нужно искать и выбирать самим — администратор подберёт подходящего эдитора в рамках вашего бюджета.',
@@ -114,17 +112,17 @@ export const dict = {
       faqTitle: 'Частые вопросы',
       faq1Q: 'Как вы выбираете эдиторов?',
       faq1A:
-        'Каждый эдитор проходит модерацию: мы смотрим портфолио, опыт и цену. В работу над треками попадают только эдиторы, одобренные администратором.',
+        'Модерация: портфолио, опыт, цена. В работу попадают только одобренные.',
       faq2Q: 'Когда и как я получу оплату?',
       faq2A:
-        'После того как работа сдана и принята, наша команда переводит оплату вручную на указанный вами способ — PayPal или криптокошелёк. Автоматических списаний на площадке нет.',
+        'После приёмки работы команда переводит оплату вручную — на ваш PayPal или криптокошелёк. Автосписаний нет.',
       faq3Q: 'Что если результат не устроит?',
-      faq3A: 'Перед тем как работа считается завершённой, есть этап правок — эдитор дорабатывает эдит по комментариям.',
+      faq3A: 'Перед завершением — этап правок: эдитор дорабатывает по вашим комментариям.',
       faq4Q: 'Я сам выбираю эдитора?',
       faq4A:
-        'Нет — чтобы избежать нечестных сделок в обход площадки, подбором и приёмкой работы занимается наша команда. Вы получаете сводный отчёт по результатам.',
+        'Нет. Подбор и приёмку ведёт команда — чтобы сделку нельзя было увести мимо площадки.',
       faq5Q: 'Это безопасно?',
-      faq5A: 'Цену согласует администратор ещё до начала работы, скрытых комиссий нет.',
+      faq5A: 'Цену согласуют до старта. Скрытых комиссий нет.',
       boardHeading: 'Пока идёт первый набор',
       boardIntro: 'Никаких выдуманных цифр — здесь только то, что уже произошло на площадке.',
       tapePlatform: 'Площадка',
@@ -148,7 +146,7 @@ export const dict = {
       heroVisualAlt: 'Звуковая волна, переходящая в монтажный таймлайн',
 
       cohortManifesto:
-        'Витрину видно всю — она просто ещё заполняется. Место в ней сейчас занимает один трек, а не очередь. Дальше их будет больше — и первым тут выгоднее, чем сотым.',
+        'Витрина только заполняется. Сейчас в ней один трек — не очередь. Первым тут выгоднее.',
       cohortRosterLabel: 'Кто уже в наборе',
       cohortFirstBadge: 'первый эдит в ленте',
       cohortSlotFree: 'место свободно',
@@ -157,12 +155,11 @@ export const dict = {
       cohortCta: 'Зайти в первый набор',
 
       dealTitle: 'Как устроена сделка',
-      dealIntro:
-        'Деньги проходят через площадку вручную — так обе стороны получают своё, и сделку нельзя увести мимо.',
-      deal1: 'Эдитора подбирает команда площадки, а не алгоритм и не сам артист.',
-      deal2: 'Каждое видео проходит модерацию перед тем, как считаться сданным.',
-      deal3: 'Оплата уходит эдитору только после того, как работа принята.',
-      deal4: 'Вывод на PayPal или криптокошелёк — перевод делаем руками.',
+      dealIntro: 'Деньги идут через площадку — вручную.',
+      deal1: 'Эдитора подбирает команда, не алгоритм.',
+      deal2: 'Каждое видео — через модерацию.',
+      deal3: 'Оплата — после приёмки работы.',
+      deal4: 'Вывод на PayPal или крипту, вручную.',
 
       forkHowLabel: 'Как это работает',
       forkArtistOutcome: 'На выходе — монтаж, который двигает прослушивания и охваты.',
@@ -174,7 +171,7 @@ export const dict = {
       editorStep3Title: 'Сдаёте и получаете',
       editorStep3Text: 'Отдаёте монтаж, проходите правки, получаете оплату на свой кошелёк.',
 
-      faqReassurance: 'Здесь платят за работу реальные деньги, поэтому вопросы про обман — первым делом.',
+      faqReassurance: 'Здесь платят реальные деньги.',
     },
     login: {
       title: 'С возвращением',
@@ -485,17 +482,15 @@ export const dict = {
     },
     landing: {
       kicker: 'TikTok & Reels promotion',
-      heroTitle: 'The place where artists promote their tracks, and editors turn video editing into steady income',
+      heroTitle: "Artist's track. Editor's cut. Views.",
       heroSubtitle:
-        'J/R marketing is a home for short-form video on TikTok and Reels, where artists find editors for their tracks, and editors find a steady stream of work. Applications, revisions, and moderation — all in one place.',
+        'Post a track and budget — get an edit for your clip. We handle matching and review.',
       editorTag: "I'm an editor",
       editorTitle: 'I edit videos',
-      editorText:
-        "Set your price once at sign-up — then just apply to artists' tracks and take job after job. Your experience and income grow together.",
+      editorText: 'Set your price once. Then take tracks from the feed.',
       artistTag: "I'm an artist",
       artistTitle: "I'm looking for an editor",
-      artistText:
-        "Post a track and budget — our team picks the right editors, and you get an edit that drives real reach and plays.",
+      artistText: 'Track and budget from you. We pick the editor.',
       highlight1Title: 'We match the editor',
       highlight1Text: 'No need to search and choose yourself — our team assigns the right editor within your budget.',
       highlight2Title: 'Stats, automatically',
@@ -530,17 +525,17 @@ export const dict = {
       faqTitle: 'Frequently asked questions',
       faq1Q: 'How do you choose editors?',
       faq1A:
-        'Every editor goes through moderation: we look at their portfolio, experience, and price. Only editors approved by the admin get to work on tracks.',
+        'Moderation: portfolio, experience, price. Only approved editors get to work.',
       faq2Q: 'When and how do I get paid?',
       faq2A:
-        'Once the work is delivered and accepted, our team transfers the payment manually to the method you specified — PayPal or a crypto wallet. There are no automatic charges on the platform.',
+        'After the work is accepted, the team transfers payment manually — to your PayPal or crypto wallet. No automatic charges.',
       faq3Q: "What if I'm not happy with the result?",
-      faq3A: "Before an edit counts as completed there's a revision stage — the editor reworks it based on your comments.",
+      faq3A: 'Before completion there is a revision stage — the editor reworks it from your notes.',
       faq4Q: 'Do I pick the editor myself?',
       faq4A:
-        'No — to avoid deals going around the platform, our team handles matching and reviewing the work. You get a summary report of the results.',
+        "No. The team handles matching and review — so a deal can't be taken off-platform.",
       faq5Q: 'Is this safe?',
-      faq5A: 'The price is approved by the admin before work starts, and there are no hidden fees.',
+      faq5A: 'Price is agreed before the start. No hidden fees.',
       boardHeading: 'The board so far',
       boardIntro: 'No invented figures — only what has actually happened on the platform.',
       tapePlatform: 'Platform',
@@ -564,7 +559,7 @@ export const dict = {
       heroVisualAlt: 'A sound wave turning into an editing timeline',
 
       cohortManifesto:
-        "You can see the whole showcase — it's just still filling up. Right now one track holds a spot, not a queue. There will be more soon — and being first here beats being hundredth.",
+        "The showcase is still filling up. One track in it now — not a queue. Being first pays off.",
       cohortRosterLabel: "Who's already in",
       cohortFirstBadge: 'first edit in the feed',
       cohortSlotFree: 'open spot',
@@ -573,12 +568,11 @@ export const dict = {
       cohortCta: 'Join the first cohort',
 
       dealTitle: 'How the deal works',
-      dealIntro:
-        'Money moves through the platform by hand — so both sides get what they are owed, and the deal cannot be taken off-platform.',
-      deal1: 'The platform team assigns the editor — not an algorithm, not the artist.',
-      deal2: "Every video is moderated before it counts as delivered.",
-      deal3: 'Payment reaches the editor only after the work is accepted.',
-      deal4: 'Payout to PayPal or a crypto wallet — transferred manually.',
+      dealIntro: 'Money moves through the platform — by hand.',
+      deal1: 'The team picks the editor, not an algorithm.',
+      deal2: 'Every video goes through moderation.',
+      deal3: 'Payment comes after the work is accepted.',
+      deal4: 'Payout to PayPal or crypto, by hand.',
 
       forkHowLabel: 'How it works',
       forkArtistOutcome: 'The output: an edit that moves your plays and reach.',
@@ -590,7 +584,7 @@ export const dict = {
       editorStep3Title: 'Deliver and get paid',
       editorStep3Text: 'Hand over the edit, do revisions, get paid to your wallet.',
 
-      faqReassurance: 'Real money changes hands here, so the questions about getting scammed come first.',
+      faqReassurance: 'Real money changes hands here.',
     },
     login: {
       title: 'Welcome back',

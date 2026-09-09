@@ -180,9 +180,6 @@ export default async function LandingPage() {
                 <p className="mt-5 max-w-container-text text-body-lg text-text-dim">
                   {t.landing.cohortManifesto}
                 </p>
-                <p className="mt-4 max-w-container-text text-body text-text-faint">
-                  {t.landing.boardIntro}
-                </p>
                 <LinkButton href="/signup/artist" variant="artist" className="mt-8">
                   {t.landing.cohortCta}
                   <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
@@ -293,23 +290,18 @@ export default async function LandingPage() {
                   <p className="text-meta text-text-faint">{t.landing.artistTag}</p>
                 </div>
                 <h3 className="mt-3 text-display-sm text-text">{t.landing.artistTitle}</h3>
-                <p className="mt-3 text-body text-text-dim">{t.landing.artistText}</p>
+                <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.artistText}</p>
 
-                <p className="mt-8 text-meta text-text-faint">{t.landing.forkHowLabel}</p>
-                <ol className="mt-3 flex flex-col gap-4 border-t border-border pt-4">
+                <ol className="mt-7 flex flex-col gap-2.5 border-t border-border pt-5">
                   {stepList.map((s) => (
-                    <li key={s.n} className="flex gap-3">
+                    <li key={s.n} className="flex gap-3 text-title text-text">
                       <span className="tabular text-primary">{s.n}</span>
-                      <span>
-                        <span className="block text-title text-text">{s.title}</span>
-                        <span className="mt-1 block text-body text-text-dim">{s.text}</span>
-                      </span>
+                      <span>{s.title}</span>
                     </li>
                   ))}
                 </ol>
 
-                <p className="mt-6 text-body text-text">{t.landing.forkArtistOutcome}</p>
-                <LinkButton href="/signup/artist" variant="artist" className="mt-7 self-start">
+                <LinkButton href="/signup/artist" variant="artist" className="mt-8 self-start">
                   {t.landing.registerBtn}
                 </LinkButton>
               </div>
@@ -322,23 +314,18 @@ export default async function LandingPage() {
                   <p className="text-meta text-text-faint">{t.landing.editorTag}</p>
                 </div>
                 <h3 className="mt-3 text-display-sm text-text">{t.landing.editorTitle}</h3>
-                <p className="mt-3 text-body text-text-dim">{t.landing.editorText}</p>
+                <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.editorText}</p>
 
-                <p className="mt-8 text-meta text-text-faint">{t.landing.forkHowLabel}</p>
-                <ol className="mt-3 flex flex-col gap-4 border-t border-border pt-4">
+                <ol className="mt-7 flex flex-col gap-2.5 border-t border-border pt-5">
                   {editorStepList.map((s) => (
-                    <li key={s.n} className="flex gap-3">
+                    <li key={s.n} className="flex gap-3 text-title text-text">
                       <span className="tabular text-accent">{s.n}</span>
-                      <span>
-                        <span className="block text-title text-text">{s.title}</span>
-                        <span className="mt-1 block text-body text-text-dim">{s.text}</span>
-                      </span>
+                      <span>{s.title}</span>
                     </li>
                   ))}
                 </ol>
 
-                <p className="mt-6 text-body text-text">{t.landing.forkEditorOutcome}</p>
-                <LinkButton href="/signup/editor" variant="primary" className="mt-7 self-start">
+                <LinkButton href="/signup/editor" variant="primary" className="mt-8 self-start">
                   {t.landing.registerBtn}
                 </LinkButton>
               </div>
