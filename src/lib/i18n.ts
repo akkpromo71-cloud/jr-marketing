@@ -140,7 +140,7 @@ export const dict = {
       rolesTitle: 'Кто вы',
       finalCtaLead: 'Готовы?',
       finalCtaArtistLink: 'Начать как артист',
-      finalCtaEditorLink: 'или как эдитор',
+      finalCtaEditorLink: 'Начать как эдитор',
 
       // ── Редизайн-лендинг (design-system/jr-marketing) ──
       heroPrimaryCta: 'Запустить трек',
@@ -555,7 +555,7 @@ export const dict = {
       rolesTitle: 'Who you are',
       finalCtaLead: 'Ready?',
       finalCtaArtistLink: 'Start as an artist',
-      finalCtaEditorLink: 'or as an editor',
+      finalCtaEditorLink: 'Start as an editor',
 
       // ── Redesigned landing (design-system/jr-marketing) ──
       heroPrimaryCta: 'Launch a track',
