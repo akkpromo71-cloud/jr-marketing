@@ -25,6 +25,10 @@ export default async function NewCampaignPage({
   }
   const { t } = await getDict();
 
+  // Минимально допустимый дедлайн — завтра (в UTC, как и серверная проверка
+  // futureDateOrNull). Атрибут min в <input type="date"> + валидация на сервере.
+  const minDeadline = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+
   // Рекомендуемый бюджет — простая формула (не ML, данных пока недостаточно):
   // средняя ставка одобренных эдиторов × сколько эдиторов нужно, с запасом
   // сверху на разброс цен. Это ориентир, а не гарантия охвата — см.
@@ -68,6 +72,36 @@ export default async function NewCampaignPage({
                 placeholder={t.dashboardNew.descriptionPlaceholder}
               />
             </Field>
+
+            <Field label={t.dashboardNew.deadline}>
+              <input
+                className={inputClass}
+                type="date"
+                name="deadline"
+                required
+                min={minDeadline}
+              />
+              <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.deadlineHint}</span>
+            </Field>
+
+            <Field label={t.dashboardNew.captionTitle}>
+              <input
+                id="caption-title"
+                className={inputClass}
+                name="track_title_for_caption"
+                required
+                placeholder={t.dashboardNew.namePlaceholder}
+              />
+              <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.captionTitleHint}</span>
+            </Field>
+            <Field label={t.dashboardNew.artistHandle}>
+              <input
+                className={inputClass}
+                name="artist_handle"
+                placeholder={t.dashboardNew.artistHandlePlaceholder}
+              />
+            </Field>
+
             <Field label={t.dashboardNew.trackLink}>
               <input className={inputClass} name="track_url" placeholder="https://..." />
             </Field>
@@ -78,7 +112,19 @@ export default async function NewCampaignPage({
               <input id="max_editors" className={inputClass} type="number" name="max_editors" min={1} defaultValue={1} />
             </Field>
             <Field label={t.dashboardNew.budget}>
-              <input id="budget" className={inputClass} type="number" name="budget" min={0} />
+              <span className="relative block">
+                <input
+                  id="budget"
+                  className={`${inputClass} pr-14`}
+                  type="number"
+                  name="budget"
+                  min={1}
+                  required
+                />
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-text-faint">
+                  {t.dashboardNew.budgetCurrency}
+                </span>
+              </span>
             </Field>
 
             {/* Калькулятор рекомендуемого бюджета — формула, не ML (данных о
@@ -93,6 +139,45 @@ export default async function NewCampaignPage({
               </p>
               <p className="mt-1 text-xs text-text-faint">{t.dashboardNew.budgetHintDisclaimer}</p>
             </div>
+
+            {/* Необязательный бриф — свёрнут, чтобы форма не выглядела длинной. */}
+            <details className="group rounded-[4px] border border-border">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold text-text-dim marker:content-none [&::-webkit-details-marker]:hidden">
+                {t.dashboardNew.moreOptions}
+                <span className="text-text-faint transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <div className="flex flex-col gap-4 border-t border-border px-4 py-4">
+                <Field label={t.dashboardNew.trackSegment}>
+                  <input
+                    className={inputClass}
+                    name="track_segment"
+                    placeholder={t.dashboardNew.trackSegmentPlaceholder}
+                  />
+                  <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.trackSegmentHint}</span>
+                </Field>
+                <Field label={t.dashboardNew.references}>
+                  <div className="flex flex-col gap-2">
+                    {[0, 1, 2].map((i) => (
+                      <input
+                        key={i}
+                        className={inputClass}
+                        type="url"
+                        name="reference_urls"
+                        placeholder="https://..."
+                      />
+                    ))}
+                  </div>
+                  <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.referencesHint}</span>
+                </Field>
+                <Field label={t.dashboardNew.restrictions}>
+                  <input
+                    className={inputClass}
+                    name="restrictions"
+                    placeholder={t.dashboardNew.restrictionsPlaceholder}
+                  />
+                </Field>
+              </div>
+            </details>
 
             <label className="flex items-start gap-2 text-xs text-text-dim">
               <input type="checkbox" name="terms_accepted" value="1" required className="mt-0.5" />
@@ -126,6 +211,18 @@ export default async function NewCampaignPage({
               var budgetInput = document.getElementById('budget');
               var hintEl = document.getElementById('budget-hint-range');
               var form = document.getElementById('new-campaign-form');
+
+              // Название трека для описания по умолчанию повторяет название
+              // кампании — пока артист не отредактировал это поле вручную.
+              var titleInput = form && form.querySelector('input[name="title"]');
+              var captionInput = document.getElementById('caption-title');
+              if (titleInput && captionInput) {
+                var captionTouched = false;
+                captionInput.addEventListener('input', function () { captionTouched = true; });
+                titleInput.addEventListener('input', function () {
+                  if (!captionTouched) captionInput.value = titleInput.value;
+                });
+              }
 
               function computeRange() {
                 var n = Math.max(1, parseInt((maxEditorsInput && maxEditorsInput.value) || '1', 10) || 1);

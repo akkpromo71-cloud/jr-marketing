@@ -10,6 +10,7 @@ import {
   updateEditResultAction,
   submitEditorReviewAction,
 } from '@/app/applications/[id]/actions';
+import { PublishGuide } from '@/components/publish-guide';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber, formatDate } from '@/lib/format';
 import type { Application, Campaign, Profile } from '@/lib/types';
@@ -82,6 +83,60 @@ export default async function ApplicationDetailPage({
           </div>
           <StatusBadge status={app.status} />
         </div>
+
+        {app.campaigns?.deadline && (
+          <p className="mt-4 text-sm text-text-faint">
+            {t.applicationDetail.deadlineLabel}:{' '}
+            <span className="text-text-dim">{formatDate(app.campaigns.deadline, locale)}</span>
+          </p>
+        )}
+
+        <div className="mt-4">
+          <PublishGuide
+            caption={`${app.campaigns?.track_title_for_caption ?? app.campaigns?.title ?? ''}${
+              app.campaigns?.artist_handle ? ` ${app.campaigns.artist_handle}` : ''
+            }`}
+            labels={t.publishGuide}
+          />
+        </div>
+
+        {(app.campaigns?.track_segment ||
+          (app.campaigns?.reference_urls?.length ?? 0) > 0 ||
+          app.campaigns?.restrictions) && (
+          <dl className="mt-4 flex flex-col gap-3 rounded-[4px] border border-border p-4 text-sm">
+            <p className="text-meta text-text-faint">{t.campaignDetail.briefTitle}</p>
+            {app.campaigns.track_segment && (
+              <div>
+                <dt className="text-xs text-text-faint">{t.campaignDetail.segmentLabel}</dt>
+                <dd className="mt-0.5 text-text-dim">{app.campaigns.track_segment}</dd>
+              </div>
+            )}
+            {(app.campaigns.reference_urls?.length ?? 0) > 0 && (
+              <div>
+                <dt className="text-xs text-text-faint">{t.campaignDetail.referencesLabel}</dt>
+                <dd className="mt-0.5 flex flex-col gap-1">
+                  {app.campaigns.reference_urls!.map((url) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="break-all text-accent hover:underline"
+                    >
+                      {url}
+                    </a>
+                  ))}
+                </dd>
+              </div>
+            )}
+            {app.campaigns.restrictions && (
+              <div>
+                <dt className="text-xs text-text-faint">{t.campaignDetail.restrictionsLabel}</dt>
+                <dd className="mt-0.5 text-text-dim">{app.campaigns.restrictions}</dd>
+              </div>
+            )}
+          </dl>
+        )}
 
         {statusError && (
           <div className="mt-6 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">

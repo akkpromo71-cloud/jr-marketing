@@ -55,6 +55,15 @@ export interface Campaign {
   budget: number | null;
   status: CampaignStatus;
   max_editors: number;
+  // Бриф для эдитора (supabase/patch-campaign-brief-fields.sql). Все поля
+  // NULLable — старые кампании открываются без них; обязательность deadline /
+  // track_title_for_caption / budget обеспечивают форма и серверный экшен.
+  deadline: string | null;
+  track_title_for_caption: string | null;
+  artist_handle: string | null;
+  track_segment: string | null;
+  reference_urls: string[] | null;
+  restrictions: string | null;
   // Когда артист принял условия кампании (права на трек, охват — не
   // гарантия) при публикации трека — отдельно от согласия при регистрации.
   terms_accepted_at: string | null;

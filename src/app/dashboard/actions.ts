@@ -5,11 +5,11 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDict, translateAuthError } from '@/lib/i18n';
 import { roleHome } from '@/lib/role-home';
-import { safeUrl, clampRating, positiveNumberOrNull } from '@/lib/validate';
+import { safeUrl, clampRating, positiveNumberOrNull, futureDateOrNull } from '@/lib/validate';
 import { logError } from '@/lib/log-error';
 
 export async function createCampaignAction(formData: FormData) {
-  const title = String(formData.get('title') ?? '');
+  const title = String(formData.get('title') ?? '').trim();
   const description = String(formData.get('description') ?? '');
   const trackUrl = safeUrl(formData.get('track_url'));
   const spotifyUrl = safeUrl(formData.get('spotify_url'));
@@ -17,18 +17,43 @@ export async function createCampaignAction(formData: FormData) {
   const maxEditors = Number(formData.get('max_editors') ?? 1) || 1;
   const termsAccepted = formData.get('terms_accepted') === '1';
 
+  // Новый бриф для эдитора (supabase/patch-campaign-brief-fields.sql).
+  const deadline = futureDateOrNull(formData.get('deadline'));
+  // Название трека для описания: обязательно, по умолчанию = название кампании.
+  const captionTitle =
+    String(formData.get('track_title_for_caption') ?? '').trim().slice(0, 200) || title;
+  const artistHandle = String(formData.get('artist_handle') ?? '').trim().slice(0, 120) || null;
+  const trackSegment = String(formData.get('track_segment') ?? '').trim().slice(0, 200) || null;
+  const restrictions = String(formData.get('restrictions') ?? '').trim().slice(0, 300) || null;
+  const referenceUrls =
+    formData
+      .getAll('reference_urls')
+      .map((v) => safeUrl(v))
+      .filter((v): v is string => !!v)
+      .slice(0, 3);
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
+  const { t } = await getDict();
+
   // Чекбокс согласия с условиями кампании — HTML required можно обойти,
   // отправив запрос напрямую, поэтому проверяем ещё раз на сервере (тот же
   // приём, что и в signUpEditorAction/signUpArtistAction).
   if (!termsAccepted) {
-    const { t } = await getDict();
     redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.termsRequired)}`);
+  }
+  if (!budget) {
+    redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.budgetRequired)}`);
+  }
+  if (!formData.get('deadline')) {
+    redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.deadlineRequired)}`);
+  }
+  if (!deadline) {
+    redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.deadlineTooSoon)}`);
   }
 
   const { error } = await supabase.from('campaigns').insert({
@@ -39,11 +64,16 @@ export async function createCampaignAction(formData: FormData) {
     spotify_url: spotifyUrl,
     budget,
     max_editors: maxEditors,
+    deadline,
+    track_title_for_caption: captionTitle,
+    artist_handle: artistHandle,
+    track_segment: trackSegment,
+    reference_urls: referenceUrls.length ? referenceUrls : null,
+    restrictions,
     terms_accepted_at: new Date().toISOString(),
   });
 
   if (error) {
-    const { t } = await getDict();
     redirect(`/dashboard/new?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 

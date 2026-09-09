@@ -14,8 +14,9 @@ import {
   submitArtistReviewAction,
   toggleReviewPublishedAction,
 } from '@/app/dashboard/actions';
+import { PublishGuide } from '@/components/publish-guide';
 import { getDict } from '@/lib/i18n';
-import { formatCompactNumber } from '@/lib/format';
+import { formatCompactNumber, formatDate } from '@/lib/format';
 import type { Application, Campaign, Profile } from '@/lib/types';
 
 interface CampaignReport {
@@ -63,7 +64,7 @@ export default async function CampaignDetailPage({
   const { id } = await params;
   const profile = await getCurrentProfile();
   const supabase = await createClient();
-  const { t } = await getDict();
+  const { t, locale } = await getDict();
 
   const { data: campaign } = await supabase.from('campaigns').select('*').eq('id', id).single();
   if (!campaign) notFound();
@@ -87,6 +88,58 @@ export default async function CampaignDetailPage({
                 <StatusBadge status={c.status} />
               </div>
               <p className="mt-3 text-body text-text-dim">{c.description}</p>
+
+              {c.deadline && (
+                <p className="mt-3 text-sm text-text-faint">
+                  {t.campaignDetail.deadlineLabel}:{' '}
+                  <span className="text-text-dim">{formatDate(c.deadline, locale)}</span>
+                </p>
+              )}
+
+              <div className="mt-4">
+                <PublishGuide
+                  caption={`${c.track_title_for_caption ?? c.title}${
+                    c.artist_handle ? ` ${c.artist_handle}` : ''
+                  }`}
+                  labels={t.publishGuide}
+                />
+              </div>
+
+              {(c.track_segment || (c.reference_urls?.length ?? 0) > 0 || c.restrictions) && (
+                <dl className="mt-4 flex flex-col gap-3 rounded-[4px] border border-border p-4 text-sm">
+                  <p className="text-meta text-text-faint">{t.campaignDetail.briefTitle}</p>
+                  {c.track_segment && (
+                    <div>
+                      <dt className="text-xs text-text-faint">{t.campaignDetail.segmentLabel}</dt>
+                      <dd className="mt-0.5 text-text-dim">{c.track_segment}</dd>
+                    </div>
+                  )}
+                  {(c.reference_urls?.length ?? 0) > 0 && (
+                    <div>
+                      <dt className="text-xs text-text-faint">{t.campaignDetail.referencesLabel}</dt>
+                      <dd className="mt-0.5 flex flex-col gap-1">
+                        {c.reference_urls!.map((url) => (
+                          <a
+                            key={url}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="break-all text-accent hover:underline"
+                          >
+                            {url}
+                          </a>
+                        ))}
+                      </dd>
+                    </div>
+                  )}
+                  {c.restrictions && (
+                    <div>
+                      <dt className="text-xs text-text-faint">{t.campaignDetail.restrictionsLabel}</dt>
+                      <dd className="mt-0.5 text-text-dim">{c.restrictions}</dd>
+                    </div>
+                  )}
+                </dl>
+              )}
 
               {c.status === 'open' && (
                 <form action={closeCampaignAction} className="mt-5">

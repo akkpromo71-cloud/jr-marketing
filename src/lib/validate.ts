@@ -33,6 +33,21 @@ export function positiveNumberOrNull(input: FormDataEntryValue | null | undefine
   return n;
 }
 
+// Дедлайн кампании — дата в формате YYYY-MM-DD, не раньше завтрашнего дня
+// (сравнение по календарным датам в UTC, время суток не учитываем).
+// Возвращает нормализованную строку YYYY-MM-DD либо null, если ввод пустой
+// или невалидный.
+export function futureDateOrNull(input: FormDataEntryValue | null | undefined): string | null {
+  const raw = String(input ?? '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  const date = new Date(`${raw}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return null;
+  const today = new Date();
+  const todayUTC = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  if (date.getTime() <= todayUTC) return null;
+  return raw;
+}
+
 // Счётчики вроде подписчиков — только целое неотрицательное число (0 — тоже
 // валидное значение, в отличие от positiveNumberOrNull выше) или отсутствует.
 export function nonNegativeIntOrNull(input: FormDataEntryValue | null | undefined): number | null {

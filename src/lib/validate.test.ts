@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { safeUrl, clampRating, positiveNumberOrNull, nonNegativeIntOrNull } from './validate';
+import {
+  safeUrl,
+  clampRating,
+  positiveNumberOrNull,
+  nonNegativeIntOrNull,
+  futureDateOrNull,
+} from './validate';
 
 describe('safeUrl', () => {
   it('accepts http/https URLs', () => {
@@ -60,6 +66,31 @@ describe('positiveNumberOrNull', () => {
   it('rejects non-numeric or missing input', () => {
     expect(positiveNumberOrNull('abc')).toBeNull();
     expect(positiveNumberOrNull(null)).toBeNull();
+  });
+});
+
+describe('futureDateOrNull', () => {
+  const iso = (offsetDays: number) => {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() + offsetDays);
+    return d.toISOString().slice(0, 10);
+  };
+
+  it('accepts a date from tomorrow onward', () => {
+    expect(futureDateOrNull(iso(1))).toBe(iso(1));
+    expect(futureDateOrNull(iso(30))).toBe(iso(30));
+  });
+
+  it('rejects today and past dates', () => {
+    expect(futureDateOrNull(iso(0))).toBeNull();
+    expect(futureDateOrNull(iso(-1))).toBeNull();
+  });
+
+  it('rejects empty, malformed, or non-date input', () => {
+    expect(futureDateOrNull('')).toBeNull();
+    expect(futureDateOrNull(null)).toBeNull();
+    expect(futureDateOrNull('2026/01/01')).toBeNull();
+    expect(futureDateOrNull('2026-13-40')).toBeNull();
   });
 });
 

@@ -10,7 +10,9 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { applyToCampaignAction } from '@/app/feed/actions';
+import { PublishGuide } from '@/components/publish-guide';
 import { getDict } from '@/lib/i18n';
+import { formatDate } from '@/lib/format';
 import type { Campaign, Application } from '@/lib/types';
 
 export default async function FeedPage({
@@ -24,7 +26,7 @@ export default async function FeedPage({
     redirect(roleHome(profile.role));
   }
   const supabase = await createClient();
-  const { t } = await getDict();
+  const { t, locale } = await getDict();
 
   // Данные и запросы НЕ менялись (REDESIGN_PLAN.md §6) — только раскладка.
   const { data: campaignsRaw } = await supabase
@@ -193,6 +195,12 @@ export default async function FeedPage({
                         </div>
                       )}
 
+                      {c.deadline && (
+                        <p className="mt-3 text-xs text-text-faint">
+                          {t.feed.deadlineLabel}: <span className="text-text-dim">{formatDate(c.deadline, locale)}</span>
+                        </p>
+                      )}
+
                       {c.manager_message && (
                         <div className="mt-4 flex gap-2.5 border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
                           <MessageSquareText size={16} strokeWidth={1.75} aria-hidden="true" className="mt-0.5 shrink-0 text-accent" />
@@ -202,6 +210,15 @@ export default async function FeedPage({
                           </div>
                         </div>
                       )}
+
+                      <div className="mt-4">
+                        <PublishGuide
+                          caption={`${c.track_title_for_caption ?? c.title}${
+                            c.artist_handle ? ` ${c.artist_handle}` : ''
+                          }`}
+                          labels={t.publishGuide}
+                        />
+                      </div>
 
                       {already ? (
                         <p className="mt-4 text-sm text-text-faint">{t.feed.alreadyApplied}</p>
