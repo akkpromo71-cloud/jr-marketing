@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import {
   AudioLines,
@@ -224,11 +225,15 @@ export default async function LandingPage() {
               <div className="relative flex flex-col overflow-hidden rounded border border-white/[0.16] bg-white/[0.07] p-6 md:col-span-7 md:p-9">
                 <RoleVisual role="artist" />
                 <div className="relative flex flex-1 flex-col">
-                  <div className="flex items-center gap-3 text-primary">
-                    <AudioLines size={24} strokeWidth={1.75} aria-hidden="true" />
-                    <p className="text-meta text-text-faint">{t.landing.artistTag}</p>
+                  {/* Кикер: текст белый (контраст), в цвет стороны — только
+                      иконка (одинаково на обеих панелях). */}
+                  <div className="flex items-center gap-2.5 text-primary">
+                    <AudioLines size={20} strokeWidth={2} aria-hidden="true" />
+                    <p className="text-[0.875rem] font-bold uppercase tracking-[0.14em] text-text">
+                      {t.landing.artistTag}
+                    </p>
                   </div>
-                  <h3 className="mt-3 text-display-sm text-text md:min-h-[2.2em]">
+                  <h3 className="mt-3 text-headline text-text md:min-h-[2.4em]">
                     {t.landing.artistTitle}
                   </h3>
                   <p className="mt-3 max-w-md text-body-lg text-text-dim">{t.landing.artistText}</p>
@@ -249,11 +254,13 @@ export default async function LandingPage() {
               <div className="relative flex flex-col overflow-hidden rounded border border-white/[0.1] bg-white/[0.035] p-6 md:col-span-5 md:p-8">
                 <RoleVisual role="editor" />
                 <div className="relative flex flex-1 flex-col">
-                  <div className="flex items-center gap-3 text-accent">
-                    <Scissors size={22} strokeWidth={1.75} aria-hidden="true" />
-                    <p className="text-meta text-text-faint">{t.landing.editorTag}</p>
+                  <div className="flex items-center gap-2.5 text-accent">
+                    <Scissors size={20} strokeWidth={2} aria-hidden="true" />
+                    <p className="text-[0.875rem] font-bold uppercase tracking-[0.14em] text-text">
+                      {t.landing.editorTag}
+                    </p>
                   </div>
-                  <h3 className="mt-3 text-headline text-text md:min-h-[2.2em]">
+                  <h3 className="mt-3 text-headline text-text md:min-h-[2.4em]">
                     {t.landing.editorTitle}
                   </h3>
                   <p className="mt-3 text-body text-text-dim">{t.landing.editorText}</p>
@@ -387,8 +394,14 @@ export default async function LandingPage() {
           <Container className="py-11 sm:py-14">
             <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-title text-text">J/R marketing</p>
-                <p className="mt-1 text-meta text-text-faint">{t.common.earlyAccess}</p>
+                <Image
+                  src="/logo.png"
+                  alt="J/R marketing"
+                  width={512}
+                  height={512}
+                  className="h-14 w-auto scale-[1.12] mix-blend-screen"
+                />
+                <p className="mt-2 text-meta text-text-faint">{t.common.earlyAccess}</p>
               </div>
               <div className="flex flex-col gap-3 md:items-end">
                 <span className="text-meta text-text-faint">{t.landing.contactLabel}</span>

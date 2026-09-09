@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavMenu } from '@/components/nav-menu';
@@ -27,16 +28,24 @@ export async function Nav() {
   const linkCls = 'text-text-dim transition hover:text-text';
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-bg/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
-        {/* Плоская монограмма тем же гротеском, что и заголовки, в один цвет —
-            читается в любом размере, стилистически совпадает с остальным. */}
+    <header className="sticky top-0 z-20 border-b border-border bg-bg">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6 sm:py-2.5">
+        {/* Фирменный лого. Фон снимка чёрный — на сплошной тёмной шапке
+            mix-blend-screen убирает его, оставляя золото и белую надпись;
+            кадрирование (scale + overflow-hidden) срезает поля снимка. */}
         <Link
           href="/"
           aria-label="J/R marketing"
-          className="shrink-0 font-display text-xl font-extrabold tracking-[-0.04em] text-text transition hover:opacity-70 active:scale-95"
+          className="block shrink-0 overflow-hidden transition hover:opacity-80 active:scale-95"
         >
-          J/R
+          <Image
+            src="/logo.png"
+            alt="J/R marketing"
+            width={512}
+            height={512}
+            priority
+            className="h-12 w-auto scale-[1.22] mix-blend-screen sm:h-14"
+          />
         </Link>
 
         {/* ── Десктоп ── */}

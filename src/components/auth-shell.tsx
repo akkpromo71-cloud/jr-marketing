@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { getDict } from '@/lib/i18n';
 
@@ -42,9 +43,17 @@ export async function AuthShell({
 
         <Link
           href="/"
-          className="relative text-title text-text transition hover:opacity-70"
+          aria-label="J/R marketing"
+          className="relative block w-fit overflow-hidden transition hover:opacity-80"
         >
-          J/R marketing
+          <Image
+            src="/logo.png"
+            alt="J/R marketing"
+            width={512}
+            height={512}
+            priority
+            className="h-16 w-auto scale-[1.12] mix-blend-screen"
+          />
         </Link>
         <p className="relative hidden text-balance break-words text-headline text-text md:block">
           {brandLine}
