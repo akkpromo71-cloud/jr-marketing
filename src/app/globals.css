@@ -238,24 +238,7 @@ button {
    своим сдвигом фазы (--wb-delay) — получается медленная бегущая волна.
    Всё выключается при prefers-reduced-motion.
    ============================================================ */
-.hero-visual-in {
-  opacity: 0;
-}
 @media (prefers-reduced-motion: no-preference) {
-  .hero-visual-in {
-    animation: hero-visual-in 0.9s cubic-bezier(0.19, 1, 0.22, 1) 0.1s both;
-  }
-  @keyframes hero-visual-in {
-    from {
-      opacity: 0;
-      transform: scale(1.04);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
   .hero-wave__bar {
     transform-box: fill-box;
     transform-origin: center;
@@ -307,11 +290,6 @@ button {
       opacity: 0;
       transform: translateX(0);
     }
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-visual-in {
-    opacity: 1;
   }
 }
 

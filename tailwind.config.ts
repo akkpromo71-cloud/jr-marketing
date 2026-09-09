@@ -63,12 +63,10 @@ const config: Config = {
         'container-text': '42rem',
       },
       spacing: {
-        // Три ступени вертикального ритма секций. На мобиле нижние границы
-        // clamp небольшие — секции разделяет ещё и hairline (border-b), так
+        // Единый вертикальный ритм секций лендинга. Нижняя граница clamp
+        // небольшая — секции разделяет ещё и hairline (border-b), поэтому
         // страница читается цельно, а не как разбросанные острова.
-        'section-sm': 'clamp(1.75rem, 1.25rem + 1.6vw, 3.5rem)',
         section: 'clamp(2.5rem, 1.5rem + 3.2vw, 5.5rem)',
-        'section-lg': 'clamp(3rem, 1.75rem + 4.4vw, 8.5rem)',
         gutter: '1.5rem',
       },
       boxShadow: {

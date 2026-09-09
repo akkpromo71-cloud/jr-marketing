@@ -23,7 +23,7 @@ export function HeroVisual({ label }: { label: string }) {
       role="img"
       aria-label={label}
       viewBox={`0 0 ${width} ${height}`}
-      className="hero-visual-in h-full w-full"
+      className="h-full w-full"
       preserveAspectRatio="xMidYMid meet"
     >
       <defs>

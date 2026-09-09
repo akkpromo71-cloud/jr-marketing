@@ -34,12 +34,14 @@ export async function Nav() {
           href="/"
           className="flex shrink-0 items-center transition hover:opacity-80 active:scale-95"
         >
+          {/* Тёмный PNG на тёмном фоне не читается — инвертируем в белый
+              силуэт для тёмной темы (brightness(0) invert(1)). */}
           <Image
             src="/logo-mark.png"
             alt="J/R marketing"
             width={563}
             height={400}
-            className="h-10 w-auto [filter:drop-shadow(0_0_6px_rgba(255,255,255,0.18))] sm:h-12"
+            className="h-9 w-auto opacity-95 [filter:brightness(0)_invert(1)] sm:h-11"
             priority
           />
         </Link>
@@ -82,43 +84,36 @@ export async function Nav() {
           )}
         </nav>
 
-        {/* ── Мобайл ── */}
+        {/* ── Мобайл: логотип + язык + меню-шторка ── */}
         <div className="flex items-center gap-2 md:hidden">
           <LanguageSwitcher locale={locale} />
-          {profile ? (
-            <>
-              {hasProfilePage && (
-                <Link
-                  href="/settings"
-                  aria-label={t.nav.settings}
-                  className="transition hover:opacity-80"
-                >
-                  <Avatar url={profile.avatar_url} name={profile.display_name} size={28} />
-                </Link>
-              )}
-              <NavMenu
-                links={links}
-                menuLabel={t.nav.menu}
-                footer={
-                  <form action={signOutAction}>
-                    <button type="submit">{t.nav.logout}</button>
-                  </form>
-                }
-              />
-            </>
-          ) : (
-            <>
-              <Link href="/login" className={`${linkCls} text-xs`}>
-                {t.nav.login}
-              </Link>
-              <Link
-                href="/signup/artist"
-                className="btn-pop rounded-full bg-accent px-3.5 py-2 text-xs font-semibold text-on-accent hover:brightness-110"
-              >
-                {t.nav.startCta}
-              </Link>
-            </>
+          {profile && hasProfilePage && (
+            <Link
+              href="/settings"
+              aria-label={t.nav.settings}
+              className="transition hover:opacity-80"
+            >
+              <Avatar url={profile.avatar_url} name={profile.display_name} size={28} />
+            </Link>
           )}
+          <NavMenu
+            links={
+              profile
+                ? links
+                : [
+                    { href: '/login', label: t.nav.login },
+                    { href: '/signup/artist', label: t.nav.startCta },
+                  ]
+            }
+            menuLabel={t.nav.menu}
+            footer={
+              profile ? (
+                <form action={signOutAction}>
+                  <button type="submit">{t.nav.logout}</button>
+                </form>
+              ) : undefined
+            }
+          />
         </div>
       </div>
     </header>

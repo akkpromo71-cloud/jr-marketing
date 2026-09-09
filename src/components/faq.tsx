@@ -25,7 +25,7 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
               type="button"
               onClick={() => toggle(i)}
               aria-expanded={isOpen}
-              className="group grid w-full grid-cols-[2.25rem_1fr_2rem] items-start gap-4 py-6 text-left transition-colors hover:bg-white/[0.015] sm:grid-cols-[3rem_1fr_2.5rem] sm:gap-6 sm:py-7"
+              className="group flex w-full items-start gap-4 py-5 text-left transition-colors hover:bg-white/[0.015] sm:gap-5 sm:py-6"
             >
               <span
                 className={`tabular pt-1 text-sm transition-colors ${
@@ -35,20 +35,20 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
                 {num}
               </span>
               <span
-                className={`text-[1.0625rem] leading-snug transition-colors sm:text-[1.375rem] ${
+                className={`text-[1.0625rem] leading-snug transition-colors sm:text-[1.3rem] ${
                   isOpen ? 'text-text' : 'text-text-dim group-hover:text-text'
                 }`}
               >
                 {item.q}
               </span>
               <span
-                className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 motion-reduce:transition-none ${
+                className={`ml-3 mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 motion-reduce:transition-none sm:size-8 ${
                   isOpen
                     ? 'rotate-45 border-primary text-primary'
                     : 'border-border text-text-faint group-hover:border-white/25 group-hover:text-text'
                 }`}
               >
-                <Plus size={16} strokeWidth={2} aria-hidden="true" />
+                <Plus size={15} strokeWidth={2} aria-hidden="true" />
               </span>
             </button>
 
@@ -57,9 +57,7 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
               style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
             >
               <div className="overflow-hidden">
-                <p className="max-w-2xl pb-8 pr-4 text-body-lg text-text-dim sm:pl-[calc(3rem+1.5rem)] sm:pr-10">
-                  {item.a}
-                </p>
+                <p className="pb-7 pr-4 text-body-lg text-text-dim sm:pl-10">{item.a}</p>
               </div>
             </div>
           </li>

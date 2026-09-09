@@ -67,6 +67,15 @@ export default async function LandingPage() {
     !!stats && (stats.completed_edits > 0 || stats.total_views > 0 || stats.active_editors > 0);
 
   const fmt = (n: number) => formatCompactNumber(n, locale);
+  // Склонение слова по числу: ru — [1, 2, 5], en — [1, много].
+  const plural = (n: number, ru: [string, string, string], en: [string, string]) => {
+    if (locale !== 'ru') return n === 1 ? en[0] : en[1];
+    const a = n % 10;
+    const b = n % 100;
+    if (a === 1 && b !== 11) return ru[0];
+    if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return ru[1];
+    return ru[2];
+  };
 
   const sectionIndex = [
     { num: '01', label: t.landing.heroIndexBoard, href: '#board' },
@@ -81,9 +90,17 @@ export default async function LandingPage() {
     t.common.earlyAccess,
     ...(hasStats && stats
       ? [
-          `${t.landing.tapePlatform}: ${fmt(stats.completed_edits)} ${t.landing.tapeEditsWord}`,
+          `${t.landing.tapePlatform}: ${fmt(stats.completed_edits)} ${plural(
+            stats.completed_edits,
+            ['эдит', 'эдита', 'эдитов'],
+            ['edit', 'edits']
+          )}`,
           `${fmt(stats.total_views)} ${t.landing.tapeViewsWord}`,
-          `${fmt(stats.active_editors)} ${t.landing.tapeActiveWord}`,
+          `${fmt(stats.active_editors)} ${plural(
+            stats.active_editors,
+            ['эдитор в работе', 'эдитора в работе', 'эдиторов в работе'],
+            ['editor working', 'editors working']
+          )}`,
         ]
       : []),
     ...leaderboard.slice(0, 5).map((e) => `${e.display_name} — ${fmt(e.total_views)}`),
@@ -123,7 +140,7 @@ export default async function LandingPage() {
       <main className="clip-x">
         {/* ── Hero: сплит 7/5, слева — суть обмена, справа — ночной визуал ── */}
         <section className="border-b border-border">
-          <Container className="pb-section pt-section sm:pt-section-lg">
+          <Container className="py-section">
             <Grid className="items-center">
               <div className="md:col-span-7">
                 <p className="text-meta text-text-faint">{t.landing.kicker}</p>
@@ -290,7 +307,7 @@ export default async function LandingPage() {
 
         {/* ── Развилка «Я артист / Я эдитор»: симметричные панели, равный вес ── */}
         <section id="roles" className="scroll-mt-24 border-b border-border">
-          <Container className="py-section-lg">
+          <Container className="py-section">
             <div className="grid gap-px overflow-hidden rounded-[4px] border border-border bg-border md:grid-cols-2">
               {/* Артист */}
               <div className="flex flex-col bg-bg p-6 md:p-8">
@@ -345,15 +362,11 @@ export default async function LandingPage() {
 
         {/* ── Как устроена сделка: строки доверия, зелёные галки ── */}
         <section id="how" className="scroll-mt-24 border-b border-border">
-          <Container className="pb-section pt-section-sm">
-            <Grid>
-              <div className="md:col-span-4">
-                <h2 className="text-headline text-text md:sticky md:top-24">{t.landing.dealTitle}</h2>
-                <p className="mt-4 max-w-container-text text-body text-text-dim md:sticky md:top-40">
-                  {t.landing.dealIntro}
-                </p>
-              </div>
-              <ul className="md:col-span-7 md:col-start-6">
+          <Container className="py-section">
+            <div className="max-w-xl">
+              <h2 className="text-headline text-text">{t.landing.dealTitle}</h2>
+              <p className="mt-3 text-body text-text-dim">{t.landing.dealIntro}</p>
+              <ul className="mt-8">
                 {dealRows.map(({ Icon, text }, i) => (
                   <li
                     key={i}
@@ -369,7 +382,7 @@ export default async function LandingPage() {
                   </li>
                 ))}
               </ul>
-            </Grid>
+            </div>
           </Container>
         </section>
 
@@ -415,26 +428,22 @@ export default async function LandingPage() {
 
         {/* ── FAQ как блок доверия: крупные пронумерованные вопросы ── */}
         <section id="faq" className="scroll-mt-24 border-b border-border">
-          <Container className="py-section-lg">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="inline-flex items-center gap-2 text-meta text-success">
-                  <ShieldCheck size={15} strokeWidth={2} aria-hidden="true" />
-                  {t.landing.faqEyebrow}
-                </p>
-                <h2 className="mt-3 text-headline text-text">{t.landing.faqTitle}</h2>
-              </div>
-              <p className="max-w-xs text-body text-text-faint sm:text-right">
-                {t.landing.faqReassurance}
+          <Container className="py-section">
+            <div className="max-w-3xl">
+              <p className="inline-flex items-center gap-2 text-meta text-success">
+                <ShieldCheck size={15} strokeWidth={2} aria-hidden="true" />
+                {t.landing.faqEyebrow}
               </p>
+              <h2 className="mt-3 text-headline text-text">{t.landing.faqTitle}</h2>
+              <p className="mt-3 text-body text-text-faint">{t.landing.faqReassurance}</p>
+              <Faq items={faqItems} />
             </div>
-            <Faq items={faqItems} />
           </Container>
         </section>
 
         {/* ── Финальный призыв: одна дисплейная строка, без рамки ── */}
         <section className="border-b border-border">
-          <Container className="py-section sm:py-section-lg">
+          <Container className="py-section">
             <p className="text-display text-text">{t.landing.finalCtaLead}</p>
             <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <LinkButton
