@@ -123,7 +123,7 @@ export default async function LandingPage() {
       <main className="clip-x">
         {/* ── Hero: сплит 7/5, слева — суть обмена, справа — ночной визуал ── */}
         <section className="border-b border-border">
-          <Container className="pb-section pt-section-lg">
+          <Container className="pb-section pt-section sm:pt-section-lg">
             <Grid className="items-center">
               <div className="md:col-span-7">
                 <p className="text-meta text-text-faint">{t.landing.kicker}</p>
@@ -206,11 +206,11 @@ export default async function LandingPage() {
                     ].map((row) => (
                       <div
                         key={row.label}
-                        className="flex items-baseline justify-between gap-4 border-b border-border py-3.5"
+                        className="flex flex-col-reverse items-start gap-0.5 border-b border-border py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4 sm:py-3.5"
                       >
                         <dt className="text-meta text-text-faint">{row.label}</dt>
                         <dd
-                          className="shrink-0 text-2xl tabular text-text"
+                          className="text-2xl tabular text-text"
                           style={
                             row.glow
                               ? { textShadow: '0 0 22px rgba(236, 72, 153, 0.45)' }
@@ -224,7 +224,7 @@ export default async function LandingPage() {
                   </dl>
                 )}
 
-                <p className="mt-8 text-meta text-text-faint">{t.landing.cohortRosterLabel}</p>
+                <p className="mt-9 text-meta text-text-faint sm:mt-8">{t.landing.cohortRosterLabel}</p>
                 <ul className="mt-3">
                   {leaderboard.map((e, i) => (
                     <li
@@ -302,7 +302,7 @@ export default async function LandingPage() {
                 <h3 className="mt-3 text-display-sm text-text">{t.landing.artistTitle}</h3>
                 <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.artistText}</p>
 
-                <ol className="mt-8 flex flex-col gap-3.5 border-t border-border pt-6">
+                <ol className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:gap-3.5 sm:pt-6">
                   {stepList.map((s) => (
                     <li key={s.n} className="flex gap-3.5 text-[1.0625rem] leading-snug text-text sm:text-title">
                       <span className="tabular text-primary">{s.n}</span>
@@ -311,7 +311,7 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
-                <LinkButton href="/signup/artist" variant="artist" className="mt-8 w-full sm:w-auto sm:self-start">
+                <LinkButton href="/signup/artist" variant="artist" className="mt-7 w-full sm:mt-8 sm:w-auto sm:self-start">
                   {t.landing.registerBtn}
                 </LinkButton>
               </div>
@@ -326,7 +326,7 @@ export default async function LandingPage() {
                 <h3 className="mt-3 text-display-sm text-text">{t.landing.editorTitle}</h3>
                 <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.editorText}</p>
 
-                <ol className="mt-8 flex flex-col gap-3.5 border-t border-border pt-6">
+                <ol className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:gap-3.5 sm:pt-6">
                   {editorStepList.map((s) => (
                     <li key={s.n} className="flex gap-3.5 text-[1.0625rem] leading-snug text-text sm:text-title">
                       <span className="tabular text-accent">{s.n}</span>
@@ -335,7 +335,7 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
-                <LinkButton href="/signup/editor" variant="primary" className="mt-8 w-full sm:w-auto sm:self-start">
+                <LinkButton href="/signup/editor" variant="primary" className="mt-7 w-full sm:mt-8 sm:w-auto sm:self-start">
                   {t.landing.registerBtn}
                 </LinkButton>
               </div>
@@ -357,7 +357,7 @@ export default async function LandingPage() {
                 {dealRows.map(({ Icon, text }, i) => (
                   <li
                     key={i}
-                    className="flex gap-4 border-t border-border py-5 last:border-b"
+                    className="flex gap-4 border-t border-border py-4 last:border-b sm:py-5"
                   >
                     <Icon
                       size={20}
@@ -434,9 +434,9 @@ export default async function LandingPage() {
 
         {/* ── Финальный призыв: одна дисплейная строка, без рамки ── */}
         <section className="border-b border-border">
-          <Container className="pb-section pt-section-lg">
+          <Container className="py-section sm:py-section-lg">
             <p className="text-display text-text">{t.landing.finalCtaLead}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               <LinkButton
                 href="/signup/artist"
                 variant="artist"
@@ -457,7 +457,7 @@ export default async function LandingPage() {
 
         {/* ── Подвал ── */}
         <footer>
-          <Container className="py-14">
+          <Container className="py-11 sm:py-14">
             <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-title text-text">J/R marketing</p>

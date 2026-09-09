@@ -63,11 +63,12 @@ const config: Config = {
         'container-text': '42rem',
       },
       spacing: {
-        // Три ступени вертикального ритма секций. Нижние границы clamp подняты —
-        // на мобиле нужно больше воздуха между плотными блоками.
-        'section-sm': 'clamp(2.75rem, 1.75rem + 2.6vw, 3.5rem)',
-        section: 'clamp(4rem, 2.25rem + 5vw, 5.5rem)',
-        'section-lg': 'clamp(5rem, 2.75rem + 7vw, 8.5rem)',
+        // Три ступени вертикального ритма секций. На мобиле нижние границы
+        // clamp небольшие — секции разделяет ещё и hairline (border-b), так
+        // страница читается цельно, а не как разбросанные острова.
+        'section-sm': 'clamp(1.75rem, 1.25rem + 1.6vw, 3.5rem)',
+        section: 'clamp(2.5rem, 1.5rem + 3.2vw, 5.5rem)',
+        'section-lg': 'clamp(3rem, 1.75rem + 4.4vw, 8.5rem)',
         gutter: '1.5rem',
       },
       boxShadow: {
