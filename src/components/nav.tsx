@@ -34,16 +34,19 @@ export async function Nav() {
           href="/"
           className="flex shrink-0 items-center transition hover:opacity-80 active:scale-95"
         >
-          {/* Тёмный PNG на тёмном фоне не читается — инвертируем в белый
-              силуэт для тёмной темы (brightness(0) invert(1)). */}
-          <Image
-            src="/logo-mark.png"
-            alt="J/R marketing"
-            width={563}
-            height={400}
-            className="h-9 w-auto opacity-95 [filter:brightness(0)_invert(1)] sm:h-11"
-            priority
-          />
+          {/* Фирменный лого (золото на чёрном). Квадратная плашка с
+              кадрированием: scale убирает чёрные поля снимка, чтобы «JR ★»
+              читался, а не тонул мелким пятном. */}
+          <span className="block size-11 overflow-hidden rounded-md ring-1 ring-white/10 sm:size-[52px]">
+            <Image
+              src="/logo-mark.jpg"
+              alt="J/R marketing"
+              width={1254}
+              height={1254}
+              className="size-full scale-[1.22] object-cover object-center [filter:brightness(1.08)]"
+              priority
+            />
+          </span>
         </Link>
 
         {/* ── Десктоп ── */}

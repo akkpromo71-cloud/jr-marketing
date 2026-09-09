@@ -309,15 +309,22 @@ export default async function LandingPage() {
         <section id="roles" className="scroll-mt-24 border-b border-border">
           <Container className="py-section">
             <div className="grid gap-px overflow-hidden rounded-[4px] border border-border bg-border md:grid-cols-2">
-              {/* Артист */}
-              <div className="flex flex-col bg-bg p-6 md:p-8">
+              {/* Артист. Резерв высоты (md:min-h-*) под заголовок/подзаголовок в
+                  2 строки + кнопка через md:mt-auto — одноимённые элементы обеих
+                  панелей стоят на одних линиях. Ниже md панели встают друг под
+                  друга, резервов нет. */}
+              <div className="flex h-full flex-col bg-bg p-6 md:p-8">
                 <span aria-hidden="true" className="h-[2px] w-12 bg-primary" />
                 <div className="mt-6 flex items-center gap-3 text-primary">
                   <AudioLines size={26} strokeWidth={1.75} aria-hidden="true" />
                   <p className="text-meta text-text-faint">{t.landing.artistTag}</p>
                 </div>
-                <h3 className="mt-3 text-display-sm text-text">{t.landing.artistTitle}</h3>
-                <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.artistText}</p>
+                <h3 className="mt-3 text-display-sm text-text md:min-h-[2.4em]">
+                  {t.landing.artistTitle}
+                </h3>
+                <p className="mt-3 max-w-sm text-body text-text-dim md:min-h-[3.4em]">
+                  {t.landing.artistText}
+                </p>
 
                 <ol className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:gap-3.5 sm:pt-6">
                   {stepList.map((s) => (
@@ -328,20 +335,28 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
-                <LinkButton href="/signup/artist" variant="artist" className="mt-7 w-full sm:mt-8 sm:w-auto sm:self-start">
-                  {t.landing.registerBtn}
+                <LinkButton
+                  href="/signup/artist"
+                  variant="artist"
+                  className="mt-8 w-full md:w-auto md:self-start"
+                >
+                  {t.landing.forkArtistCta}
                 </LinkButton>
               </div>
 
               {/* Эдитор */}
-              <div className="flex flex-col bg-bg p-6 md:p-8">
+              <div className="flex h-full flex-col bg-bg p-6 md:p-8">
                 <span aria-hidden="true" className="h-[2px] w-12 bg-accent" />
                 <div className="mt-6 flex items-center gap-3 text-accent">
                   <Scissors size={26} strokeWidth={1.75} aria-hidden="true" />
                   <p className="text-meta text-text-faint">{t.landing.editorTag}</p>
                 </div>
-                <h3 className="mt-3 text-display-sm text-text">{t.landing.editorTitle}</h3>
-                <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.editorText}</p>
+                <h3 className="mt-3 text-display-sm text-text md:min-h-[2.4em]">
+                  {t.landing.editorTitle}
+                </h3>
+                <p className="mt-3 max-w-sm text-body text-text-dim md:min-h-[3.4em]">
+                  {t.landing.editorText}
+                </p>
 
                 <ol className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:gap-3.5 sm:pt-6">
                   {editorStepList.map((s) => (
@@ -352,8 +367,12 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
-                <LinkButton href="/signup/editor" variant="primary" className="mt-7 w-full sm:mt-8 sm:w-auto sm:self-start">
-                  {t.landing.registerBtn}
+                <LinkButton
+                  href="/signup/editor"
+                  variant="primary"
+                  className="mt-8 w-full md:w-auto md:self-start"
+                >
+                  {t.landing.forkEditorCta}
                 </LinkButton>
               </div>
             </div>

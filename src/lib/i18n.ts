@@ -95,7 +95,6 @@ export const dict = {
       step3Text: 'Эдит публикуется, а просмотры и лайки собираются с TikTok автоматически — в отчёте по кампании.',
       finalCtaTitle: 'Готовы запустить первый трек?',
       finalCtaSubtitle: 'Регистрация занимает пару минут — дальше всё берёт на себя наша команда.',
-      registerBtn: 'Зарегистрироваться',
       loginBtn: 'Войти',
       contactLabel: 'Мы на связи:',
       instagram: 'Instagram',
@@ -162,6 +161,8 @@ export const dict = {
       deal4: 'Вывод на PayPal или крипту, вручную.',
 
       forkHowLabel: 'Как это работает',
+      forkArtistCta: 'Разместить трек',
+      forkEditorCta: 'Стать эдитором',
       forkArtistOutcome: 'На выходе — монтаж, который двигает прослушивания и охваты.',
       forkEditorOutcome: 'На выходе — поток заказов с ценой, известной заранее.',
       editorStep1Title: 'Ставите цену',
@@ -508,7 +509,6 @@ export const dict = {
       step3Text: 'The edit goes live, and views and likes are collected from TikTok automatically — right in your campaign report.',
       finalCtaTitle: 'Ready to launch your first track?',
       finalCtaSubtitle: "Signing up takes a couple of minutes — our team handles the rest.",
-      registerBtn: 'Sign up',
       loginBtn: 'Log in',
       contactLabel: 'Reach us:',
       instagram: 'Instagram',
@@ -575,6 +575,8 @@ export const dict = {
       deal4: 'Payout to PayPal or crypto, by hand.',
 
       forkHowLabel: 'How it works',
+      forkArtistCta: 'Post a track',
+      forkEditorCta: 'Become an editor',
       forkArtistOutcome: 'The output: an edit that moves your plays and reach.',
       forkEditorOutcome: 'The output: a stream of jobs at a price known upfront.',
       editorStep1Title: 'Set your price',
