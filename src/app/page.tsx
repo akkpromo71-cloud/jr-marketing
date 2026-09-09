@@ -153,7 +153,7 @@ export default async function LandingPage() {
                 </div>
               </div>
 
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] border border-border md:col-span-5 md:aspect-[5/4]">
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[4px] border border-border sm:aspect-[16/11] md:col-span-5 md:aspect-[5/4]">
                 <div className="absolute inset-0">
                   <HeroVisual label={t.landing.heroVisualAlt} />
                 </div>
@@ -162,9 +162,9 @@ export default async function LandingPage() {
           </Container>
         </section>
 
-        {/* ── Полоска-оглавление: горизонтальная, во всю ширину контейнера ── */}
-        <nav aria-label={t.landing.rolesTitle} className="border-b border-border">
-          <Container className="flex flex-wrap gap-x-5 gap-y-2 py-3.5 sm:gap-x-8 sm:py-4">
+        {/* ── Полоска-оглавление: якорные ссылки. На мобиле лишний шум — скрыта. ── */}
+        <nav aria-label={t.landing.rolesTitle} className="hidden border-b border-border sm:block">
+          <Container className="flex flex-wrap gap-x-8 gap-y-2 py-4">
             {sectionIndex.map((item) => (
               <a
                 key={item.href}
@@ -302,9 +302,9 @@ export default async function LandingPage() {
                 <h3 className="mt-3 text-display-sm text-text">{t.landing.artistTitle}</h3>
                 <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.artistText}</p>
 
-                <ol className="mt-7 flex flex-col gap-2.5 border-t border-border pt-5">
+                <ol className="mt-8 flex flex-col gap-3.5 border-t border-border pt-6">
                   {stepList.map((s) => (
-                    <li key={s.n} className="flex gap-3 text-title text-text">
+                    <li key={s.n} className="flex gap-3.5 text-[1.0625rem] leading-snug text-text sm:text-title">
                       <span className="tabular text-primary">{s.n}</span>
                       <span>{s.title}</span>
                     </li>
@@ -326,9 +326,9 @@ export default async function LandingPage() {
                 <h3 className="mt-3 text-display-sm text-text">{t.landing.editorTitle}</h3>
                 <p className="mt-3 max-w-sm text-body text-text-dim">{t.landing.editorText}</p>
 
-                <ol className="mt-7 flex flex-col gap-2.5 border-t border-border pt-5">
+                <ol className="mt-8 flex flex-col gap-3.5 border-t border-border pt-6">
                   {editorStepList.map((s) => (
-                    <li key={s.n} className="flex gap-3 text-title text-text">
+                    <li key={s.n} className="flex gap-3.5 text-[1.0625rem] leading-snug text-text sm:text-title">
                       <span className="tabular text-accent">{s.n}</span>
                       <span>{s.title}</span>
                     </li>

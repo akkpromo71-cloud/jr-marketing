@@ -99,11 +99,13 @@ body {
   .text-display,
   .text-display-sm {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
+    text-wrap: balance;
   }
   .text-headline {
     font-family: var(--font-display);
     font-weight: 600;
+    text-wrap: balance;
   }
 
   .tabular {

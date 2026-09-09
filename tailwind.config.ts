@@ -48,24 +48,26 @@ const config: Config = {
       // (font-display навешивается на соответствующие заголовки).
       fontSize: {
         micro: ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0.06em' }],
-        meta: ['0.75rem', { lineHeight: '1.3', letterSpacing: '0.14em' }],
-        body: ['1rem', { lineHeight: '1.65' }],
-        'body-lg': ['1.0625rem', { lineHeight: '1.6' }],
-        title: ['1.25rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
-        headline: ['clamp(1.6rem, 1.1rem + 2.4vw, 2.5rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
-        'display-sm': ['clamp(2rem, 1.2rem + 3.6vw, 3.5rem)', { lineHeight: '1', letterSpacing: '-0.03em' }],
-        display: ['clamp(2.6rem, 1rem + 6.4vw, 5.5rem)', { lineHeight: '0.95', letterSpacing: '-0.035em' }],
+        meta: ['0.75rem', { lineHeight: '1.35', letterSpacing: '0.14em' }],
+        body: ['1rem', { lineHeight: '1.7' }],
+        'body-lg': ['1.0625rem', { lineHeight: '1.65' }],
+        title: ['1.1875rem', { lineHeight: '1.35', letterSpacing: '-0.01em' }],
+        // Заголовки: мягче межстрочный (на узком экране плотный lh читается
+        // «стеной»), меньше нижняя граница clamp — на мобиле не давит.
+        headline: ['clamp(1.45rem, 1.05rem + 1.9vw, 2.5rem)', { lineHeight: '1.18', letterSpacing: '-0.015em' }],
+        'display-sm': ['clamp(1.7rem, 1rem + 3vw, 3.5rem)', { lineHeight: '1.1', letterSpacing: '-0.025em' }],
+        display: ['clamp(2.15rem, 1rem + 5.4vw, 5.5rem)', { lineHeight: '1.02', letterSpacing: '-0.03em' }],
       },
       maxWidth: {
         container: '78rem',
         'container-text': '42rem',
       },
       spacing: {
-        // Три ступени вертикального ритма секций вместо одной — раньше все
-        // секции имели py-section ≈ 144px и страница была наполовину пустой.
-        'section-sm': 'clamp(2.25rem, 1.5rem + 2.4vw, 3.5rem)',
-        section: 'clamp(3rem, 2rem + 3.6vw, 5.25rem)',
-        'section-lg': 'clamp(4rem, 2.5rem + 6vw, 8rem)',
+        // Три ступени вертикального ритма секций. Нижние границы clamp подняты —
+        // на мобиле нужно больше воздуха между плотными блоками.
+        'section-sm': 'clamp(2.75rem, 1.75rem + 2.6vw, 3.5rem)',
+        section: 'clamp(4rem, 2.25rem + 5vw, 5.5rem)',
+        'section-lg': 'clamp(5rem, 2.75rem + 7vw, 8.5rem)',
         gutter: '1.5rem',
       },
       boxShadow: {
