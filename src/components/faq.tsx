@@ -15,7 +15,7 @@ export function Faq({ items }: { items: { q: string; a: string }[] }) {
     setOpen((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
 
   return (
-    <ul className="mt-12 border-t border-border">
+    <ul className="mt-8 border-t border-border sm:mt-12">
       {items.map((item, i) => {
         const isOpen = open.includes(i);
         const num = String(i + 1).padStart(2, '0');

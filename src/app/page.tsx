@@ -131,11 +131,11 @@ export default async function LandingPage() {
                 <p className="mt-7 max-w-container-text text-body-lg text-text-dim">
                   {t.landing.heroSubtitle}
                 </p>
-                <div className="mt-9 flex flex-wrap gap-3">
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <LinkButton
                     href="/signup/artist"
                     variant="artist"
-                    className="pop-in"
+                    className="pop-in w-full sm:w-auto"
                     style={{ ['--pop-delay' as string]: '120ms' }}
                   >
                     <AudioLines size={16} strokeWidth={2} aria-hidden="true" />
@@ -144,7 +144,7 @@ export default async function LandingPage() {
                   <LinkButton
                     href="/signup/editor"
                     variant="secondary"
-                    className="pop-in"
+                    className="pop-in w-full sm:w-auto"
                     style={{ ['--pop-delay' as string]: '220ms' }}
                   >
                     <Scissors size={16} strokeWidth={2} aria-hidden="true" />
@@ -164,7 +164,7 @@ export default async function LandingPage() {
 
         {/* ── Полоска-оглавление: горизонтальная, во всю ширину контейнера ── */}
         <nav aria-label={t.landing.rolesTitle} className="border-b border-border">
-          <Container className="flex flex-wrap gap-x-8 gap-y-2 py-4">
+          <Container className="flex flex-wrap gap-x-5 gap-y-2 py-3.5 sm:gap-x-8 sm:py-4">
             {sectionIndex.map((item) => (
               <a
                 key={item.href}
@@ -184,13 +184,13 @@ export default async function LandingPage() {
         {/* ── «Пока идёт первый набор»: ранняя стадия как «зайди первым» ── */}
         <section id="board" className="scroll-mt-24 border-b border-border">
           <Container className="py-section">
-            <Grid className="gap-y-12">
+            <Grid className="gap-y-10 sm:gap-y-12">
               <div className="md:col-span-5">
                 <h2 className="text-headline text-text">{t.landing.boardHeading}</h2>
                 <p className="mt-5 max-w-container-text text-body-lg text-text-dim">
                   {t.landing.cohortManifesto}
                 </p>
-                <LinkButton href="/signup/artist" variant="artist" className="mt-8">
+                <LinkButton href="/signup/artist" variant="artist" className="mt-8 w-full sm:w-auto">
                   {t.landing.cohortCta}
                   <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
                 </LinkButton>
@@ -311,7 +311,7 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
-                <LinkButton href="/signup/artist" variant="artist" className="mt-8 self-start">
+                <LinkButton href="/signup/artist" variant="artist" className="mt-8 w-full sm:w-auto sm:self-start">
                   {t.landing.registerBtn}
                 </LinkButton>
               </div>
@@ -335,7 +335,7 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
-                <LinkButton href="/signup/editor" variant="primary" className="mt-8 self-start">
+                <LinkButton href="/signup/editor" variant="primary" className="mt-8 w-full sm:w-auto sm:self-start">
                   {t.landing.registerBtn}
                 </LinkButton>
               </div>
@@ -436,11 +436,19 @@ export default async function LandingPage() {
         <section className="border-b border-border">
           <Container className="pb-section pt-section-lg">
             <p className="text-display text-text">{t.landing.finalCtaLead}</p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <LinkButton href="/signup/artist" variant="artist">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+              <LinkButton
+                href="/signup/artist"
+                variant="artist"
+                className="w-full sm:w-auto"
+              >
                 {t.landing.finalCtaArtistLink}
               </LinkButton>
-              <LinkButton href="/signup/editor" variant="secondary">
+              <LinkButton
+                href="/signup/editor"
+                variant="secondary"
+                className="w-full sm:w-auto"
+              >
                 {t.landing.finalCtaEditorLink}
               </LinkButton>
             </div>

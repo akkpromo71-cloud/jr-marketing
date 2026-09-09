@@ -131,10 +131,10 @@ export default async function FeedPage({
                         priority ? 'border-l-2 border-l-accent p-6 md:p-8' : 'p-5 md:max-w-3xl'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                         <div className="flex items-start gap-3">
                           <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={40} />
-                          <div>
+                          <div className="min-w-0">
                             {priority && (
                               <p className="mb-1 text-meta text-text-faint">{t.feed.priorityLabel}</p>
                             )}
@@ -149,11 +149,17 @@ export default async function FeedPage({
                             <p className="mt-2 text-sm text-text-dim">{c.description}</p>
                           </div>
                         </div>
-                        <div className="flex shrink-0 flex-col items-end gap-2">
+                        <div className="flex shrink-0 flex-row-reverse items-center justify-end gap-3 sm:flex-col sm:items-end sm:gap-2">
                           <StatusBadge status={c.status} />
                           {c.budget && (
-                            <p className="text-right">
-                              <span className={priority ? 'block text-display-sm tabular text-text' : 'block text-lg tabular text-text'}>
+                            <p className="sm:text-right">
+                              <span
+                                className={
+                                  priority
+                                    ? 'block text-2xl tabular text-text sm:text-display-sm'
+                                    : 'block text-lg tabular text-text'
+                                }
+                              >
                                 {c.budget} $
                               </span>
                               <span className="text-micro uppercase text-text-faint">{t.feed.budgetLabel}</span>

@@ -65,6 +65,7 @@ export const dict = {
       logout: 'Выйти',
       settings: 'Настройки',
       startCta: 'Запустить трек',
+      menu: 'Меню',
     },
     landing: {
       kicker: 'Продвижение в TikTok и Reels',
@@ -480,6 +481,7 @@ export const dict = {
       logout: 'Log out',
       settings: 'Settings',
       startCta: 'Launch a track',
+      menu: 'Menu',
     },
     landing: {
       kicker: 'TikTok & Reels promotion',

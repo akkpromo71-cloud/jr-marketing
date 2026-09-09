@@ -17,7 +17,8 @@ export function Container({
   className?: string;
 }) {
   const max = width === 'text' ? 'max-w-container-text' : 'max-w-container';
-  return <div className={`mx-auto w-full ${max} px-6 ${className}`}>{children}</div>;
+  // На мобиле поля уже (16px) — контенту нужно больше ширины; с sm — 24px.
+  return <div className={`mx-auto w-full ${max} px-4 sm:px-6 ${className}`}>{children}</div>;
 }
 
 // 12-колоночная сетка. На мобиле — одна колонка (аудитория преимущественно
