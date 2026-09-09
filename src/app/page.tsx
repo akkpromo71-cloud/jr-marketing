@@ -109,14 +109,14 @@ export default async function LandingPage() {
   ];
 
   const stepList = [
-    { n: '01', title: t.landing.step1Title, text: t.landing.step1Text },
-    { n: '02', title: t.landing.step2Title, text: t.landing.step2Text },
-    { n: '03', title: t.landing.step3Title, text: t.landing.step3Text },
+    { n: '01', title: t.landing.step1Title },
+    { n: '02', title: t.landing.step2Title },
+    { n: '03', title: t.landing.step3Title },
   ];
   const editorStepList = [
-    { n: '01', title: t.landing.editorStep1Title, text: t.landing.editorStep1Text },
-    { n: '02', title: t.landing.editorStep2Title, text: t.landing.editorStep2Text },
-    { n: '03', title: t.landing.editorStep3Title, text: t.landing.editorStep3Text },
+    { n: '01', title: t.landing.editorStep1Title },
+    { n: '02', title: t.landing.editorStep2Title },
+    { n: '03', title: t.landing.editorStep3Title },
   ];
 
   const dealRows = [
@@ -309,10 +309,10 @@ export default async function LandingPage() {
         <section id="roles" className="scroll-mt-24 border-b border-border">
           <Container className="py-section">
             <div className="grid gap-px overflow-hidden rounded-[4px] border border-border bg-border md:grid-cols-2">
-              {/* Артист. Резерв высоты (md:min-h-*) под заголовок/подзаголовок в
-                  2 строки + кнопка через md:mt-auto — одноимённые элементы обеих
-                  панелей стоят на одних линиях. Ниже md панели встают друг под
-                  друга, резервов нет. */}
+              {/* Артист. Резерв высоты (md:min-h-*) под заголовок / подзаголовок /
+                  строку «нужно» — одноимённые элементы обеих панелей стоят на
+                  одних линиях независимо от длины текста. Ниже md панели встают
+                  друг под друга, резервов нет. */}
               <div className="flex h-full flex-col bg-bg p-6 md:p-8">
                 <span aria-hidden="true" className="h-[2px] w-12 bg-primary" />
                 <div className="mt-6 flex items-center gap-3 text-primary">
@@ -335,10 +335,14 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
+                <p className="mt-6 text-body text-text-faint md:min-h-[3em]">
+                  {t.landing.forkArtistNeed}
+                </p>
+
                 <LinkButton
                   href="/signup/artist"
                   variant="artist"
-                  className="mt-8 w-full md:w-auto md:self-start"
+                  className="mt-6 w-full md:w-auto md:self-start"
                 >
                   {t.landing.forkArtistCta}
                 </LinkButton>
@@ -367,10 +371,14 @@ export default async function LandingPage() {
                   ))}
                 </ol>
 
+                <p className="mt-6 text-body text-text-faint md:min-h-[3em]">
+                  {t.landing.forkEditorNeed}
+                </p>
+
                 <LinkButton
                   href="/signup/editor"
                   variant="primary"
-                  className="mt-8 w-full md:w-auto md:self-start"
+                  className="mt-6 w-full md:w-auto md:self-start"
                 >
                   {t.landing.forkEditorCta}
                 </LinkButton>

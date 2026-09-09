@@ -31,8 +31,8 @@ const jetbrainsMono = JetBrains_Mono({
 
 // applicationName/icons/openGraph.siteName — чтобы бренд "J/R marketing" был виден
 // везде (вкладка браузера, установка как приложение, превью ссылки), а не голый хост.
-// metadataBase + openGraph/twitter.images — чтобы ссылка на сайт в мессенджерах
-// и соцсетях разворачивалась с превью-картинкой (логотипом), а не голым текстом.
+// Картинку превью даёт src/app/opengraph-image.tsx (1200×630), поэтому здесь
+// images не задаём — иначе ручной список перекрыл бы файловую конвенцию.
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
   const shared: Partial<Metadata> = {
@@ -51,8 +51,8 @@ export async function generateMetadata(): Promise<Metadata> {
       ...shared,
       title,
       description,
-      openGraph: { siteName: 'J/R marketing', title, description, locale: 'en_US', images: ['/logo.png'] },
-      twitter: { card: 'summary_large_image', title, description, images: ['/logo.png'] },
+      openGraph: { siteName: 'J/R marketing', title, description, locale: 'en_US' },
+      twitter: { card: 'summary_large_image', title, description },
     };
   }
   const title = 'J/R marketing — платформа для артистов и видеоэдиторов';
@@ -62,8 +62,8 @@ export async function generateMetadata(): Promise<Metadata> {
     ...shared,
     title,
     description,
-    openGraph: { siteName: 'J/R marketing', title, description, locale: 'ru_RU', images: ['/logo.png'] },
-    twitter: { card: 'summary_large_image', title, description, images: ['/logo.png'] },
+    openGraph: { siteName: 'J/R marketing', title, description, locale: 'ru_RU' },
+    twitter: { card: 'summary_large_image', title, description },
   };
 }
 
