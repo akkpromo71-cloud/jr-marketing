@@ -8,7 +8,6 @@ import {
   BadgeCheck,
   Wallet,
   Star,
-  ArrowRight,
 } from 'lucide-react';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
@@ -18,6 +17,7 @@ import { Container, Grid } from '@/components/layout';
 import { LinkButton } from '@/components/ui';
 import { HeroReveal } from '@/components/hero-reveal';
 import { HeroVisual } from '@/components/hero-visual';
+import { RoleVisual } from '@/components/role-visual';
 import { Ticker } from '@/components/ticker';
 import { Faq } from '@/components/faq';
 import { getDict } from '@/lib/i18n';
@@ -27,13 +27,6 @@ interface PublicStats {
   completed_edits: number;
   total_views: number;
   active_editors: number;
-}
-
-interface LeaderboardRow {
-  display_name: string;
-  total_views: number;
-  total_likes: number;
-  completed_count: number;
 }
 
 interface PublicReview {
@@ -53,15 +46,16 @@ export default async function LandingPage() {
   const supabase = await createClient();
 
   // Публичные RPC (security definer, доступны анониму). ЗАПРОСЫ НЕ МЕНЯЛИСЬ —
-  // перестроен только презентационный слой.
-  const [{ data: statsData }, { data: leaderboardData }, { data: reviewsData }] = await Promise.all([
+  // перестроен только презентационный слой. Лидерборд эдиторов больше не
+  // выводится на лендинге (там был тестовый аккаунт), поэтому его результат
+  // не разбираем, но запрос оставлен как есть.
+  const [{ data: statsData }, , { data: reviewsData }] = await Promise.all([
     supabase.rpc('get_public_platform_stats'),
     supabase.rpc('get_editor_leaderboard', { p_limit: 10 }),
     supabase.rpc('get_public_reviews', { p_limit: 6 }),
   ]);
 
   const stats = (Array.isArray(statsData) ? statsData[0] : statsData) as PublicStats | undefined;
-  const leaderboard = (leaderboardData ?? []) as LeaderboardRow[];
   const reviews = (reviewsData ?? []) as PublicReview[];
   const hasStats =
     !!stats && (stats.completed_edits > 0 || stats.total_views > 0 || stats.active_editors > 0);
@@ -84,8 +78,8 @@ export default async function LandingPage() {
     { num: '04', label: t.landing.heroIndexFaq, href: '#faq' },
   ];
 
-  // Бегущая строка: реальные цифры площадки + короткие факты о том, как
-  // устроена сделка. Дублирование элементов делает сам компонент Ticker.
+  // Бегущая строка: только реальные цифры площадки + короткие факты о сделке.
+  // Дублирование элементов делает сам компонент Ticker.
   const tickerItems = [
     t.common.earlyAccess,
     ...(hasStats && stats
@@ -103,20 +97,8 @@ export default async function LandingPage() {
           )}`,
         ]
       : []),
-    ...leaderboard.slice(0, 5).map((e) => `${e.display_name} — ${fmt(e.total_views)}`),
     t.landing.tapeModerated,
     t.landing.tapePaid,
-  ];
-
-  const stepList = [
-    { n: '01', title: t.landing.step1Title },
-    { n: '02', title: t.landing.step2Title },
-    { n: '03', title: t.landing.step3Title },
-  ];
-  const editorStepList = [
-    { n: '01', title: t.landing.editorStep1Title },
-    { n: '02', title: t.landing.editorStep2Title },
-    { n: '03', title: t.landing.editorStep3Title },
   ];
 
   const dealRows = [
@@ -188,7 +170,7 @@ export default async function LandingPage() {
                 href={item.href}
                 className="group inline-flex items-baseline gap-2 text-meta text-text-faint transition hover:text-text"
               >
-                <span className="tabular text-accent">{item.num}</span>
+                <span className="tabular text-text-faint/70">{item.num}</span>
                 <span>{item.label}</span>
               </a>
             ))}
@@ -198,217 +180,119 @@ export default async function LandingPage() {
         {/* ── «Лента»: реальные цифры, всегда заполнена, движется ── */}
         <Ticker items={tickerItems} />
 
-        {/* ── «Пока идёт первый набор»: ранняя стадия как «зайди первым» ── */}
+        {/* ── «Запустите продвижение первыми»: один эдит = крупное число ── */}
         <section id="board" className="scroll-mt-24 border-b border-border">
-          <Container className="py-section">
-            <Grid className="gap-y-10 sm:gap-y-12">
-              <div className="md:col-span-5">
-                <h2 className="text-headline text-text">{t.landing.boardHeading}</h2>
-                <p className="mt-5 max-w-container-text text-body-lg text-text-dim">
-                  {t.landing.cohortManifesto}
+          <Container className="py-section-lg text-center">
+            <h2 className="text-headline text-text">{t.landing.boardHeading}</h2>
+            <p className="mx-auto mt-4 max-w-md text-body text-text-dim">
+              {t.landing.cohortManifesto}
+            </p>
+
+            {hasStats && stats && (
+              <>
+                <p
+                  className="mt-12 text-display font-extrabold leading-none text-text"
+                  style={{ textShadow: '0 0 44px rgba(236, 72, 153, 0.26)' }}
+                >
+                  {fmt(stats.total_views)}
                 </p>
-                <LinkButton href="/signup/artist" variant="artist" className="mt-8 w-full sm:w-auto">
-                  {t.landing.cohortCta}
-                  <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
-                </LinkButton>
-              </div>
+                <p className="mx-auto mt-3 max-w-xs text-body-lg text-text-dim">
+                  {t.landing.boardBigCaption}
+                </p>
+                <p className="mt-1 text-meta text-text-faint">
+                  {stats.active_editors} {t.landing.boardEditorsCaption}
+                </p>
+              </>
+            )}
 
-              <div className="md:col-span-6 md:col-start-7">
-                {hasStats && stats && (
-                  <dl className="border-t border-border">
-                    {[
-                      { n: stats.completed_edits, label: t.landing.statsCompletedLabel, glow: true },
-                      { n: stats.total_views, label: t.landing.statsViewsLabel, glow: false },
-                      { n: stats.active_editors, label: t.landing.statsEditorsLabel, glow: false },
-                    ].map((row) => (
-                      <div
-                        key={row.label}
-                        className="flex flex-col-reverse items-start gap-0.5 border-b border-border py-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4 sm:py-3.5"
-                      >
-                        <dt className="text-meta text-text-faint">{row.label}</dt>
-                        <dd
-                          className="text-2xl tabular text-text"
-                          style={
-                            row.glow
-                              ? { textShadow: '0 0 22px rgba(236, 72, 153, 0.45)' }
-                              : undefined
-                          }
-                        >
-                          {fmt(row.n)}
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                )}
-
-                <p className="mt-9 text-meta text-text-faint sm:mt-8">{t.landing.cohortRosterLabel}</p>
-                <ul className="mt-3">
-                  {leaderboard.map((e, i) => (
-                    <li
-                      key={`${e.display_name}-${i}`}
-                      className="flex items-baseline justify-between gap-4 border-t border-border py-4"
-                    >
-                      <div className="flex min-w-0 items-baseline gap-4">
-                        <span className="tabular text-text-faint">
-                          {String(i + 1).padStart(2, '0')}
-                        </span>
-                        <div className="min-w-0">
-                          <span className="block truncate text-title text-text">
-                            {e.display_name}
-                          </span>
-                          {i === 0 && (
-                            <span className="mt-0.5 inline-flex items-center gap-1.5 text-micro uppercase text-primary">
-                              <BadgeCheck size={13} strokeWidth={2} aria-hidden="true" />
-                              {t.landing.cohortFirstBadge}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {leaderboard.length > 1 && (
-                        <span className="shrink-0 text-right">
-                          <span className="block text-title tabular text-text">
-                            {fmt(e.total_views)}
-                          </span>
-                          <span className="text-micro uppercase text-text-faint">
-                            {t.landing.cohortViewsWord}
-                          </span>
-                        </span>
-                      )}
-                    </li>
-                  ))}
-
-                  {/* Один явный открытый слот — приглашение артисту, пунктир. */}
-                  <li className="border-t border-border py-4">
-                    <Link
-                      href="/signup/artist"
-                      className="group flex items-baseline justify-between gap-4"
-                    >
-                      <span className="flex items-baseline gap-4">
-                        <span className="tabular text-text-faint">
-                          {String(leaderboard.length + 1).padStart(2, '0')}
-                        </span>
-                        <span className="border-b border-dashed border-primary/60 text-title text-text transition group-hover:border-primary">
-                          {t.landing.cohortSlotYou}
-                        </span>
-                      </span>
-                      <ArrowRight
-                        size={16}
-                        strokeWidth={2}
-                        aria-hidden="true"
-                        className="shrink-0 translate-y-1 text-primary transition-transform group-hover:translate-x-1"
-                      />
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </Grid>
+            <div className="mx-auto mt-12 max-w-sm rounded border border-dashed border-primary/50 p-6">
+              <p className="text-title text-text">{t.landing.cohortSlotYou}</p>
+              <LinkButton href="/signup/artist" variant="artist" className="mt-4 w-full">
+                {t.landing.cohortCta}
+              </LinkButton>
+            </div>
           </Container>
         </section>
 
-        {/* ── Развилка «Я артист / Я эдитор»: симметричные панели, равный вес ── */}
+        {/* ── Развилка ролей: карточка артиста доминирует (главный источник
+            денег), карточка эдитора второстепенная. У каждой — стилизованный
+            вертикальный визуал 9:16 приглушённым фоном. ── */}
         <section id="roles" className="scroll-mt-24 border-b border-border">
           <Container className="py-section">
-            <div className="grid gap-px overflow-hidden rounded-[4px] border border-border bg-border md:grid-cols-2">
-              {/* Артист. Резерв высоты (md:min-h-*) под заголовок / подзаголовок /
-                  строку «нужно» — одноимённые элементы обеих панелей стоят на
-                  одних линиях независимо от длины текста. Ниже md панели встают
-                  друг под друга, резервов нет. */}
-              <div className="flex h-full flex-col bg-bg p-6 md:p-8">
-                <span aria-hidden="true" className="h-[2px] w-12 bg-primary" />
-                <div className="mt-6 flex items-center gap-3 text-primary">
-                  <AudioLines size={26} strokeWidth={1.75} aria-hidden="true" />
-                  <p className="text-meta text-text-faint">{t.landing.artistTag}</p>
+            <div className="grid gap-4 md:grid-cols-12">
+              {/* Артист — крупнее, светлее, заметнее */}
+              <div className="relative flex flex-col overflow-hidden rounded border border-white/[0.16] bg-white/[0.07] p-6 md:col-span-7 md:p-9">
+                <RoleVisual role="artist" />
+                <div className="relative flex flex-1 flex-col">
+                  <div className="flex items-center gap-3 text-primary">
+                    <AudioLines size={24} strokeWidth={1.75} aria-hidden="true" />
+                    <p className="text-meta text-text-faint">{t.landing.artistTag}</p>
+                  </div>
+                  <h3 className="mt-3 text-display-sm text-text md:min-h-[2.2em]">
+                    {t.landing.artistTitle}
+                  </h3>
+                  <p className="mt-3 max-w-md text-body-lg text-text-dim">{t.landing.artistText}</p>
+                  <p className="mt-6 rounded border border-white/10 bg-bg/50 p-4 text-sm text-text-faint">
+                    {t.landing.forkArtistNeed}
+                  </p>
+                  <LinkButton
+                    href="/signup/artist"
+                    variant="artist"
+                    className="mt-auto w-full md:w-auto md:self-start"
+                  >
+                    {t.landing.forkArtistCta}
+                  </LinkButton>
                 </div>
-                <h3 className="mt-3 text-display-sm text-text md:min-h-[2.4em]">
-                  {t.landing.artistTitle}
-                </h3>
-                <p className="mt-3 max-w-sm text-body text-text-dim md:min-h-[3.4em]">
-                  {t.landing.artistText}
-                </p>
-
-                <ol className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:gap-3.5 sm:pt-6">
-                  {stepList.map((s) => (
-                    <li key={s.n} className="flex gap-3.5 text-[1.0625rem] leading-snug text-text sm:text-title">
-                      <span className="tabular text-primary">{s.n}</span>
-                      <span>{s.title}</span>
-                    </li>
-                  ))}
-                </ol>
-
-                <p className="mt-6 text-body text-text-faint md:min-h-[3em]">
-                  {t.landing.forkArtistNeed}
-                </p>
-
-                <LinkButton
-                  href="/signup/artist"
-                  variant="artist"
-                  className="mt-6 w-full md:w-auto md:self-start"
-                >
-                  {t.landing.forkArtistCta}
-                </LinkButton>
               </div>
 
-              {/* Эдитор */}
-              <div className="flex h-full flex-col bg-bg p-6 md:p-8">
-                <span aria-hidden="true" className="h-[2px] w-12 bg-accent" />
-                <div className="mt-6 flex items-center gap-3 text-accent">
-                  <Scissors size={26} strokeWidth={1.75} aria-hidden="true" />
-                  <p className="text-meta text-text-faint">{t.landing.editorTag}</p>
+              {/* Эдитор — второстепенная, тусклее */}
+              <div className="relative flex flex-col overflow-hidden rounded border border-white/[0.1] bg-white/[0.035] p-6 md:col-span-5 md:p-8">
+                <RoleVisual role="editor" />
+                <div className="relative flex flex-1 flex-col">
+                  <div className="flex items-center gap-3 text-accent">
+                    <Scissors size={22} strokeWidth={1.75} aria-hidden="true" />
+                    <p className="text-meta text-text-faint">{t.landing.editorTag}</p>
+                  </div>
+                  <h3 className="mt-3 text-headline text-text md:min-h-[2.2em]">
+                    {t.landing.editorTitle}
+                  </h3>
+                  <p className="mt-3 text-body text-text-dim">{t.landing.editorText}</p>
+                  <p className="mt-6 rounded border border-white/10 bg-bg/50 p-4 text-sm text-text-faint">
+                    {t.landing.forkEditorNeed}
+                  </p>
+                  <LinkButton
+                    href="/signup/editor"
+                    variant="primary"
+                    className="mt-auto w-full md:w-auto md:self-start"
+                  >
+                    {t.landing.forkEditorCta}
+                  </LinkButton>
                 </div>
-                <h3 className="mt-3 text-display-sm text-text md:min-h-[2.4em]">
-                  {t.landing.editorTitle}
-                </h3>
-                <p className="mt-3 max-w-sm text-body text-text-dim md:min-h-[3.4em]">
-                  {t.landing.editorText}
-                </p>
-
-                <ol className="mt-7 flex flex-col gap-3 border-t border-border pt-5 sm:gap-3.5 sm:pt-6">
-                  {editorStepList.map((s) => (
-                    <li key={s.n} className="flex gap-3.5 text-[1.0625rem] leading-snug text-text sm:text-title">
-                      <span className="tabular text-accent">{s.n}</span>
-                      <span>{s.title}</span>
-                    </li>
-                  ))}
-                </ol>
-
-                <p className="mt-6 text-body text-text-faint md:min-h-[3em]">
-                  {t.landing.forkEditorNeed}
-                </p>
-
-                <LinkButton
-                  href="/signup/editor"
-                  variant="primary"
-                  className="mt-6 w-full md:w-auto md:self-start"
-                >
-                  {t.landing.forkEditorCta}
-                </LinkButton>
               </div>
             </div>
           </Container>
         </section>
 
-        {/* ── Как устроена сделка: строки доверия, зелёные галки ── */}
+        {/* ── Как устроена сделка: сетка 2×2 на всю ширину контейнера ── */}
         <section id="how" className="scroll-mt-24 border-b border-border">
-          <Container className="py-section">
-            <div className="max-w-xl">
-              <h2 className="text-headline text-text">{t.landing.dealTitle}</h2>
-              <p className="mt-3 text-body text-text-dim">{t.landing.dealIntro}</p>
-              <ul className="mt-8">
-                {dealRows.map(({ Icon, text }, i) => (
-                  <li
-                    key={i}
-                    className="flex gap-4 border-t border-border py-4 last:border-b sm:py-5"
-                  >
-                    <Icon
-                      size={20}
-                      strokeWidth={1.75}
-                      aria-hidden="true"
-                      className="mt-0.5 shrink-0 text-success"
-                    />
-                    <p className="text-body-lg text-text-dim">{text}</p>
-                  </li>
-                ))}
-              </ul>
+          <Container className="py-section-sm">
+            <h2 className="text-headline text-text">{t.landing.dealTitle}</h2>
+            <p className="mt-3 max-w-xl text-body text-text-dim">{t.landing.dealIntro}</p>
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {dealRows.map(({ Icon, text }, i) => (
+                <div
+                  key={i}
+                  className="flex gap-4 rounded border border-white/[0.12] bg-white/[0.03] p-5"
+                >
+                  <Icon
+                    size={20}
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                    className="mt-0.5 shrink-0 text-text-faint"
+                  />
+                  <p className="text-body text-text-dim">{text}</p>
+                </div>
+              ))}
             </div>
           </Container>
         </section>
@@ -453,37 +337,44 @@ export default async function LandingPage() {
           </section>
         )}
 
-        {/* ── FAQ как блок доверия: крупные пронумерованные вопросы ── */}
+        {/* ── FAQ: аккордеон на всю ширину контейнера, «+» одной колонкой справа ── */}
         <section id="faq" className="scroll-mt-24 border-b border-border">
           <Container className="py-section">
-            <div className="max-w-3xl">
-              <p className="inline-flex items-center gap-2 text-meta text-success">
-                <ShieldCheck size={15} strokeWidth={2} aria-hidden="true" />
-                {t.landing.faqEyebrow}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="inline-flex items-center gap-2 text-meta text-text-faint">
+                  <ShieldCheck size={15} strokeWidth={2} aria-hidden="true" />
+                  {t.landing.faqEyebrow}
+                </p>
+                <h2 className="mt-3 text-headline text-text">{t.landing.faqTitle}</h2>
+              </div>
+              <p className="max-w-xs text-body text-text-faint sm:text-right">
+                {t.landing.faqReassurance}
               </p>
-              <h2 className="mt-3 text-headline text-text">{t.landing.faqTitle}</h2>
-              <p className="mt-3 text-body text-text-faint">{t.landing.faqReassurance}</p>
-              <Faq items={faqItems} />
             </div>
+            <Faq items={faqItems} />
           </Container>
         </section>
 
-        {/* ── Финальный призыв: одна дисплейная строка, без рамки ── */}
+        {/* ── Финальный призыв: плотный центрированный блок ── */}
         <section className="border-b border-border">
-          <Container className="py-section">
-            <p className="text-display text-text">{t.landing.finalCtaLead}</p>
-            <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+          <Container className="py-14 text-center sm:py-16">
+            <h2 className="text-headline text-text">{t.landing.finalCtaLead}</h2>
+            <p className="mx-auto mt-3 max-w-md text-body text-text-dim">
+              {t.landing.finalCtaSubtitle}
+            </p>
+            <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
               <LinkButton
                 href="/signup/artist"
                 variant="artist"
-                className="w-full sm:w-auto"
+                className="w-full !px-7 !py-3.5 !text-base sm:w-auto"
               >
                 {t.landing.finalCtaArtistLink}
               </LinkButton>
               <LinkButton
                 href="/signup/editor"
                 variant="secondary"
-                className="w-full sm:w-auto"
+                className="w-full !px-7 !py-3.5 !text-base sm:w-auto"
               >
                 {t.landing.finalCtaEditorLink}
               </LinkButton>

@@ -1,15 +1,12 @@
 import type { Metadata } from 'next';
-import { Unbounded, Manrope, JetBrains_Mono } from 'next/font/google';
+import { Unbounded, Manrope } from 'next/font/google';
 import './globals.css';
 import { getLocale } from '@/lib/i18n';
 
-// Дизайн-система "JR Marketing" (design-system/jr-marketing/MASTER.md): тёмная
-// OLED-тема на весь сайт. Шрифтовая пара обязана поддерживать кириллицу —
-// все три семейства поставляют cyrillic subset:
-//   Unbounded      — дисплейные заголовки (H1-H2, кикеры), "афиша лейбла";
-//   Manrope        — весь текст, UI, кнопки, лейблы; спокойный, читаемый;
-//   JetBrains Mono — цифры, бегущая строка, номера слотов (табличные знаки).
-// Переменные --font-display / --font-sans / --font-mono читает tailwind.config.ts.
+// Две гарнитуры на весь проект (обе с cyrillic subset):
+//   Unbounded — дисплейные заголовки и монограмма в шапке;
+//   Manrope   — весь остальной текст, UI, кнопки, лейблы, ЦИФРЫ.
+// Переменные --font-display / --font-sans читает tailwind.config.ts.
 const manrope = Manrope({
   subsets: ['latin', 'cyrillic'],
   variable: '--font-sans',
@@ -20,12 +17,6 @@ const unbounded = Unbounded({
   subsets: ['latin', 'cyrillic'],
   variable: '--font-display',
   weight: ['400', '600', '700', '800'],
-  display: 'swap',
-});
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-mono',
-  weight: ['400', '500'],
   display: 'swap',
 });
 
@@ -74,7 +65,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       {/* Тёмная OLED-тема — единственная тема сайта (design-system/jr-marketing).
           Токены заданы на :root в globals.css, отдельного класса-темы нет. */}
       <body
-        className={`${manrope.variable} ${unbounded.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+        className={`${manrope.variable} ${unbounded.variable} font-sans antialiased`}
       >
         {children}
       </body>

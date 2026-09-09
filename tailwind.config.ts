@@ -30,7 +30,8 @@ const config: Config = {
         // mono    — JetBrains Mono (цифры, бегущая строка). Все три с кириллицей.
         display: ['var(--font-display)', 'var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        // Отдельного моно-шрифта в проекте нет — «font-mono» = тот же гротеск.
+        mono: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       fontWeight: {
         // Дизайн-система JR допускает выразительный дисплейный вес. Именованные
@@ -63,10 +64,12 @@ const config: Config = {
         'container-text': '42rem',
       },
       spacing: {
-        // Единый вертикальный ритм секций лендинга. Нижняя граница clamp
-        // небольшая — секции разделяет ещё и hairline (border-b), поэтому
-        // страница читается цельно, а не как разбросанные острова.
+        // Три ступени вертикального ритма секций — чтобы при скролле был
+        // ритм, а не одинаковые интервалы. Нижние границы clamp небольшие:
+        // секции разделяет ещё и hairline (border-b).
+        'section-sm': 'clamp(2rem, 1.25rem + 2vw, 3.5rem)',
         section: 'clamp(2.5rem, 1.5rem + 3.2vw, 5.5rem)',
+        'section-lg': 'clamp(3.25rem, 2rem + 4.6vw, 7rem)',
         gutter: '1.5rem',
       },
       boxShadow: {

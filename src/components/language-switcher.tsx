@@ -17,7 +17,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
   }
 
   return (
-    <div className="flex items-center overflow-hidden rounded-full border border-border bg-surface2/40 text-xs font-semibold">
+    <div className="flex items-center overflow-hidden rounded border border-border bg-surface2/40 text-xs font-semibold">
       <button
         type="button"
         onClick={() => switchTo('ru')}

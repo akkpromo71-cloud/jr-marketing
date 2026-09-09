@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavMenu } from '@/components/nav-menu';
@@ -30,23 +29,14 @@ export async function Nav() {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-bg/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6 sm:py-3">
+        {/* Плоская монограмма тем же гротеском, что и заголовки, в один цвет —
+            читается в любом размере, стилистически совпадает с остальным. */}
         <Link
           href="/"
-          className="flex shrink-0 items-center transition hover:opacity-80 active:scale-95"
+          aria-label="J/R marketing"
+          className="shrink-0 font-display text-xl font-extrabold tracking-[-0.04em] text-text transition hover:opacity-70 active:scale-95"
         >
-          {/* Фирменный лого (золото на чёрном). Квадратная плашка с
-              кадрированием: scale убирает чёрные поля снимка, чтобы «JR ★»
-              читался, а не тонул мелким пятном. */}
-          <span className="block size-11 overflow-hidden rounded-md ring-1 ring-white/10 sm:size-[52px]">
-            <Image
-              src="/logo-mark.jpg"
-              alt="J/R marketing"
-              width={1254}
-              height={1254}
-              className="size-full scale-[1.22] object-cover object-center [filter:brightness(1.08)]"
-              priority
-            />
-          </span>
+          J/R
         </Link>
 
         {/* ── Десктоп ── */}
@@ -77,9 +67,10 @@ export async function Nav() {
               <Link href="/login" className={linkCls}>
                 {t.nav.login}
               </Link>
+              {/* Нейтральная (outline) — синий на сайте закреплён за ролью эдитора. */}
               <Link
                 href="/signup/artist"
-                className="btn-pop rounded-full bg-accent px-4 py-2 text-xs font-semibold text-on-accent hover:brightness-110 hover:shadow-[0_10px_28px_-8px_rgba(59,130,246,0.55)]"
+                className="btn-pop rounded border border-white/25 px-4 py-2 text-xs font-semibold text-text hover:bg-white/[0.06]"
               >
                 {t.nav.startCta}
               </Link>

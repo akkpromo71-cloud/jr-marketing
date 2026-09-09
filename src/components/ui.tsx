@@ -15,7 +15,7 @@ import type { LucideIcon } from 'lucide-react';
 // (design-system/jr-marketing/MASTER.md, Cards / Elevation).
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`rounded-[4px] border border-border bg-surface transition-colors ${className}`}>
+    <div className={`rounded border border-border bg-surface transition-colors ${className}`}>
       {children}
     </div>
   );
@@ -23,10 +23,10 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 
 type ButtonVariant = 'primary' | 'artist' | 'secondary' | 'ghost' | 'danger';
 
-// btn-pop (globals.css) — пружинистый «поп» на hover/active. rounded-full —
-// пилюльный радиус (бинарные радиусы: пилюля у кнопок, 4px у карточек/полей).
+// Единый радиус по всему сайту — `rounded` (4px), тот же, что у карточек/полей.
+// btn-pop (globals.css) — пружинистый «поп» на hover/active.
 const buttonBase =
-  'btn-pop inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
+  'btn-pop inline-flex items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
 // primary — единственное доминирующее действие в поле зрения: сплошная
 // timeline-blue заливка. artist — сплошная magenta (сторона артиста).
 // secondary/ghost — хайрлайн-пилюля и текстовая ссылка. На hover — мягкое
