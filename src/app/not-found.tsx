@@ -1,3 +1,4 @@
+import { SearchX } from 'lucide-react';
 import { Nav } from '@/components/nav';
 import { Card, LinkButton } from '@/components/ui';
 import { getDict } from '@/lib/i18n';
@@ -14,9 +15,12 @@ export default async function NotFound() {
       <Nav />
       <main className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-6 py-16 text-center">
         <Card className="w-full p-8">
-          <p className="text-5xl" aria-hidden="true">
-            🔍
-          </p>
+          <span
+            className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--accent-tint-bg)] text-accent"
+            aria-hidden="true"
+          >
+            <SearchX size={24} strokeWidth={1.5} />
+          </span>
           <h1 className="mt-4 text-headline text-text">{t.notFound.title}</h1>
           <p className="mt-2 text-sm text-text-dim">{t.notFound.text}</p>
           <LinkButton href="/" variant="primary" className="mt-6">

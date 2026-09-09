@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { TriangleAlert } from 'lucide-react';
 import { Card, Button, LinkButton } from '@/components/ui';
 import { logError } from '@/lib/log-error';
 
@@ -38,9 +39,12 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-6 py-16 text-center">
       <Card className="w-full p-8">
-        <p className="text-5xl" aria-hidden="true">
-          ⚠️
-        </p>
+        <span
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[var(--danger-tint-bg)] text-danger"
+          aria-hidden="true"
+        >
+          <TriangleAlert size={24} strokeWidth={1.5} />
+        </span>
         <h1 className="mt-4 text-headline text-text">{t.title}</h1>
         <p className="mt-2 text-sm text-text-dim">{t.text}</p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">

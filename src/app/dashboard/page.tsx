@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { LinkButton, EmptyState } from '@/components/ui';
+import { FolderOpen } from 'lucide-react';
 import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { createClient } from '@/lib/supabase/server';
@@ -87,7 +88,7 @@ export default async function DashboardPage({
                 </LinkButton>
               </div>
 
-              {all.length === 0 && <EmptyState icon="📁" text={t.dashboard.noActiveCampaigns} />}
+              {all.length === 0 && <EmptyState icon={FolderOpen} text={t.dashboard.noActiveCampaigns} />}
 
               {active.length > 0 && (
                 <div className="flex flex-col border border-border">

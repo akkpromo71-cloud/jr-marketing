@@ -17,14 +17,15 @@ export async function Nav() {
     <header className="sticky top-0 z-10 border-b border-border bg-bg/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center transition hover:opacity-80 active:scale-95">
-          {/* Логотип уже содержит надпись "JR marketing" — отдельный текст рядом не нужен,
-              фон вырезан (см. public/logo-mark.png), поэтому крупный размер смотрится чисто. */}
+          {/* Логотип уже содержит надпись "JR marketing" — отдельный текст рядом не нужен.
+              Лёгкий светлый ореол (drop-shadow) отделяет чёрные части глянцевой
+              графики от почти-чёрного фона тёмной темы. */}
           <Image
             src="/logo-mark.png"
             alt="J/R marketing"
             width={563}
             height={400}
-            className="h-16 w-auto"
+            className="h-12 w-auto [filter:drop-shadow(0_0_6px_rgba(255,255,255,0.18))]"
             priority
           />
         </Link>
@@ -67,15 +68,21 @@ export async function Nav() {
               </form>
             </>
           ) : (
-            // Ghost Pill вместо заливки — design-pack/design.md: "no distinct
-            // primary action color", основное действие оформляется прозрачной
-            // pill-кнопкой с обводкой, а не цветной заливкой.
-            <Link
-              href="/login"
-              className="rounded-full border border-accent px-4 py-2 text-xs font-semibold text-accent transition hover:opacity-70"
-            >
-              {t.nav.login}
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className="text-text-dim transition hover:text-text"
+              >
+                {t.nav.login}
+              </Link>
+              {/* Единственная доминирующая CTA в шапке — сплошная timeline-blue. */}
+              <Link
+                href="/signup/artist"
+                className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-on-accent transition hover:brightness-110 active:scale-95"
+              >
+                {t.nav.startCta}
+              </Link>
+            </>
           )}
         </nav>
       </div>

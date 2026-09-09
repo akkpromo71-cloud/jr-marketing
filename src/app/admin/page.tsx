@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Button, Field, inputClass, EmptyState } from '@/components/ui';
+import { Inbox } from 'lucide-react';
 import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
@@ -115,7 +116,7 @@ export default async function AdminPage() {
                 <div className="flex flex-col divide-y divide-border border border-border">
                   {(pendingEditors ?? []).length === 0 && (
                     <div className="p-4">
-                      <EmptyState icon="✅" text={t.admin.noNewApplications} />
+                      <EmptyState icon={Inbox} text={t.admin.noNewApplications} />
                     </div>
                   )}
                   {(pendingEditors as Profile[] | null)?.map((e) => (
@@ -192,7 +193,7 @@ export default async function AdminPage() {
                 <div className="flex flex-col divide-y divide-border border border-border">
                   {(pendingApplications ?? []).length === 0 && (
                     <div className="p-4">
-                      <EmptyState icon="✅" text={t.admin.noPendingApplications} />
+                      <EmptyState icon={Inbox} text={t.admin.noPendingApplications} />
                     </div>
                   )}
                   {(pendingApplications as PendingApplication[] | null)?.map((a) => (

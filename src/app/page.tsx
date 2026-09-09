@@ -1,11 +1,25 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import {
+  AudioLines,
+  Scissors,
+  Users,
+  ShieldCheck,
+  BadgeCheck,
+  Wallet,
+  Star,
+  Plus,
+  ArrowRight,
+} from 'lucide-react';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { createClient } from '@/lib/supabase/server';
 import { Nav } from '@/components/nav';
 import { Container, Grid } from '@/components/layout';
+import { LinkButton } from '@/components/ui';
 import { HeroReveal } from '@/components/hero-reveal';
+import { HeroVisual } from '@/components/hero-visual';
+import { Ticker } from '@/components/ticker';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
 
@@ -38,11 +52,8 @@ export default async function LandingPage() {
   const { t, locale } = await getDict();
   const supabase = await createClient();
 
-  // Публичные RPC (security definer, доступны анониму) — реальная сводная
-  // статистика, лидерборд эдиторов по просмотрам и опубликованные админом
-  // отзывы. Никаких выдуманных цифр: если данных ещё нет, секция просто не
-  // рендерится, а не показывает пустоту или нули. ЗАПРОСЫ НЕ МЕНЯЛИСЬ —
-  // перестроен только презентационный слой (REDESIGN_PLAN.md §4, §6).
+  // Публичные RPC (security definer, доступны анониму). ЗАПРОСЫ НЕ МЕНЯЛИСЬ —
+  // перестроен только презентационный слой.
   const [{ data: statsData }, { data: leaderboardData }, { data: reviewsData }] = await Promise.all([
     supabase.rpc('get_public_platform_stats'),
     supabase.rpc('get_editor_leaderboard', { p_limit: 10 }),
@@ -54,14 +65,48 @@ export default async function LandingPage() {
   const reviews = (reviewsData ?? []) as PublicReview[];
   const hasStats =
     !!stats && (stats.completed_edits > 0 || stats.total_views > 0 || stats.active_editors > 0);
-  const hasBoard = hasStats || leaderboard.length > 0;
 
-  const steps = [
-    { num: '01', title: t.landing.step1Title, text: t.landing.step1Text, span: 'md:col-span-3' },
-    // Шаг 2 — реальная ценность площадки (мы сами подбираем эдитора), поэтому
-    // столбец намеренно шире остальных (REDESIGN_PLAN.md §4.5).
-    { num: '02', title: t.landing.step2Title, text: t.landing.step2Text, span: 'md:col-span-6' },
-    { num: '03', title: t.landing.step3Title, text: t.landing.step3Text, span: 'md:col-span-3' },
+  const fmt = (n: number) => formatCompactNumber(n, locale);
+
+  const sectionIndex = [
+    { num: '01', label: t.landing.heroIndexBoard, href: '#board' },
+    { num: '02', label: t.landing.heroIndexRoles, href: '#roles' },
+    { num: '03', label: t.landing.heroIndexHow, href: '#how' },
+    { num: '04', label: t.landing.heroIndexFaq, href: '#faq' },
+  ];
+
+  // Бегущая строка: реальные цифры площадки + короткие факты о том, как
+  // устроена сделка. Дублирование элементов делает сам компонент Ticker.
+  const tickerItems = [
+    t.common.earlyAccess,
+    ...(hasStats && stats
+      ? [
+          `${t.landing.tapePlatform}: ${fmt(stats.completed_edits)} ${t.landing.tapeEditsWord}`,
+          `${fmt(stats.total_views)} ${t.landing.tapeViewsWord}`,
+          `${fmt(stats.active_editors)} ${t.landing.tapeActiveWord}`,
+        ]
+      : []),
+    ...leaderboard.slice(0, 5).map((e) => `${e.display_name} — ${fmt(e.total_views)}`),
+    t.landing.tapeModerated,
+    t.landing.tapePaid,
+  ];
+
+  const stepList = [
+    { n: '01', title: t.landing.step1Title, text: t.landing.step1Text },
+    { n: '02', title: t.landing.step2Title, text: t.landing.step2Text },
+    { n: '03', title: t.landing.step3Title, text: t.landing.step3Text },
+  ];
+  const editorStepList = [
+    { n: '01', title: t.landing.editorStep1Title, text: t.landing.editorStep1Text },
+    { n: '02', title: t.landing.editorStep2Title, text: t.landing.editorStep2Text },
+    { n: '03', title: t.landing.editorStep3Title, text: t.landing.editorStep3Text },
+  ];
+
+  const dealRows = [
+    { Icon: Users, text: t.landing.deal1 },
+    { Icon: ShieldCheck, text: t.landing.deal2 },
+    { Icon: BadgeCheck, text: t.landing.deal3 },
+    { Icon: Wallet, text: t.landing.deal4 },
   ];
 
   const faqItems = [
@@ -72,240 +117,266 @@ export default async function LandingPage() {
     { q: t.landing.faq5Q, a: t.landing.faq5A },
   ];
 
-  const heroIndex = [
-    { num: '01', label: t.landing.heroIndexBoard, href: '#board' },
-    { num: '02', label: t.landing.heroIndexHow, href: '#how' },
-    { num: '03', label: t.landing.heroIndexRoles, href: '#roles' },
-    { num: '04', label: t.landing.heroIndexFaq, href: '#faq' },
-  ];
-
-  // Строки чёрной полосы-«ведомости» под хиро — только реальные цифры, из тех
-  // же данных, что уже загружены выше. Статично (без бесконечной анимации).
-  const bandItems = [
-    ...(hasStats && stats
-      ? [
-          `${t.landing.tapePlatform} · ${formatCompactNumber(stats.completed_edits, locale)} ${t.landing.tapeEditsWord}`,
-        ]
-      : []),
-    ...leaderboard
-      .slice(0, 6)
-      .map((e) => `${e.display_name} — ${formatCompactNumber(e.total_views, locale)} ${t.landing.tapeViewsWord}`),
-    ...(hasStats && stats
-      ? [`${formatCompactNumber(stats.active_editors, locale)} ${t.landing.tapeActiveWord}`]
-      : []),
-  ];
-
-  const arrowLink =
-    'group inline-flex items-center gap-2 text-text underline decoration-1 underline-offset-[6px] transition hover:opacity-60';
-
   return (
     <>
       <Nav />
-      <main>
-        {/* ── Hero: асимметричный сплит 7/5, левый флаг, оглавление справа ── */}
-        <section>
-          <Container className="py-section">
-            <Grid className="items-end">
-              {/* Хиро — above the fold, без Reveal: заголовок виден сразу, без
-                  вспышки пустого экрана при загрузке. */}
-              <div className="md:col-span-8">
+      <main className="clip-x">
+        {/* ── Hero: сплит 7/5, слева — суть обмена, справа — ночной визуал ── */}
+        <section className="border-b border-border">
+          <Container className="pb-section pt-section-lg">
+            <Grid className="items-center">
+              <div className="md:col-span-7">
                 <p className="text-meta text-text-faint">{t.landing.kicker}</p>
-                <HeroReveal
-                  text={t.landing.heroTitle}
-                  className="mt-6 text-display-sm text-text"
-                />
-                <p className="mt-8 max-w-container-text text-body-lg text-text-dim">
+                <HeroReveal text={t.landing.heroTitle} className="mt-5 text-display-sm text-text" />
+                <p className="mt-7 max-w-container-text text-body-lg text-text-dim">
                   {t.landing.heroSubtitle}
                 </p>
-                <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-title">
-                  <Link href="/signup/editor" className={arrowLink}>
-                    {t.landing.editorTag}
-                    <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
-                      →
-                    </span>
-                  </Link>
-                  <Link href="/signup/artist" className={arrowLink}>
-                    {t.landing.artistTag}
-                    <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
-                      →
-                    </span>
-                  </Link>
+                <div className="mt-9 flex flex-wrap gap-3">
+                  <LinkButton href="/signup/artist" variant="artist">
+                    <AudioLines size={16} strokeWidth={2} aria-hidden="true" />
+                    {t.landing.heroPrimaryCta}
+                  </LinkButton>
+                  <LinkButton href="/signup/editor" variant="secondary">
+                    <Scissors size={16} strokeWidth={2} aria-hidden="true" />
+                    {t.landing.heroSecondaryCta}
+                  </LinkButton>
                 </div>
               </div>
 
-              {/* Оглавление страницы вместо картинки — редакторский приём,
-                  оно же якорные ссылки. */}
-              <nav
-                aria-label={t.landing.rolesTitle}
-                className="flex flex-col justify-end gap-3 md:col-span-3 md:col-start-10 md:self-stretch md:border-l md:border-border md:pl-6"
+              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] border border-border md:col-span-5 md:aspect-[5/4]">
+                <div className="absolute inset-0">
+                  <HeroVisual label={t.landing.heroVisualAlt} />
+                </div>
+              </div>
+            </Grid>
+          </Container>
+        </section>
+
+        {/* ── Полоска-оглавление: горизонтальная, во всю ширину контейнера ── */}
+        <nav aria-label={t.landing.rolesTitle} className="border-b border-border">
+          <Container className="flex flex-wrap gap-x-8 gap-y-2 py-4">
+            {sectionIndex.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="group inline-flex items-baseline gap-2 text-meta text-text-faint transition hover:text-text"
               >
-                {heroIndex.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className="group flex items-baseline gap-3 text-meta text-text-faint transition hover:text-text"
-                  >
-                    <span className="tabular">{item.num}</span>
-                    <span>{item.label}</span>
-                  </a>
-                ))}
-              </nav>
-            </Grid>
+                <span className="tabular text-accent">{item.num}</span>
+                <span>{item.label}</span>
+              </a>
+            ))}
           </Container>
-        </section>
+        </nav>
 
-        {/* Единственный цветной акцент на всей странице — тонкая иридесцентная
-            линейка на границе хиро и «Ленты» (REDESIGN_PLAN.md §2.4). */}
-        <div
-          aria-hidden="true"
-          className="h-px w-full bg-[image:var(--gradient-iridescent-fade)]"
-        />
+        {/* ── «Лента»: реальные цифры, всегда заполнена, движется ── */}
+        <Ticker items={tickerItems} />
 
-        {/* ── Чёрная полоса-«ведомость»: реальные цифры площадки, статично ── */}
-        {bandItems.length > 0 && (
-          <div className="border-y border-border bg-accent text-on-accent">
-            <Container className="flex flex-wrap items-center gap-x-8 gap-y-1.5 py-3">
-              {bandItems.map((item, i) => (
-                <span key={i} className="flex items-center text-micro uppercase tabular">
-                  {i > 0 && (
-                    <span aria-hidden="true" className="mr-8 opacity-40">
-                      &#9670;
-                    </span>
-                  )}
-                  {item}
-                </span>
-              ))}
-            </Container>
-          </div>
-        )}
+        {/* ── «Пока идёт первый набор»: ранняя стадия как «зайди первым» ── */}
+        <section id="board" className="scroll-mt-24 border-b border-border">
+          <Container className="py-section">
+            <Grid className="gap-y-12">
+              <div className="md:col-span-5">
+                <h2 className="text-headline text-text">{t.landing.boardHeading}</h2>
+                <p className="mt-5 max-w-container-text text-body-lg text-text-dim">
+                  {t.landing.cohortManifesto}
+                </p>
+                <p className="mt-4 max-w-container-text text-body text-text-faint">
+                  {t.landing.boardIntro}
+                </p>
+                <LinkButton href="/signup/artist" variant="artist" className="mt-8">
+                  {t.landing.cohortCta}
+                  <ArrowRight size={16} strokeWidth={2} aria-hidden="true" />
+                </LinkButton>
+              </div>
 
-        {/* ── Ведомость: слияние сводных цифр и лидерборда, центральный блок ── */}
-        {hasBoard && (
-          <section id="board" className="scroll-mt-24 border-b border-border">
-            <Container className="py-section">
-              <Grid>
-                <div className="md:col-span-4 md:sticky md:top-24 md:self-start">
-                  <h2 className="text-headline text-text">{t.landing.boardHeading}</h2>
-                  <p className="mt-4 max-w-container-text text-body text-text-dim">
-                    {t.landing.boardIntro}
-                  </p>
-                  {hasStats && stats && (
-                    <dl className="mt-10">
-                      {[
-                        { n: stats.completed_edits, label: t.landing.statsCompletedLabel },
-                        { n: stats.total_views, label: t.landing.statsViewsLabel },
-                        { n: stats.active_editors, label: t.landing.statsEditorsLabel },
-                      ].map((row) => (
-                        <div key={row.label} className="border-t border-border py-5">
-                          <dd className="text-display-sm tabular text-text">
-                            {formatCompactNumber(row.n, locale)}
-                          </dd>
-                          <dt className="mt-1 text-meta text-text-faint">{row.label}</dt>
+              <div className="md:col-span-6 md:col-start-7">
+                {hasStats && stats && (
+                  <dl className="border-t border-border">
+                    {[
+                      { n: stats.completed_edits, label: t.landing.statsCompletedLabel, glow: true },
+                      { n: stats.total_views, label: t.landing.statsViewsLabel, glow: false },
+                      { n: stats.active_editors, label: t.landing.statsEditorsLabel, glow: false },
+                    ].map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex items-baseline justify-between gap-4 border-b border-border py-3.5"
+                      >
+                        <dt className="text-meta text-text-faint">{row.label}</dt>
+                        <dd
+                          className="shrink-0 text-2xl tabular text-text"
+                          style={
+                            row.glow
+                              ? { textShadow: '0 0 22px rgba(236, 72, 153, 0.45)' }
+                              : undefined
+                          }
+                        >
+                          {fmt(row.n)}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+
+                <p className="mt-8 text-meta text-text-faint">{t.landing.cohortRosterLabel}</p>
+                <ul className="mt-3">
+                  {leaderboard.map((e, i) => (
+                    <li
+                      key={`${e.display_name}-${i}`}
+                      className="flex items-baseline justify-between gap-4 border-t border-border py-4"
+                    >
+                      <div className="flex min-w-0 items-baseline gap-4">
+                        <span className="tabular text-text-faint">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        <div className="min-w-0">
+                          <span className="block truncate text-title text-text">
+                            {e.display_name}
+                          </span>
+                          {i === 0 && (
+                            <span className="mt-0.5 inline-flex items-center gap-1.5 text-micro uppercase text-primary">
+                              <BadgeCheck size={13} strokeWidth={2} aria-hidden="true" />
+                              {t.landing.cohortFirstBadge}
+                            </span>
+                          )}
                         </div>
-                      ))}
-                    </dl>
-                  )}
-                </div>
+                      </div>
+                      {leaderboard.length > 1 && (
+                        <span className="shrink-0 text-right">
+                          <span className="block text-title tabular text-text">
+                            {fmt(e.total_views)}
+                          </span>
+                          <span className="text-micro uppercase text-text-faint">
+                            {t.landing.cohortViewsWord}
+                          </span>
+                        </span>
+                      )}
+                    </li>
+                  ))}
 
-                <div className="md:col-span-8">
-                  {leaderboard.length > 0 ? (
-                    <ol>
-                      {leaderboard.map((e, i) => (
-                          <li
-                            key={`${e.display_name}-${i}`}
-                            className={`border-t py-6 ${i < 3 ? 'border-text' : 'border-border'} ${
-                              i === leaderboard.length - 1 ? 'border-b border-border' : ''
-                            }`}
-                          >
-                            <div className="flex items-baseline justify-between gap-4">
-                              <div className="flex items-baseline gap-4 sm:gap-6">
-                                <span className="text-4xl tabular text-text-faint sm:text-display-sm">
-                                  {String(i + 1).padStart(2, '0')}
-                                </span>
-                                <div>
-                                  <span className="block text-title text-text sm:text-headline">
-                                    {e.display_name}
-                                  </span>
-                                  <span className="mt-1 block text-micro uppercase text-text-faint">
-                                    {t.landing.leaderboardCompletedLabel}: {e.completed_count}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="shrink-0 text-right">
-                                <span className="block text-3xl tabular text-text sm:text-display-sm">
-                                  {formatCompactNumber(e.total_views, locale)}
-                                </span>
-                                <span className="mt-1 block text-micro uppercase text-text-faint">
-                                  {t.landing.statsViewsLabel}
-                                </span>
-                              </div>
-                            </div>
-                          </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="text-body text-text-dim">{t.landing.leaderboardSubtitle}</p>
-                  )}
-                </div>
-              </Grid>
-            </Container>
-          </section>
-        )}
-
-        {/* ── Как это работает: горизонтальная временная линия ── */}
-        <section id="how" className="scroll-mt-24 border-b border-border bg-surface2/20">
-          <Container className="py-section">
-            <h2 className="text-headline text-text">{t.landing.howItWorksTitle}</h2>
-            <p className="mt-3 max-w-container-text text-body text-text-dim">
-              {t.landing.howItWorksSubtitle}
-            </p>
-            <ol className="mt-16 grid grid-cols-1 gap-x-gutter gap-y-10 border-t border-border pt-8 md:grid-cols-12">
-              {steps.map((s) => (
-                <li key={s.num} className={s.span}>
-                  <span className="text-display-sm tabular text-text-faint">{s.num}</span>
-                  <h3 className="mt-3 text-title text-text">{s.title}</h3>
-                  <p className="mt-2 max-w-container-text text-body text-text-dim">{s.text}</p>
-                </li>
-              ))}
-            </ol>
-          </Container>
-        </section>
-
-        {/* ── Вход по ролям: намеренно неравный «сцепленный» блок ── */}
-        <section id="roles" className="scroll-mt-24 border-b border-border">
-          <Container className="py-section">
-            <Grid>
-              {/* Артист — первичный вход, крупнее (приносит бюджет/спрос). */}
-              <div className="md:col-span-7">
-                <p className="text-meta text-text-faint">{t.landing.artistTag}</p>
-                <h2 className="mt-4 text-headline text-text">{t.landing.artistTitle}</h2>
-                <p className="mt-5 max-w-container-text text-body text-text-dim">{t.landing.artistText}</p>
-                <Link href="/signup/artist" className={`mt-8 text-title ${arrowLink}`}>
-                  {t.landing.registerBtn}
-                  <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </Link>
-              </div>
-
-              {/* Эдитор — вторичный вход: узкий, мельче, смещён вниз, на линейке —
-                  блоки сцепляются по диагонали, а не стоят близнецами. */}
-              <div className="border-t border-border pt-6 md:col-span-4 md:col-start-9 md:mt-32">
-                <p className="text-meta text-text-faint">{t.landing.editorTag}</p>
-                <h3 className="mt-3 text-title text-text">{t.landing.editorTitle}</h3>
-                <p className="mt-3 text-body text-text-dim">{t.landing.editorText}</p>
-                <Link href="/signup/editor" className={`mt-6 text-body ${arrowLink}`}>
-                  {t.landing.registerBtn}
-                  <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </Link>
+                  {/* Один явный открытый слот — приглашение артисту, пунктир. */}
+                  <li className="border-t border-border py-4">
+                    <Link
+                      href="/signup/artist"
+                      className="group flex items-baseline justify-between gap-4"
+                    >
+                      <span className="flex items-baseline gap-4">
+                        <span className="tabular text-text-faint">
+                          {String(leaderboard.length + 1).padStart(2, '0')}
+                        </span>
+                        <span className="border-b border-dashed border-primary/60 text-title text-text transition group-hover:border-primary">
+                          {t.landing.cohortSlotYou}
+                        </span>
+                      </span>
+                      <ArrowRight
+                        size={16}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                        className="shrink-0 translate-y-1 text-primary transition-transform group-hover:translate-x-1"
+                      />
+                    </Link>
+                  </li>
+                </ul>
               </div>
             </Grid>
           </Container>
         </section>
 
-        {/* ── Отзывы: крупная выносная цитата, чередующийся отступ ── */}
+        {/* ── Развилка «Я артист / Я эдитор»: симметричные панели, равный вес ── */}
+        <section id="roles" className="scroll-mt-24 border-b border-border">
+          <Container className="py-section-lg">
+            <div className="grid gap-px overflow-hidden rounded-[4px] border border-border bg-border md:grid-cols-2">
+              {/* Артист */}
+              <div className="flex flex-col bg-bg p-6 md:p-8">
+                <span aria-hidden="true" className="h-[2px] w-12 bg-primary" />
+                <div className="mt-6 flex items-center gap-3 text-primary">
+                  <AudioLines size={26} strokeWidth={1.75} aria-hidden="true" />
+                  <p className="text-meta text-text-faint">{t.landing.artistTag}</p>
+                </div>
+                <h3 className="mt-3 text-display-sm text-text">{t.landing.artistTitle}</h3>
+                <p className="mt-3 text-body text-text-dim">{t.landing.artistText}</p>
+
+                <p className="mt-8 text-meta text-text-faint">{t.landing.forkHowLabel}</p>
+                <ol className="mt-3 flex flex-col gap-4 border-t border-border pt-4">
+                  {stepList.map((s) => (
+                    <li key={s.n} className="flex gap-3">
+                      <span className="tabular text-primary">{s.n}</span>
+                      <span>
+                        <span className="block text-title text-text">{s.title}</span>
+                        <span className="mt-1 block text-body text-text-dim">{s.text}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+
+                <p className="mt-6 text-body text-text">{t.landing.forkArtistOutcome}</p>
+                <LinkButton href="/signup/artist" variant="artist" className="mt-7 self-start">
+                  {t.landing.registerBtn}
+                </LinkButton>
+              </div>
+
+              {/* Эдитор */}
+              <div className="flex flex-col bg-bg p-6 md:p-8">
+                <span aria-hidden="true" className="h-[2px] w-12 bg-accent" />
+                <div className="mt-6 flex items-center gap-3 text-accent">
+                  <Scissors size={26} strokeWidth={1.75} aria-hidden="true" />
+                  <p className="text-meta text-text-faint">{t.landing.editorTag}</p>
+                </div>
+                <h3 className="mt-3 text-display-sm text-text">{t.landing.editorTitle}</h3>
+                <p className="mt-3 text-body text-text-dim">{t.landing.editorText}</p>
+
+                <p className="mt-8 text-meta text-text-faint">{t.landing.forkHowLabel}</p>
+                <ol className="mt-3 flex flex-col gap-4 border-t border-border pt-4">
+                  {editorStepList.map((s) => (
+                    <li key={s.n} className="flex gap-3">
+                      <span className="tabular text-accent">{s.n}</span>
+                      <span>
+                        <span className="block text-title text-text">{s.title}</span>
+                        <span className="mt-1 block text-body text-text-dim">{s.text}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+
+                <p className="mt-6 text-body text-text">{t.landing.forkEditorOutcome}</p>
+                <LinkButton href="/signup/editor" variant="primary" className="mt-7 self-start">
+                  {t.landing.registerBtn}
+                </LinkButton>
+              </div>
+            </div>
+          </Container>
+        </section>
+
+        {/* ── Как устроена сделка: строки доверия, зелёные галки ── */}
+        <section id="how" className="scroll-mt-24 border-b border-border">
+          <Container className="pb-section pt-section-sm">
+            <Grid>
+              <div className="md:col-span-4">
+                <h2 className="text-headline text-text md:sticky md:top-24">{t.landing.dealTitle}</h2>
+                <p className="mt-4 max-w-container-text text-body text-text-dim md:sticky md:top-40">
+                  {t.landing.dealIntro}
+                </p>
+              </div>
+              <ul className="md:col-span-7 md:col-start-6">
+                {dealRows.map(({ Icon, text }, i) => (
+                  <li
+                    key={i}
+                    className="flex gap-4 border-t border-border py-5 last:border-b"
+                  >
+                    <Icon
+                      size={20}
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                      className="mt-0.5 shrink-0 text-success"
+                    />
+                    <p className="text-body-lg text-text-dim">{text}</p>
+                  </li>
+                ))}
+              </ul>
+            </Grid>
+          </Container>
+        </section>
+
+        {/* ── Отзывы: выносная цитата, чередующийся отступ (рендерится при данных) ── */}
         {reviews.length > 0 && (
           <section className="border-b border-border">
             <Container className="py-section">
@@ -316,15 +387,26 @@ export default async function LandingPage() {
                     key={i}
                     className={`max-w-3xl ${i % 2 === 1 ? 'md:ml-auto md:text-right' : ''}`}
                   >
-                    <div className="text-accent" aria-hidden="true">
-                      {'★'.repeat(r.rating)}
-                      {'☆'.repeat(5 - r.rating)}
+                    <div
+                      className={`flex gap-0.5 text-accent ${i % 2 === 1 ? 'md:justify-end' : ''}`}
+                      aria-hidden="true"
+                    >
+                      {Array.from({ length: 5 }).map((_, s) => (
+                        <Star
+                          key={s}
+                          size={16}
+                          strokeWidth={1.5}
+                          className={s < r.rating ? 'fill-current' : 'opacity-30'}
+                        />
+                      ))}
                     </div>
                     {r.comment && (
                       <blockquote className="mt-4 text-headline text-text">«{r.comment}»</blockquote>
                     )}
                     <figcaption className="mt-4 text-meta text-text-faint">
-                      {r.author_role === 'artist' ? t.landing.reviewFromArtist : t.landing.reviewFromEditor}
+                      {r.author_role === 'artist'
+                        ? t.landing.reviewFromArtist
+                        : t.landing.reviewFromEditor}
                       {r.campaign_title ? ` · ${r.campaign_title}` : ''}
                     </figcaption>
                   </figure>
@@ -334,23 +416,33 @@ export default async function LandingPage() {
           </section>
         )}
 
-        {/* ── FAQ: тихая двухколоночная асимметрия 4/8, липкий заголовок ── */}
+        {/* ── FAQ как блок доверия: полноценная секция, не мелкий текст ── */}
         <section id="faq" className="scroll-mt-24 border-b border-border">
-          <Container className="py-section">
+          <Container className="py-section-lg">
             <Grid>
               <div className="md:col-span-4">
-                <h2 className="text-headline text-text md:sticky md:top-24">{t.landing.faqTitle}</h2>
+                <p className="inline-flex items-center gap-2 text-meta text-success">
+                  <ShieldCheck size={15} strokeWidth={2} aria-hidden="true" />
+                  {t.common.earlyAccess}
+                </p>
+                <h2 className="mt-3 text-headline text-text">{t.landing.faqTitle}</h2>
+                <p className="mt-4 max-w-container-text text-body text-text-dim">
+                  {t.landing.faqReassurance}
+                </p>
               </div>
-              <div className="md:col-span-8">
+              <div className="md:col-span-7 md:col-start-6">
                 {faqItems.map((item) => (
-                  <details key={item.q} className="group border-t border-border py-5 last:border-b">
+                  <details
+                    key={item.q}
+                    className="group border-t border-border py-5 last:border-b"
+                  >
                     <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-title text-text marker:content-none [&::-webkit-details-marker]:hidden">
                       {item.q}
-                      <span className="shrink-0 text-2xl text-text-faint transition-transform duration-300 group-open:rotate-45">
-                        +
+                      <span className="mt-1 shrink-0 text-text-faint transition-transform duration-200 group-open:rotate-45">
+                        <Plus size={18} strokeWidth={2} aria-hidden="true" />
                       </span>
                     </summary>
-                    <p className="mt-3 max-w-container-text text-body text-text-dim">{item.a}</p>
+                    <p className="mt-3 max-w-container-text text-body-lg text-text-dim">{item.a}</p>
                   </details>
                 ))}
               </div>
@@ -358,30 +450,24 @@ export default async function LandingPage() {
           </Container>
         </section>
 
-        {/* ── Финальный призыв: одна дисплейная строка-подпись, не повтор хиро ── */}
-        <section className="border-b border-border bg-accent text-on-accent">
-          <Container className="py-section">
-            <p className="text-display">{t.landing.finalCtaLead}</p>
-            <p className="mt-6 text-headline">
-              <Link
-                href="/signup/artist"
-                className="underline decoration-1 underline-offset-8 transition hover:opacity-70"
-              >
+        {/* ── Финальный призыв: одна дисплейная строка, без рамки ── */}
+        <section className="border-b border-border">
+          <Container className="pb-section pt-section-lg">
+            <p className="text-display text-text">{t.landing.finalCtaLead}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <LinkButton href="/signup/artist" variant="artist">
                 {t.landing.finalCtaArtistLink}
-              </Link>{' '}
-              <Link
-                href="/signup/editor"
-                className="underline decoration-1 underline-offset-8 transition hover:opacity-70"
-              >
+              </LinkButton>
+              <LinkButton href="/signup/editor" variant="secondary">
                 {t.landing.finalCtaEditorLink}
-              </Link>
-            </p>
+              </LinkButton>
+            </div>
           </Container>
         </section>
 
-        {/* ── Подвал-колофон ── */}
+        {/* ── Подвал ── */}
         <footer>
-          <Container className="py-16">
+          <Container className="py-14">
             <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-title text-text">J/R marketing</p>

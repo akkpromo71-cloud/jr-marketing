@@ -64,6 +64,7 @@ export const dict = {
       login: 'Войти',
       logout: 'Выйти',
       settings: 'Настройки',
+      startCta: 'Запустить трек',
     },
     landing: {
       kicker: 'Продвижение в TikTok и Reels',
@@ -130,6 +131,8 @@ export const dict = {
       tapeEditsWord: 'эдитов',
       tapeViewsWord: 'просмотров',
       tapeActiveWord: 'эдиторов в работе',
+      tapePaid: 'Оплата после приёмки работы',
+      tapeModerated: 'Каждое видео проходит модерацию',
       heroIndexBoard: 'Ведомость',
       heroIndexHow: 'Как это работает',
       heroIndexRoles: 'Кто вы',
@@ -138,6 +141,40 @@ export const dict = {
       finalCtaLead: 'Готовы?',
       finalCtaArtistLink: 'Начать как артист',
       finalCtaEditorLink: 'или как эдитор',
+
+      // ── Редизайн-лендинг (design-system/jr-marketing) ──
+      heroPrimaryCta: 'Запустить трек',
+      heroSecondaryCta: 'Монтировать за деньги',
+      heroVisualAlt: 'Звуковая волна, переходящая в монтажный таймлайн',
+
+      cohortManifesto:
+        'Витрину видно всю — она просто ещё заполняется. Место в ней сейчас занимает один трек, а не очередь. Дальше их будет больше — и первым тут выгоднее, чем сотым.',
+      cohortRosterLabel: 'Кто уже в наборе',
+      cohortFirstBadge: 'первый эдит в ленте',
+      cohortSlotFree: 'место свободно',
+      cohortSlotYou: 'ваш трек?',
+      cohortViewsWord: 'просмотров',
+      cohortCta: 'Зайти в первый набор',
+
+      dealTitle: 'Как устроена сделка',
+      dealIntro:
+        'Деньги проходят через площадку вручную — так обе стороны получают своё, и сделку нельзя увести мимо.',
+      deal1: 'Эдитора подбирает команда площадки, а не алгоритм и не сам артист.',
+      deal2: 'Каждое видео проходит модерацию перед тем, как считаться сданным.',
+      deal3: 'Оплата уходит эдитору только после того, как работа принята.',
+      deal4: 'Вывод на PayPal или криптокошелёк — перевод делаем руками.',
+
+      forkHowLabel: 'Как это работает',
+      forkArtistOutcome: 'На выходе — монтаж, который двигает прослушивания и охваты.',
+      forkEditorOutcome: 'На выходе — поток заказов с ценой, известной заранее.',
+      editorStep1Title: 'Ставите цену',
+      editorStep1Text: 'Один раз при регистрации указываете свою ставку за эдит.',
+      editorStep2Title: 'Берёте трек',
+      editorStep2Text: 'Откликаетесь на трек из ленты — бюджет уже определён артистом.',
+      editorStep3Title: 'Сдаёте и получаете',
+      editorStep3Text: 'Отдаёте монтаж, проходите правки, получаете оплату на свой кошелёк.',
+
+      faqReassurance: 'Здесь платят за работу реальные деньги, поэтому вопросы про обман — первым делом.',
     },
     login: {
       title: 'С возвращением',
@@ -444,6 +481,7 @@ export const dict = {
       login: 'Log in',
       logout: 'Log out',
       settings: 'Settings',
+      startCta: 'Launch a track',
     },
     landing: {
       kicker: 'TikTok & Reels promotion',
@@ -509,6 +547,8 @@ export const dict = {
       tapeEditsWord: 'edits',
       tapeViewsWord: 'views',
       tapeActiveWord: 'editors working',
+      tapePaid: 'Paid after the work is accepted',
+      tapeModerated: 'Every video goes through moderation',
       heroIndexBoard: 'The board',
       heroIndexHow: 'How it works',
       heroIndexRoles: 'Who you are',
@@ -517,6 +557,40 @@ export const dict = {
       finalCtaLead: 'Ready?',
       finalCtaArtistLink: 'Start as an artist',
       finalCtaEditorLink: 'or as an editor',
+
+      // ── Redesigned landing (design-system/jr-marketing) ──
+      heroPrimaryCta: 'Launch a track',
+      heroSecondaryCta: 'Edit for money',
+      heroVisualAlt: 'A sound wave turning into an editing timeline',
+
+      cohortManifesto:
+        "You can see the whole showcase — it's just still filling up. Right now one track holds a spot, not a queue. There will be more soon — and being first here beats being hundredth.",
+      cohortRosterLabel: "Who's already in",
+      cohortFirstBadge: 'first edit in the feed',
+      cohortSlotFree: 'open spot',
+      cohortSlotYou: 'your track?',
+      cohortViewsWord: 'views',
+      cohortCta: 'Join the first cohort',
+
+      dealTitle: 'How the deal works',
+      dealIntro:
+        'Money moves through the platform by hand — so both sides get what they are owed, and the deal cannot be taken off-platform.',
+      deal1: 'The platform team assigns the editor — not an algorithm, not the artist.',
+      deal2: "Every video is moderated before it counts as delivered.",
+      deal3: 'Payment reaches the editor only after the work is accepted.',
+      deal4: 'Payout to PayPal or a crypto wallet — transferred manually.',
+
+      forkHowLabel: 'How it works',
+      forkArtistOutcome: 'The output: an edit that moves your plays and reach.',
+      forkEditorOutcome: 'The output: a stream of jobs at a price known upfront.',
+      editorStep1Title: 'Set your price',
+      editorStep1Text: 'State your rate per edit once, at sign-up.',
+      editorStep2Title: 'Take a track',
+      editorStep2Text: 'Apply to a track from the feed — the budget is already set by the artist.',
+      editorStep3Title: 'Deliver and get paid',
+      editorStep3Text: 'Hand over the edit, do revisions, get paid to your wallet.',
+
+      faqReassurance: 'Real money changes hands here, so the questions about getting scammed come first.',
     },
     login: {
       title: 'Welcome back',

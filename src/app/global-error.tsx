@@ -33,12 +33,27 @@ export default function GlobalError({
           justifyContent: 'center',
           fontFamily:
             '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          background: '#0b0b0f',
-          color: '#f5f5f7',
+          background: '#0b0f1a',
+          color: '#f4f5f7',
         }}
       >
         <div style={{ maxWidth: 420, padding: 32, textAlign: 'center' }}>
-          <p style={{ fontSize: 48, margin: 0 }}>⚠️</p>
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#fb7185"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            style={{ display: 'block', margin: '0 auto' }}
+          >
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+            <path d="M12 9v4" />
+            <path d="M12 17h.01" />
+          </svg>
           <h1 style={{ fontSize: 22, fontWeight: 500, marginTop: 16 }}>
             Сайт временно недоступен
           </h1>

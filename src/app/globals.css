@@ -3,77 +3,70 @@
 @tailwind utilities;
 
 /* ============================================================
-   Monopo Saigon — дизайн-система J/R marketing (редизайн)
-   Извлечено из monopo.vn (design-pack/design.md), портировано на токен-слой,
-   который уже использует весь проект (см. design-pack/migration-map.md).
-   Радикальный чёрно-белый монохром: единственный цветной элемент во всём
-   интерфейсе — hero-градиент на лендинге (--gradient-iridescent-fade),
-   он не используется как заливка UI нигде, кроме hero-секции.
+   Дизайн-система «JR Marketing» — design-system/jr-marketing/MASTER.md
+   Тёмная OLED-тема на весь сайт (лендинг, кабинеты, лента, заявки, админка,
+   настройки, вход/регистрация, ошибки). Отдельного класса-темы нет — токены
+   заданы прямо на :root, значения новые, ИМЕНА переменных сохранены, поэтому
+   ~весь существующий код (bg-bg / text-text / border-border / bg-surface / …)
+   перекрашивается автоматически.
+
+   Акценты: два — magenta (--primary, «сторона артиста») и timeline-blue
+   (--accent, «сторона эдитора» + главная CTA + фокус-ринг); плюс зелёный
+   (--success) как цвет доверия/расчётов. Больше цвета в интерфейсе нет.
+   Хроматических градиентов нет.
    ============================================================ */
 
 :root {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #9a9a9a;
-  --border: #000000;
-  --text: #000000;
-  --text-dim: #181818;
-  --text-faint: #6d6d6d;
-  --accent: #000000;
-  --accent-2: #6d6d6d;
-  --on-accent: #ffffff;
+  --bg: #0b0f1a;           /* страница — сине-чёрная «ночь» */
+  --surface: #111725;      /* приподнятые секции */
+  --surface-2: #1a2333;    /* заливки полей/чипов, скелетоны */
+  --border: rgba(255, 255, 255, 0.10); /* хайрлайны — основной разделитель */
+  --text: #f4f5f7;         /* основной текст (не чистый белый — bloom на OLED) */
+  --text-dim: #c7cdd9;     /* вторичный текст — 12:1 на --bg */
+  --text-faint: #98a2b3;   /* лейблы, мета, подписи — 5.9:1 на --bg */
 
-  /* Статусы заявок/кампаний (StatusBadge) — единственное сознательное
-     отступление от чистого чёрно-белого интерфейса (эталон — маркетинговая
-     витрина без статусов, J/R marketing — маркетплейс, статусы нужны для
-     работы). Специально приглушены и уведены от ярких оттенков
-     hero-градиента (sage/amber/oxblood), используются только в бейджах.
-     См. design-pack/migration-map.md, раздел про --success/--warning/--danger. */
-  --success: #2f5c40;
-  --warning: #6b5a2e;
-  --danger: #6b3430;
+  --accent: #3b82f6;       /* timeline-blue: текст 5.0:1 на --bg, ринг, CTA */
+  --accent-2: #98a2b3;
+  --on-accent: #0a0f1c;    /* near-black на синей заливке — 6:1 */
 
-  --accent-tint-bg: #00000014;
-  --accent-tint-border: #00000059;
-  --success-tint-bg: #2f5c4014;
-  --success-tint-border: #2f5c4059;
-  --warning-tint-bg: #6b5a2e14;
-  --warning-tint-border: #6b5a2e59;
-  --danger-tint-bg: #6b343014;
-  --danger-tint-border: #6b343059;
+  --primary: #ec4899;      /* magenta: «сторона артиста»; 5.2:1 на --bg (крупный/UI) */
+  --on-primary: #0a0a0a;   /* чёрный на magenta — 6.2:1 (белый бы дал 3.3:1) */
 
-  /* Единственный цветной токен во всей системе — только для hero-секции лендинга. */
-  --gradient-iridescent-fade: linear-gradient(90deg, rgb(160, 224, 171), rgb(255, 172, 46) 50%, rgb(165, 45, 37));
+  /* Статусы заявок/кампаний (StatusBadge, тосты, засечки). Осветлены под
+     тёмный фон — каждый проходит 4.5:1 текстом на --bg. */
+  --success: #34d399;
+  --warning: #f5b841;
+  --danger: #fb7185;
+
+  --accent-tint-bg: #3b82f61f;
+  --accent-tint-border: #3b82f659;
+  --success-tint-bg: #34d3991f;
+  --success-tint-border: #34d39959;
+  --warning-tint-bg: #f5b8411f;
+  --warning-tint-border: #f5b84159;
+  --danger-tint-bg: #fb71851f;
+  --danger-tint-border: #fb718559;
+
+  /* Раньше — единственный цветной токен (иридесцентный градиент). Хроматические
+     градиенты в системе запрещены; токен оставлен рабочим как нейтральный
+     светлый хайрлайн — оба места вызова (граница хиро, брендовая линия в auth)
+     продолжают работать без правок. */
+  --gradient-iridescent-fade: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.28) 50%,
+    transparent
+  );
+
+  /* Скорость движения бегущей строки задаётся инлайном на компоненте
+     (--tk-dur), здесь — запасное значение. */
+  --tk-dur: 32s;
 }
 
-/* Пользовательского переключателя тёмной темы больше нет (компонент удалён при
-   перестройке структуры, REDESIGN_PLAN.md §2.5). Класс .dark оставлен: на него
-   ещё есть ссылки, и это честная инверсия palette. Язык лендинга/auth —
-   light-first с осознанными чёрными full-bleed полосами внутри светлой страницы. */
+/* Класс .dark больше не используется (переключателя темы нет, тёмная тема —
+   единственная). Оставлен как безопасный алиас на случай внешних ссылок. */
 .dark {
-  --bg: #000000;
-  --surface: #000000;
-  --surface-2: #808080;
-  --border: rgba(255, 255, 255, 0.3);
-  --text: #ffffff;
-  --text-dim: #e5e5e5;
-  --text-faint: #9a9a9a;
-  --accent: #ffffff;
-  --accent-2: #9a9a9a;
-  --on-accent: #000000;
-
-  --success: #6fae87;
-  --warning: #b79b5e;
-  --danger: #b3706a;
-
-  --accent-tint-bg: #ffffff14;
-  --accent-tint-border: #ffffff59;
-  --success-tint-bg: #6fae8714;
-  --success-tint-border: #6fae8759;
-  --warning-tint-bg: #b79b5e14;
-  --warning-tint-border: #b79b5e59;
-  --danger-tint-bg: #b3706a14;
-  --danger-tint-border: #b3706a59;
+  color-scheme: dark;
 }
 
 * {
@@ -81,35 +74,57 @@
 }
 
 html {
-  color-scheme: light;
-  scroll-behavior: smooth;
-}
-html.dark {
   color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
+  /* full-bleed секции используют 100vw — при видимом вертикальном скроллбаре
+     это на пару пикселей шире вьюпорта. clip (не hidden) убирает
+     горизонтальный скролл, не ломая position: sticky и smooth-anchor. */
+  overflow-x: clip;
 }
 
 /* ============================================================
-   Раскладка «ведомости» (REDESIGN_PLAN.md §2): утилиты сетки/ритма
-   поверх токен-слоя. Ничего из старых токенов не удалено.
+   Семейства шрифтов по ролям. Классы text-display / text-display-sm /
+   text-headline задают только размер (Tailwind fontSize) — семейство
+   навешиваем здесь, чтобы не трогать каждый заголовок в разметке.
+   .tabular объявлен ПОСЛЕ и той же специфичности — на элементе с обоими
+   классами (например «text-display-sm tabular» у крупных цифр) побеждает
+   моноширинный шрифт, а не Unbounded.
    ============================================================ */
-@layer utilities {
-  /* Ровные столбцы цифр в лидерборде, отчётах, «Ленте». */
-  .tabular {
-    font-variant-numeric: tabular-nums;
+@layer components {
+  .text-display,
+  .text-display-sm {
+    font-family: var(--font-display);
+    font-weight: 800;
+  }
+  .text-headline {
+    font-family: var(--font-display);
+    font-weight: 600;
   }
 
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
   /* Секция «в край экрана»: выходит за центрированный контейнер, оставляя
-     только естественные боковые поля внутри самой секции. Без transform,
-     чтобы не конфликтовать с hover/active-скейлами внутри. */
+     только естественные боковые поля внутри самой секции. */
   .full-bleed {
     width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
+  }
+  /* Ни одна full-bleed секция не должна давать горизонтальный скролл. */
+  .clip-x {
+    overflow-x: clip;
   }
 }
 
@@ -118,12 +133,13 @@ button {
 }
 
 ::selection {
-  background: var(--accent-tint-bg);
+  background: rgba(59, 130, 246, 0.32);
+  color: #fff;
 }
 
-/* Клавиатурная навигация — свой заметный focus-ring вместо браузерного дефолта,
-   не мешает мышью/тачем (:focus-visible срабатывает только для клавиатуры).
-   border-radius: 0 — эталон не допускает промежуточных радиусов (design.md, Don't). */
+/* Клавиатурная навигация — заметный focus-ring (2px + 2px offset), не убираем
+   его нигде. :focus-visible срабатывает только для клавиатуры, мышь/тач его не
+   видят. */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -131,10 +147,8 @@ button {
 }
 
 /* ============================================================
-   Motion — эталонная кривая cubic-bezier(0.19, 1, 0.22, 1), "патient glide"
-   вместо стандартного ease (design-pack/design.md, Motion Personality).
-   Всё выключено при prefers-reduced-motion, чтобы не мешать людям,
-   чувствительным к анимации.
+   Motion — кривая cubic-bezier(0.19, 1, 0.22, 1). Появление ~0.5s,
+   всё выключается при prefers-reduced-motion.
    ============================================================ */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes toast-in {
@@ -147,11 +161,6 @@ button {
       transform: translateY(0) scale(1);
     }
   }
-  /* Тост — функциональная обратная связь (успех/ошибка формы), а не
-     атмосферный жест: сознательно оставлен быстрым (0.3s ease-out), а не
-     переведён на медленный "patient glide" 0.8-1.25s — см. design-pack/design.md,
-     Motion Personality: "Shorter easing uses plain 'ease' at 0.4s for color
-     and opacity micro-transitions" — это тот самый случай. */
   .animate-toast-in {
     animation: toast-in 0.3s ease-out;
   }
@@ -165,7 +174,7 @@ button {
     }
   }
   .skeleton {
-    background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
+    background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
   }
@@ -180,19 +189,17 @@ button {
 }
 
 /* Reveal — начальное состояние для src/components/reveal.tsx, снимается
-   добавлением класса .reveal-visible через IntersectionObserver на клиенте.
-   0.8s cubic-bezier(0.19, 1, 0.22, 1) — эталонная "patient glide" кривая для
-   появления секций при скролле (design-pack/design.md, Motion Personality). */
+   классом .reveal-visible через IntersectionObserver. */
 .reveal {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(12px);
 }
 .reveal-visible {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 0.8s cubic-bezier(0.19, 1, 0.22, 1),
-    transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal {
@@ -201,17 +208,14 @@ button {
   }
 }
 
-/* Hero-reveal (REDESIGN_PLAN.md §3) — единственный авторский motion-жест:
-   слова дисплейного заголовка всплывают снизу вверх один раз при загрузке.
-   Прогрессивное улучшение: без JS (или пока идёт гидратация) слова просто
-   видны. Класс data-armed навешивается на клиенте сразу после монтирования
-   и запускает разовую анимацию; при prefers-reduced-motion она не проигрывается. */
+/* Hero-reveal — дисплейный заголовок хиро всплывает словами один раз при
+   загрузке. Без JS слова просто видны; data-armed навешивается на клиенте. */
 .hero-word {
   display: inline-block;
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-armed='true'] .hero-word {
-    animation: hero-word-in 0.7s cubic-bezier(0.19, 1, 0.22, 1) both;
+    animation: hero-word-in 0.5s cubic-bezier(0.19, 1, 0.22, 1) both;
     animation-delay: var(--hero-word-delay, 0ms);
   }
   @keyframes hero-word-in {
@@ -223,5 +227,68 @@ button {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+}
+
+/* ============================================================
+   «Лента» — бегущая строка реальных цифр площадки (src/components/ticker.tsx).
+   Две одинаковые копии подряд; трек сдвигается ровно на половину своей
+   ширины, поэтому склейка бесшовная и полоса всегда заполнена целиком.
+   Пауза при наведении/фокусе. При reduced-motion — одна копия, без движения.
+   ============================================================ */
+.ticker {
+  background: #000;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.ticker__track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll var(--tk-dur, 32s) linear infinite;
+}
+.ticker:hover .ticker__track,
+.ticker:focus-within .ticker__track {
+  animation-play-state: paused;
+}
+.ticker__row {
+  display: flex;
+  flex: none;
+}
+.ticker__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 40px;
+  padding-inline: 1.5rem;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  font-variant-numeric: tabular-nums;
+}
+.ticker__diamond {
+  color: var(--accent);
+  font-size: 0.5rem;
+}
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker {
+    overflow-x: auto;
+  }
+  .ticker__track {
+    animation: none;
+  }
+  .ticker__row + .ticker__row {
+    display: none;
   }
 }

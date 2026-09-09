@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Nav } from '@/components/nav';
 import { Button, Field, inputClass, EmptyState } from '@/components/ui';
+import { Clapperboard, Music2, Headphones, MessageSquareText } from 'lucide-react';
 import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
@@ -115,7 +116,7 @@ export default async function FeedPage({
               <p className="mt-1 text-body text-text-dim">{t.feed.subtitle}</p>
 
               <div className="mt-8 flex flex-col gap-4">
-                {list.length === 0 && <EmptyState icon="🎬" text={t.feed.noOpenCampaigns} />}
+                {list.length === 0 && <EmptyState icon={Clapperboard} text={t.feed.noOpenCampaigns} />}
                 {list.map((c) => {
                   const already = appliedCampaignIds.has(c.id);
                   const canApply = profile?.role === 'editor' && !pending && !rejected;
@@ -170,7 +171,7 @@ export default async function FeedPage({
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
                             >
-                              🎵 {t.feed.soundTiktok}
+                              <Music2 size={14} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundTiktok}
                             </a>
                           )}
                           {c.spotify_url && (
@@ -180,15 +181,15 @@ export default async function FeedPage({
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
                             >
-                              🎧 {t.feed.soundSpotify}
+                              <Headphones size={14} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundSpotify}
                             </a>
                           )}
                         </div>
                       )}
 
                       {c.manager_message && (
-                        <div className="mt-4 flex gap-2 border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
-                          <span aria-hidden="true">💬</span>
+                        <div className="mt-4 flex gap-2.5 border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
+                          <MessageSquareText size={16} strokeWidth={1.75} aria-hidden="true" className="mt-0.5 shrink-0 text-accent" />
                           <div>
                             <p className="text-meta text-accent">{t.feed.managerMessageLabel}</p>
                             <p className="mt-1 text-sm text-text-dim">{c.manager_message}</p>

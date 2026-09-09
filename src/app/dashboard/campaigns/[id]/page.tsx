@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Card, Button, Field, inputClass, BackLink, EmptyState, RatingInput } from '@/components/ui';
+import { Eye, Star } from 'lucide-react';
 import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
@@ -249,7 +250,7 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
         {t.campaignDetail.responses} ({apps.length})
       </h2>
       <div className="flex flex-col gap-4">
-        {apps.length === 0 && <EmptyState icon="👀" text={t.campaignDetail.noResponses} />}
+        {apps.length === 0 && <EmptyState icon={Eye} text={t.campaignDetail.noResponses} />}
         {apps.map((a) => (
           <Link key={a.id} href={`/applications/${a.id}`}>
             <Card className="p-5 hover:border-accent/50">
@@ -327,9 +328,15 @@ async function ReviewsAdminPanel({ campaignId }: { campaignId: string }) {
                   <p className="text-meta text-text-faint">
                     {r.author_role === 'artist' ? t.reviewAdmin.artistLabel : t.reviewAdmin.editorLabel}
                   </p>
-                  <div className="mt-1 text-accent" aria-hidden="true">
-                    {'★'.repeat(r.rating)}
-                    {'☆'.repeat(5 - r.rating)}
+                  <div className="mt-1 flex gap-0.5 text-accent" aria-hidden="true">
+                    {Array.from({ length: 5 }).map((_, s) => (
+                      <Star
+                        key={s}
+                        size={14}
+                        strokeWidth={1.5}
+                        className={s < r.rating ? 'fill-current' : 'opacity-30'}
+                      />
+                    ))}
                   </div>
                   {r.comment && <p className="mt-2 text-sm text-text-dim">«{r.comment}»</p>}
                 </div>
