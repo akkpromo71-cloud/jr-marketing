@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Nav } from '@/components/nav';
 import { Button, Field, inputClass, EmptyState } from '@/components/ui';
-import { Clapperboard, Music2, Headphones, MessageSquareText } from 'lucide-react';
+import { Clapperboard, Music2, Headphones } from 'lucide-react';
 import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
@@ -10,7 +10,6 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { applyToCampaignAction } from '@/app/feed/actions';
-import { PublishGuide } from '@/components/publish-guide';
 import { getDict } from '@/lib/i18n';
 import { formatDate } from '@/lib/format';
 import type { Campaign, Application } from '@/lib/types';
@@ -117,51 +116,40 @@ export default async function FeedPage({
               <h1 className="text-headline text-text">{t.feed.title}</h1>
               <p className="mt-1 text-body text-text-dim">{t.feed.subtitle}</p>
 
-              <div className="mt-8 flex flex-col gap-4">
+              <div className="mt-8 flex flex-col gap-2.5">
                 {list.length === 0 && <EmptyState icon={Clapperboard} text={t.feed.noOpenCampaigns} />}
                 {list.map((c) => {
                   const already = appliedCampaignIds.has(c.id);
                   const canApply = profile?.role === 'editor' && !pending && !rejected;
                   // Приоритетная карточка — есть бюджет или заметка менеджера:
-                  // крупнее, с акцентной засечкой, бюджет дисплейным размером.
+                  // акцентная засечка слева и чуть больше воздуха. Масштаб тот же,
+                  // что у обычной карточки — лента читается как список (§ фидбек).
                   const priority = !!c.budget || !!c.manager_message;
 
                   return (
                     <article
                       key={c.id}
-                      className={`border border-border bg-surface ${
-                        priority ? 'border-l-2 border-l-accent p-6 md:p-8' : 'p-5 md:max-w-3xl'
+                      className={`border border-border bg-surface md:max-w-3xl ${
+                        priority ? 'border-l-2 border-l-accent p-4 md:p-5' : 'p-4'
                       }`}
                     >
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                        <div className="flex items-start gap-3">
-                          <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={40} />
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex min-w-0 items-start gap-3">
+                          <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={36} />
                           <div className="min-w-0">
-                            {priority && (
-                              <p className="mb-1 text-meta text-text-faint">{t.feed.priorityLabel}</p>
-                            )}
-                            <h2 className={priority ? 'text-title text-text sm:text-headline' : 'text-title text-text'}>
-                              {c.title}
-                            </h2>
+                            <h2 className="text-title text-text">{c.title}</h2>
                             {c.profiles?.display_name && (
                               <p className="mt-0.5 text-xs text-text-faint">
                                 {t.feed.artistLabel}: {c.profiles.display_name}
                               </p>
                             )}
-                            <p className="mt-2 text-sm text-text-dim">{c.description}</p>
                           </div>
                         </div>
-                        <div className="flex shrink-0 flex-row-reverse items-center justify-end gap-3 sm:flex-col sm:items-end sm:gap-2">
+                        <div className="flex shrink-0 flex-col items-end gap-1 text-right">
                           <StatusBadge status={c.status} />
                           {c.budget && (
-                            <p className="sm:text-right">
-                              <span
-                                className={
-                                  priority
-                                    ? 'block text-2xl tabular text-text sm:text-display-sm'
-                                    : 'block text-lg tabular text-text'
-                                }
-                              >
+                            <p className="leading-tight">
+                              <span className={`block tabular text-text ${priority ? 'text-lg' : 'text-base'}`}>
                                 {c.budget} $
                               </span>
                               <span className="text-micro uppercase text-text-faint">{t.feed.budgetLabel}</span>
@@ -170,16 +158,24 @@ export default async function FeedPage({
                         </div>
                       </div>
 
-                      {(c.track_url || c.spotify_url) && (
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <p className="mt-2 line-clamp-2 text-sm text-text-dim">{c.description}</p>
+
+                      {(c.deadline || c.track_url || c.spotify_url) && (
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-text-faint">
+                          {c.deadline && (
+                            <span>
+                              {t.feed.deadlineLabel}:{' '}
+                              <span className="text-text-dim">{formatDate(c.deadline, locale)}</span>
+                            </span>
+                          )}
                           {c.track_url && (
                             <a
                               href={c.track_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+                              className="inline-flex items-center gap-1 font-semibold text-text-dim transition hover:text-text"
                             >
-                              <Music2 size={14} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundTiktok}
+                              <Music2 size={13} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundTiktok}
                             </a>
                           )}
                           {c.spotify_url && (
@@ -187,43 +183,24 @@ export default async function FeedPage({
                               href={c.spotify_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+                              className="inline-flex items-center gap-1 font-semibold text-text-dim transition hover:text-text"
                             >
-                              <Headphones size={14} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundSpotify}
+                              <Headphones size={13} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundSpotify}
                             </a>
                           )}
                         </div>
                       )}
 
-                      {c.deadline && (
-                        <p className="mt-3 text-xs text-text-faint">
-                          {t.feed.deadlineLabel}: <span className="text-text-dim">{formatDate(c.deadline, locale)}</span>
+                      {c.manager_message && (
+                        <p className="mt-2 line-clamp-1 border-l-2 border-l-accent/60 pl-2 text-xs text-text-dim">
+                          <span className="text-accent">{t.feed.managerMessageLabel}:</span> {c.manager_message}
                         </p>
                       )}
 
-                      {c.manager_message && (
-                        <div className="mt-4 flex gap-2.5 border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
-                          <MessageSquareText size={16} strokeWidth={1.75} aria-hidden="true" className="mt-0.5 shrink-0 text-accent" />
-                          <div>
-                            <p className="text-meta text-accent">{t.feed.managerMessageLabel}</p>
-                            <p className="mt-1 text-sm text-text-dim">{c.manager_message}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-4">
-                        <PublishGuide
-                          caption={`${c.track_title_for_caption ?? c.title}${
-                            c.artist_handle ? ` ${c.artist_handle}` : ''
-                          }`}
-                          labels={t.publishGuide}
-                        />
-                      </div>
-
                       {already ? (
-                        <p className="mt-4 text-sm text-text-faint">{t.feed.alreadyApplied}</p>
+                        <p className="mt-3 border-t border-border pt-3 text-sm text-text-faint">{t.feed.alreadyApplied}</p>
                       ) : canApply && !payout ? (
-                        <div className="mt-5 flex flex-col gap-2 border-t border-border pt-5">
+                        <div className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
                           <p className="text-sm text-warning">{t.feed.noPayoutWarning}</p>
                           <Link
                             href="/settings"
@@ -233,7 +210,7 @@ export default async function FeedPage({
                           </Link>
                         </div>
                       ) : canApply && payout ? (
-                        <form action={applyToCampaignAction} className="mt-5 flex flex-col gap-3 border-t border-border pt-5">
+                        <form action={applyToCampaignAction} className="mt-3 flex flex-col gap-2 border-t border-border pt-3">
                           <input type="hidden" name="campaign_id" value={c.id} />
                           <Field label={t.feed.coverNote}>
                             <textarea className={inputClass} name="cover_note" rows={2} placeholder={t.feed.coverNotePlaceholder} />
