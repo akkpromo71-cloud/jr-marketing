@@ -307,7 +307,8 @@ export const dict = {
       spotifyLink: 'Ссылка на Spotify (необязательно)',
       budget: 'Бюджет',
       budgetCurrency: 'USD',
-      maxEditors: 'Сколько эдиторов нужно',
+      maxEditors: 'Сколько эдитов нужно',
+      maxEditorsHint: 'Сколько готовых роликов вы хотите получить.',
       deadline: 'Дедлайн',
       deadlineHint: 'Дата, до которой нужен готовый эдит. Не раньше завтрашнего дня.',
       captionTitle: 'Название трека для описания',
@@ -327,7 +328,7 @@ export const dict = {
       budgetHintDisclaimer:
         'Ориентир на основе средней ставки наших эдиторов — не гарантия конкретного охвата или числа просмотров.',
       budgetTooLowConfirm:
-        'Бюджет ниже рекомендованного ({min}–{max} $) для выбранного числа эдиторов. Продолжить всё равно?',
+        'Бюджет ниже рекомендованного ({min}–{max} $) для выбранного числа эдитов. Продолжить всё равно?',
       publishBtn: 'Опубликовать',
     },
     campaignDetail: {
@@ -424,6 +425,7 @@ export const dict = {
       budgetRequired: 'Укажите бюджет кампании',
       deadlineRequired: 'Укажите дедлайн — дату, до которой нужен эдит',
       deadlineTooSoon: 'Дедлайн должен быть не раньше завтрашнего дня',
+      campaignCreateFailed: 'Не удалось опубликовать кампанию. Попробуйте ещё раз, а если не получится — напишите нам.',
     },
   },
   en: {
@@ -723,7 +725,8 @@ export const dict = {
       spotifyLink: 'Spotify link (optional)',
       budget: 'Budget',
       budgetCurrency: 'USD',
-      maxEditors: 'How many editors do you need',
+      maxEditors: 'How many edits do you need',
+      maxEditorsHint: 'How many finished videos you want to receive.',
       deadline: 'Deadline',
       deadlineHint: 'The date the finished edit is due. Tomorrow at the earliest.',
       captionTitle: 'Track title for the caption',
@@ -743,7 +746,7 @@ export const dict = {
       budgetHintDisclaimer:
         "An estimate based on our editors' average rate — not a guarantee of any specific reach or view count.",
       budgetTooLowConfirm:
-        'This budget is below the recommended range ({min}–{max} $) for the number of editors you chose. Continue anyway?',
+        'This budget is below the recommended range ({min}–{max} $) for the number of edits you chose. Continue anyway?',
       publishBtn: 'Publish',
     },
     campaignDetail: {
@@ -840,6 +843,7 @@ export const dict = {
       budgetRequired: 'Enter the campaign budget',
       deadlineRequired: 'Enter a deadline — the date the edit is due',
       deadlineTooSoon: 'The deadline must be tomorrow or later',
+      campaignCreateFailed: "Couldn't publish the campaign. Please try again, and contact us if it keeps failing.",
     },
   },
 } as const;

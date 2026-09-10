@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getDict, translateAuthError } from '@/lib/i18n';
+import { getDict } from '@/lib/i18n';
 import { roleHome } from '@/lib/role-home';
 import { safeUrl, clampRating, positiveNumberOrNull, futureDateOrNull } from '@/lib/validate';
 import { logError } from '@/lib/log-error';
@@ -14,6 +14,10 @@ export async function createCampaignAction(formData: FormData) {
   const trackUrl = safeUrl(formData.get('track_url'));
   const spotifyUrl = safeUrl(formData.get('spotify_url'));
   const budget = positiveNumberOrNull(formData.get('budget'));
+  // max_editors в БД = «сколько эдитов нужно» в интерфейсе: один эдит = один
+  // слот эдитора, поэтому число и логика приёма заявок не меняются — только
+  // формулировка для пользователя (колонку не переименовываем, чтобы не плодить
+  // ещё одну миграцию).
   const maxEditors = Number(formData.get('max_editors') ?? 1) || 1;
   const termsAccepted = formData.get('terms_accepted') === '1';
 
@@ -74,7 +78,11 @@ export async function createCampaignAction(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard/new?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
+    // Сырую ошибку БД (например «Could not find the 'artist_handle' column …»)
+    // пользователю не показываем — логируем для разработчика, а человеку даём
+    // понятный текст на его языке.
+    logError('createCampaignAction', error, { artistId: user!.id });
+    redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.campaignCreateFailed)}`);
   }
 
   revalidatePath('/dashboard');

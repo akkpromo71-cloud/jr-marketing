@@ -30,8 +30,9 @@ export default async function NewCampaignPage({
   const minDeadline = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
 
   // Рекомендуемый бюджет — простая формула (не ML, данных пока недостаточно):
-  // средняя ставка одобренных эдиторов × сколько эдиторов нужно, с запасом
-  // сверху на разброс цен. Это ориентир, а не гарантия охвата — см.
+  // средняя ставка одобренных эдиторов × сколько эдитов нужно (один эдит =
+  // один слот), с запасом сверху на разброс цен. Это ориентир, а не гарантия
+  // охвата — см.
   // t.dashboardNew.budgetHintDisclaimer и supabase/patch-followers-terms-metrics.sql.
   const supabase = await createClient();
   const { data: approvedPrices } = await supabase
@@ -109,7 +110,9 @@ export default async function NewCampaignPage({
               <input className={inputClass} name="spotify_url" placeholder="https://open.spotify.com/..." />
             </Field>
             <Field label={t.dashboardNew.maxEditors}>
+              {/* Поле пишет в колонку max_editors: один эдит = один слот эдитора. */}
               <input id="max_editors" className={inputClass} type="number" name="max_editors" min={1} defaultValue={1} />
+              <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.maxEditorsHint}</span>
             </Field>
             <Field label={t.dashboardNew.budget}>
               <span className="relative block">
@@ -129,7 +132,7 @@ export default async function NewCampaignPage({
 
             {/* Калькулятор рекомендуемого бюджета — формула, не ML (данных о
                 прошлых кампаниях пока недостаточно). Диапазон пересчитывается
-                на лету при изменении числа эдиторов (см. <script> ниже),
+                на лету при изменении числа эдитов (см. <script> ниже),
                 а при попытке отправить форму с бюджетом заметно ниже
                 рекомендованного — показывает подтверждение через confirm(),
                 не блокируя публикацию (это ориентир, а не жёсткое правило). */}
