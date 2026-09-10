@@ -29,8 +29,28 @@ export default async function ApplicationsLayout({ children }: { children: React
         .order('created_at', { ascending: false })
     : { data: [] };
 
+  // Шаг, которого ждут от эдитора, однозначно выводится из статуса заявки:
+  //   accepted / in_revision -> сдать (или переделать) черновик
+  //   completed              -> опубликовать ролик и вставить ссылку
+  //   pending / delivered    -> ход за нами, от эдитора ничего не нужно
+  //   rejected               -> вообще ничего
+  const nextStepFor = (a: Application): string | null => {
+    if (a.status === 'accepted') return t.applicationsList.nextSubmitDraft;
+    if (a.status === 'in_revision') return t.applicationsList.nextFixRevision;
+    // Принято — публикуем; если ссылка на пост уже стоит, делать нечего.
+    if (a.status === 'completed') return a.posted_url ? null : t.applicationsList.nextPublish;
+    if (a.status === 'rejected') return null;
+    return t.applicationsList.nextNothing;
+  };
+
   const rows = ((applications ?? []) as (Application & { campaigns: { title: string } | null })[]).map(
-    (a) => ({ id: a.id, title: a.campaigns?.title ?? '—', status: a.status, price: a.price ?? null })
+    (a) => ({
+      id: a.id,
+      title: a.campaigns?.title ?? '—',
+      status: a.status,
+      price: a.price ?? null,
+      nextStep: nextStepFor(a),
+    })
   );
 
   return (

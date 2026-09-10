@@ -238,6 +238,16 @@ export const dict = {
       statusReady: 'Готов откликаться',
       priorityLabel: 'С бюджетом',
       deadlineLabel: 'Дедлайн',
+
+      // ── Объяснение статуса «на модерации» для эдитора ──
+      pendingTitle: 'Заявка на модерации',
+      // ЗАПОЛНИТЬ: реальный срок рассмотрения. Пустая строка — блок не выводится.
+      pendingHowLong: '',
+      pendingWhatNext:
+        'Мы смотрим ваши соцсети и примеры работ, согласуем ставку за эдит и открываем доступ к ленте треков.',
+      pendingTips:
+        'Шансы выше, если в профиле есть рабочие ссылки на Instagram или TikTok с вашими эдитами, а ставка указана реалистичная.',
+      payoutStage: 'Выплата — после приёмки работы, вручную на реквизиты из ваших настроек.',
     },
     applicationsList: {
       title: 'Мои заявки',
@@ -247,6 +257,12 @@ export const dict = {
       yourPrice: 'Ваша цена',
       queueLabel: 'Очередь',
       selectPrompt: 'Выберите заявку из списка, чтобы открыть её.',
+      // Что от эдитора ждут прямо сейчас — считается по статусу заявки.
+      nextStepLabel: 'Сейчас от вас',
+      nextSubmitDraft: 'Сдать черновик',
+      nextFixRevision: 'Внести правки',
+      nextPublish: 'Опубликовать ролик',
+      nextNothing: 'Ничего — ждём нас',
     },
     applicationDetail: {
       editor: 'Эдитор',
@@ -273,6 +289,24 @@ export const dict = {
       updatedAt: 'Обновлено',
       noResultYet: 'Ссылка сохранена. Статистика появится после первой проверки — обычно в течение суток.',
       deadlineLabel: 'Дедлайн',
+
+      // ── Черновик до публикации (supabase/patch-draft-flow.sql) ──
+      draftFormTitle: 'Сдать черновик',
+      draftFormHint:
+        'Публиковать ролик пока не нужно. Загрузите черновик куда вам удобно (Google Drive, Dropbox, закрытое видео) и оставьте ссылку — сначала работу примут, и только потом вы её выложите.',
+      draftUrlPlaceholder: 'Ссылка на черновик',
+      draftLabel: 'Черновик',
+      draftResubmitTitle: 'Сдать черновик заново',
+      awaitingReview: 'Черновик на приёмке — ждём ответа команды.',
+      revisionsTitle: 'Правки от команды',
+      revisionNoteLabel: 'Что поправить',
+      revisionNotePlaceholder: 'Опишите, что нужно изменить в черновике',
+      publishStepTitle: 'Опубликуйте ролик',
+      publishStepHint:
+        'Работа принята — можно публиковать. Выложите ролик на своём аккаунте и вставьте сюда ссылку на пост.',
+      postMissingLabel: 'Пост недоступен — проверьте ссылку',
+      postCheckedAt: 'Проверено',
+      payoutStage: 'Выплата — после приёмки работы, вручную на реквизиты из ваших настроек.',
     },
     publishGuide: {
       title: 'Как публиковать',
@@ -415,6 +449,30 @@ export const dict = {
       avgViewsLabel: 'Ср. просмотры',
       queuesLabel: 'Очереди',
     },
+    // Тексты почтовых уведомлений (src/lib/notify.ts). {track} подставляется
+    // названием кампании. Письма намеренно короткие: строка сути + ссылка.
+    emails: {
+      openLink: 'Открыть на сайте',
+      footer: 'J/R marketing. Это письмо отправлено автоматически, отвечать на него не нужно.',
+      newApplicationSubject: 'Новая заявка на трек «{track}»',
+      newApplicationBody: 'На трек «{track}» откликнулся эдитор. Заявка ждёт вашего решения.',
+      applicationAcceptedSubject: 'Вас взяли на трек «{track}»',
+      applicationAcceptedBody:
+        'Вашу заявку на трек «{track}» приняли. Следующий шаг — сдать черновик ролика на приёмку.',
+      applicationRejectedSubject: 'Заявка на трек «{track}» отклонена',
+      applicationRejectedBody:
+        'По треку «{track}» выбрали другого эдитора. В ленте есть другие открытые треки.',
+      draftSubmittedSubject: 'Черновик по треку «{track}» сдан',
+      draftSubmittedBody: 'Эдитор сдал черновик ролика по треку «{track}». Он ждёт приёмки.',
+      revisionRequestedSubject: 'Правки по треку «{track}»',
+      revisionRequestedBody:
+        'По вашему черновику к треку «{track}» попросили правки. Комментарий — на странице заявки.',
+      workAcceptedSubject: 'Работа по треку «{track}» принята',
+      workAcceptedBody:
+        'Работу по треку «{track}» приняли. Теперь можно опубликовать ролик и добавить ссылку на пост.',
+      newCampaignSubject: 'Новая кампания: «{track}»',
+      newCampaignBody: 'Артист опубликовал новый трек «{track}». Кампания появилась в ленте.',
+    },
     terms: {
       pageTitle: 'Условия использования',
       agreePrefix: 'Я принимаю ',
@@ -462,6 +520,9 @@ export const dict = {
       campaignCreateFailed: 'Не удалось опубликовать кампанию. Попробуйте ещё раз, а если не получится — напишите нам.',
       campaignUpdateFailed: 'Не удалось сохранить изменения. Попробуйте ещё раз, а если не получится — напишите нам.',
       campaignEditLocked: 'Кампанию уже нельзя редактировать — по ней есть принятая заявка.',
+      invalidUrl: 'Нужна корректная ссылка, начинающаяся с http:// или https://',
+      revisionNoteRequired: 'Напишите, что именно нужно поправить',
+      applyFailed: 'Не удалось отправить отклик. Обновите страницу и попробуйте ещё раз.',
     },
   },
   en: {
@@ -692,6 +753,16 @@ export const dict = {
       statusReady: 'Ready to apply',
       priorityLabel: 'Has budget',
       deadlineLabel: 'Deadline',
+
+      // ── Explaining the "pending review" status to an editor ──
+      pendingTitle: 'Application under review',
+      // TO FILL IN: the real review turnaround. Empty string hides the line.
+      pendingHowLong: '',
+      pendingWhatNext:
+        'We look through your socials and sample edits, agree on your rate per edit, and open up the track feed.',
+      pendingTips:
+        'Your odds are better with working Instagram or TikTok links showing your edits, and a realistic rate.',
+      payoutStage: 'Payment comes after the work is accepted — sent manually to the details in your settings.',
     },
     applicationsList: {
       title: 'My applications',
@@ -701,6 +772,12 @@ export const dict = {
       yourPrice: 'Your price',
       queueLabel: 'Queue',
       selectPrompt: 'Pick an application from the list to open it.',
+      // What the editor is expected to do right now — derived from the status.
+      nextStepLabel: 'On you now',
+      nextSubmitDraft: 'Submit a draft',
+      nextFixRevision: 'Apply the revisions',
+      nextPublish: 'Publish the video',
+      nextNothing: "Nothing — it's on us",
     },
     applicationDetail: {
       editor: 'Editor',
@@ -727,6 +804,24 @@ export const dict = {
       updatedAt: 'Updated',
       noResultYet: 'Link saved. Stats will appear after the first check — usually within a day.',
       deadlineLabel: 'Deadline',
+
+      // ── Draft before publishing (supabase/patch-draft-flow.sql) ──
+      draftFormTitle: 'Submit a draft',
+      draftFormHint:
+        "Don't publish the video yet. Upload the draft wherever suits you (Google Drive, Dropbox, an unlisted video) and leave the link — the work gets reviewed first, and only then you post it.",
+      draftUrlPlaceholder: 'Link to the draft',
+      draftLabel: 'Draft',
+      draftResubmitTitle: 'Submit a new draft',
+      awaitingReview: "Draft is under review — waiting for the team's reply.",
+      revisionsTitle: 'Revision notes from the team',
+      revisionNoteLabel: 'What to fix',
+      revisionNotePlaceholder: 'Describe what needs to change in the draft',
+      publishStepTitle: 'Publish the video',
+      publishStepHint:
+        'The work is accepted — you can publish now. Post the video on your own account and paste the link here.',
+      postMissingLabel: 'Post unavailable — check the link',
+      postCheckedAt: 'Checked',
+      payoutStage: 'Payment comes after the work is accepted — sent manually to the details in your settings.',
     },
     publishGuide: {
       title: 'How to publish',
@@ -869,6 +964,29 @@ export const dict = {
       avgViewsLabel: 'Avg. views',
       queuesLabel: 'Queues',
     },
+    // Email notification copy (src/lib/notify.ts). {track} is the campaign title.
+    emails: {
+      openLink: 'Open on the site',
+      footer: 'J/R marketing. This message was sent automatically — no need to reply.',
+      newApplicationSubject: 'New application for "{track}"',
+      newApplicationBody: 'An editor applied to the track "{track}". The application is waiting for your decision.',
+      applicationAcceptedSubject: 'You got the track "{track}"',
+      applicationAcceptedBody:
+        'Your application for "{track}" was accepted. Next step — submit a draft of the video for review.',
+      applicationRejectedSubject: 'Application for "{track}" was declined',
+      applicationRejectedBody:
+        'Another editor was picked for "{track}". There are other open tracks in the feed.',
+      draftSubmittedSubject: 'Draft submitted for "{track}"',
+      draftSubmittedBody: 'An editor submitted a draft for the track "{track}". It is waiting for review.',
+      revisionRequestedSubject: 'Revisions requested for "{track}"',
+      revisionRequestedBody:
+        'Revisions were requested on your draft for "{track}". The notes are on the application page.',
+      workAcceptedSubject: 'Work on "{track}" was accepted',
+      workAcceptedBody:
+        'Your work on "{track}" was accepted. You can publish the video now and add the link to the post.',
+      newCampaignSubject: 'New campaign: "{track}"',
+      newCampaignBody: 'An artist published a new track "{track}". The campaign is now in the feed.',
+    },
     terms: {
       pageTitle: 'Terms of Service',
       agreePrefix: 'I accept the ',
@@ -916,6 +1034,9 @@ export const dict = {
       campaignCreateFailed: "Couldn't publish the campaign. Please try again, and contact us if it keeps failing.",
       campaignUpdateFailed: "Couldn't save your changes. Please try again, and contact us if it keeps failing.",
       campaignEditLocked: 'This campaign can no longer be edited — it already has an accepted application.',
+      invalidUrl: 'Please enter a valid link starting with http:// or https://',
+      revisionNoteRequired: 'Describe what exactly needs fixing',
+      applyFailed: "Couldn't send your application. Refresh the page and try again.",
     },
   },
 } as const;

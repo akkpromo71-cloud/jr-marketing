@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/tiktok-stats",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/post-liveness",
+      "schedule": "30 6 * * *"
     }
   ]
 }

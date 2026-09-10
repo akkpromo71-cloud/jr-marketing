@@ -10,7 +10,6 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { applyToCampaignAction } from '@/app/feed/actions';
-import { PublishGuide } from '@/components/publish-guide';
 import { getDict } from '@/lib/i18n';
 import { formatDate } from '@/lib/format';
 import type { Campaign } from '@/lib/types';
@@ -22,10 +21,13 @@ import type { Campaign } from '@/lib/types';
 // (политика campaigns_select), закрытую — только если эдитор уже откликнулся.
 export default async function FeedCampaignPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { id } = await params;
+  const { error } = await searchParams;
   const profile = await getCurrentProfile();
   if (profile && profile.role !== 'editor' && profile.role !== 'admin') {
     redirect(roleHome(profile.role));
@@ -62,7 +64,6 @@ export default async function FeedCampaignPage({
       ? { label: t.payout.crypto, value: profile.crypto_wallet }
       : null;
 
-  const caption = `${c.track_title_for_caption ?? c.title}${c.artist_handle ? ` ${c.artist_handle}` : ''}`;
   const hasBrief = c.track_segment || (c.reference_urls?.length ?? 0) > 0 || c.restrictions;
 
   return (
@@ -86,6 +87,12 @@ export default async function FeedCampaignPage({
             </div>
             <StatusBadge status={c.status} />
           </div>
+
+          {error && (
+            <div className="mt-6 rounded-[4px] border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+              {decodeURIComponent(error)}
+            </div>
+          )}
 
           <p className="mt-6 whitespace-pre-line text-body text-text-dim">{c.description}</p>
 
@@ -171,10 +178,6 @@ export default async function FeedCampaignPage({
             </dl>
           )}
 
-          <div className="mt-6">
-            <PublishGuide caption={caption} labels={t.publishGuide} />
-          </div>
-
           {myApplication ? (
             <p className="mt-6 border-t border-border pt-6 text-sm text-text-faint">{t.feed.alreadyApplied}</p>
           ) : canApply && !payout ? (
@@ -202,6 +205,7 @@ export default async function FeedCampaignPage({
                 {t.feed.applyPriceNote} {profile?.price_min ?? '—'} $. {t.feed.payoutWillArrive}{' '}
                 {payout.label}: {payout.value}. {t.feed.payoutHint}
               </p>
+              <p className="text-xs text-text-faint">{t.feed.payoutStage}</p>
               <Button type="submit" variant="primary" className="self-start">
                 {t.feed.applyBtn}
               </Button>

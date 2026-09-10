@@ -2,3 +2,7 @@
 // (src/app/page.tsx). Держим адрес в одном месте, чтобы «Написать нам» в
 // кабинете артиста и ссылка в подвале не разъехались.
 export const TELEGRAM_URL = 'https://t.me/jrmrktng';
+
+// Публичный адрес площадки. Нужен там, где относительной ссылки мало —
+// письма и redirectTo для писем Supabase Auth. Меняется вместе с доменом.
+export const SITE_URL = 'https://jr-marketing-psi.vercel.app';

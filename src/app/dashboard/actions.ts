@@ -8,6 +8,7 @@ import { roleHome } from '@/lib/role-home';
 import { safeUrl, clampRating, positiveNumberOrNull, futureDateOrNull } from '@/lib/validate';
 import { logError } from '@/lib/log-error';
 import { campaignIsEditable } from '@/lib/campaign-editable';
+import { notifyAdmin, fill } from '@/lib/notify';
 
 export async function createCampaignAction(formData: FormData) {
   const title = String(formData.get('title') ?? '').trim();
@@ -85,6 +86,14 @@ export async function createCampaignAction(formData: FormData) {
     logError('createCampaignAction', error, { artistId: user!.id });
     redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.campaignCreateFailed)}`);
   }
+
+  await notifyAdmin(
+    (e) => ({
+      subject: fill(e.newCampaignSubject, { track: title }),
+      body: fill(e.newCampaignBody, { track: title }),
+    }),
+    '/admin'
+  );
 
   revalidatePath('/dashboard');
   revalidatePath('/feed');

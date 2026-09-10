@@ -87,10 +87,20 @@ export default async function FeedPage({
                   {decodeURIComponent(error)}
                 </p>
               )}
-              {pending && !welcome && (
-                <p className="border-l-2 border-[var(--warning-tint-border)] pl-3 text-xs text-warning">
-                  {t.feed.pendingMsg}
-                </p>
+              {/* «На модерации» само по себе ничего не объясняет — рядом
+                  пишем, что происходит дальше и что повышает шансы.
+                  pendingHowLong — реальный срок, заполняется владельцем;
+                  пока строка пустая, её просто не показываем. */}
+              {pending && (
+                <div className="border-l-2 border-[var(--warning-tint-border)] pl-3">
+                  <p className="text-meta text-warning">{t.feed.pendingTitle}</p>
+                  {!welcome && <p className="mt-1 text-xs text-warning">{t.feed.pendingMsg}</p>}
+                  {t.feed.pendingHowLong && (
+                    <p className="mt-1 text-xs text-text-dim">{t.feed.pendingHowLong}</p>
+                  )}
+                  <p className="mt-2 text-xs text-text-faint">{t.feed.pendingWhatNext}</p>
+                  <p className="mt-1 text-xs text-text-faint">{t.feed.pendingTips}</p>
+                </div>
               )}
               {rejected && (
                 <p className="border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">

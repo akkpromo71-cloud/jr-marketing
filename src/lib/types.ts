@@ -77,13 +77,21 @@ export interface Application {
   status: ApplicationStatus;
   price: number | null;
   cover_note: string | null;
+  // Устаревшее поле: до появления черновиков эдитор сдавал сюда сразу готовый
+  // ролик. Оставлено, чтобы старые заявки открывались как раньше.
   submission_url: string | null;
+  // Черновик на приёмку — сдаётся ДО публикации (supabase/patch-draft-flow.sql).
+  draft_url: string | null;
   // Результат промо-эдита: эдитор заливает эдит на СВОЙ аккаунт (не артиста),
-  // и сам же вносит сюда ссылку и цифры — только у него есть доступ к статистике поста.
+  // и сам же вносит сюда ссылку — только у него есть доступ к статистике поста.
   posted_url: string | null;
   views_count: number | null;
   likes_count: number | null;
   result_updated_at: string | null;
+  // Ежесуточная проверка, что опубликованный пост ещё существует
+  // (src/app/api/cron/post-liveness/route.ts).
+  post_checked_at: string | null;
+  post_missing: boolean;
   created_at: string;
   updated_at: string;
 }

@@ -3,8 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { getDict, translateAuthError } from '@/lib/i18n';
+import { getDict } from '@/lib/i18n';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { logError } from '@/lib/log-error';
+import { notifyAdmin, fill } from '@/lib/notify';
 
 // Цену эдитор больше не придумывает под каждый отклик — берём его
 // согласованную с администратором ставку из профиля (price_min), чтобы
@@ -26,7 +28,7 @@ export async function applyToCampaignAction(formData: FormData) {
   const allowed = await checkRateLimit(`apply:${user.id}`, 20, 60 * 60);
   if (!allowed) {
     const { t } = await getDict();
-    redirect(`/feed?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
+    redirect(`/feed/${campaignId}?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
   }
 
   const { data: editorProfile } = await supabase
@@ -43,9 +45,26 @@ export async function applyToCampaignAction(formData: FormData) {
   });
 
   if (error) {
+    // Сырую ошибку БД (дубль отклика, закрытая кампания, отказ RLS) человеку
+    // не показываем — она уходит в лог, пользователь видит понятный текст.
     const { t } = await getDict();
-    redirect(`/feed?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
+    logError('applyToCampaignAction', error, { campaignId, editorId: user.id });
+    redirect(`/feed/${campaignId}?error=${encodeURIComponent(t.errors.applyFailed)}`);
   }
+
+  const { data: campaign } = await supabase
+    .from('campaigns')
+    .select('title')
+    .eq('id', campaignId)
+    .maybeSingle();
+  const track = campaign?.title ?? '';
+  await notifyAdmin(
+    (e) => ({
+      subject: fill(e.newApplicationSubject, { track }),
+      body: fill(e.newApplicationBody, { track }),
+    }),
+    '/admin'
+  );
 
   revalidatePath('/feed');
   revalidatePath('/applications');

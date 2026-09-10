@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-type Row = { id: string; title: string; status: string; price: number | null };
+type Row = { id: string; title: string; status: string; price: number | null; nextStep: string | null };
 
 // Цветная засечка статуса слева — очередь заявок «сканируется» взглядом.
 function tick(status: string) {
@@ -55,6 +55,11 @@ export function ApplicationsList({
                     </span>
                   )}
                 </span>
+                {/* Что от эдитора ждут прямо сейчас — акцентом, чтобы очередь
+                    читалась как список дел, а не как список статусов. */}
+                {r.nextStep && (
+                  <span className="mt-1 block truncate text-xs text-accent">→ {r.nextStep}</span>
+                )}
               </Link>
             );
           })}
