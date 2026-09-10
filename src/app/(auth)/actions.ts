@@ -7,6 +7,7 @@ import { roleHome } from '@/lib/role-home';
 import { getDict, translateAuthError } from '@/lib/i18n';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { nonNegativeIntOrNull } from '@/lib/validate';
+import { logError } from '@/lib/log-error';
 
 export async function signOutAction() {
   const supabase = await createClient();
@@ -45,6 +46,7 @@ export async function loginAction(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
+    logError('loginAction', error);
     const message = translateAuthError(error.message, t);
     redirect(`/login?error=${encodeURIComponent(message)}${next ? `&next=${encodeURIComponent(next)}` : ''}`);
   }
@@ -88,6 +90,7 @@ export async function forgotPasswordAction(formData: FormData) {
   // email (защита от user enumeration) — значит и наш редирект не должен,
   // кроме явных ошибок ввода (например, rate limit на стороне Supabase Auth).
   if (error) {
+    logError('forgotPasswordAction', error);
     redirect(`/forgot-password?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 
@@ -109,6 +112,7 @@ export async function resetPasswordAction(formData: FormData) {
   const { error } = await supabase.auth.updateUser({ password });
 
   if (error) {
+    logError('resetPasswordAction', error);
     redirect(`/reset-password?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 
@@ -188,6 +192,7 @@ export async function signUpEditorAction(formData: FormData) {
   });
 
   if (error) {
+    logError('signUpEditorAction', error);
     redirect(`/signup/editor?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 
@@ -235,6 +240,7 @@ export async function signUpArtistAction(formData: FormData) {
   });
 
   if (error) {
+    logError('signUpArtistAction', error);
     redirect(`/signup/artist?error=${encodeURIComponent(translateAuthError(error.message, t))}`);
   }
 

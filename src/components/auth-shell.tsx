@@ -44,15 +44,15 @@ export async function AuthShell({
         <Link
           href="/"
           aria-label="J/R marketing"
-          className="relative block w-fit overflow-hidden transition hover:opacity-80"
+          className="relative block w-fit transition hover:opacity-80"
         >
           <Image
-            src="/logo.png"
+            src="/logo-mark.webp"
             alt="J/R marketing"
-            width={512}
-            height={512}
+            width={640}
+            height={502}
             priority
-            className="h-16 w-auto scale-[1.12] mix-blend-screen"
+            className="h-16 w-auto"
           />
         </Link>
         <p className="relative hidden text-balance break-words text-headline text-text md:block">

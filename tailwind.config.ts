@@ -25,9 +25,10 @@ const config: Config = {
         'on-accent': 'var(--on-accent)',
       },
       fontFamily: {
+        // В проекте ДВЕ гарнитуры, обе с кириллицей (см. src/app/layout.tsx):
         // display — Unbounded (только дисплейные размеры, не для текста);
-        // sans    — Manrope (весь текст/UI);
-        // mono    — JetBrains Mono (цифры, бегущая строка). Все три с кириллицей.
+        // sans    — Manrope (весь текст/UI).
+        // Третьей (моно) нет: font-mono намеренно указывает на тот же Manrope.
         display: ['var(--font-display)', 'var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         // Отдельного моно-шрифта в проекте нет — «font-mono» = тот же гротеск.

@@ -38,7 +38,7 @@ export function NavMenu({
         aria-label={menuLabel}
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="btn-pop flex size-9 items-center justify-center rounded-full border border-border text-text-dim hover:border-white/25 hover:text-text"
+        className="btn-pop flex size-11 items-center justify-center rounded-full border border-border text-text-dim hover:border-white/25 hover:text-text"
       >
         {open ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={2} />}
       </button>

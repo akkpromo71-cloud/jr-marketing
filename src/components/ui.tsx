@@ -25,8 +25,10 @@ type ButtonVariant = 'primary' | 'artist' | 'secondary' | 'ghost' | 'danger';
 
 // Единый радиус по всему сайту — `rounded` (4px), тот же, что у карточек/полей.
 // btn-pop (globals.css) — пружинистый «поп» на hover/active.
+// min-h-11 = 44px: минимальный размер тач-цели (аудитория преимущественно
+// мобильная). Без него кнопка выходила 40px — по пальцу промахнуться легко.
 const buttonBase =
-  'btn-pop inline-flex items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
+  'btn-pop inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
 // primary — единственное доминирующее действие в поле зрения: сплошная
 // timeline-blue заливка. artist — сплошная magenta (сторона артиста).
 // secondary/ghost — хайрлайн-пилюля и текстовая ссылка. На hover — мягкое
@@ -118,7 +120,7 @@ export function Field({
 // Поля ввода — радиус 4px, тёмная заливка, видимый фокус: смена цвета обводки
 // + мягкий синий ring (design-system/jr-marketing/MASTER.md, Inputs).
 export const inputClass =
-  'w-full rounded-[4px] border border-border bg-surface2/60 px-4 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition focus:border-accent focus:shadow-[0_0_0_3px_rgba(59,130,246,0.30)]';
+  'w-full min-h-11 rounded-[4px] border border-border bg-surface2/60 px-4 py-2.5 text-sm text-text placeholder:text-text-faint outline-none transition focus:border-accent focus:shadow-[0_0_0_3px_rgba(59,130,246,0.30)]';
 
 // Оценка 1-5 для форм отзыва — кружки-кнопки на radio + peer-checked, без
 // JavaScript, работает в любом браузере. По умолчанию выбрано 5. Круглая форма

@@ -185,7 +185,7 @@ export default async function FeedCampaignPage({
               <p className="text-sm text-warning">{t.feed.noPayoutWarning}</p>
               <Link
                 href="/settings"
-                className="self-start rounded-full border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text active:scale-95"
+                className="inline-flex min-h-11 items-center self-start rounded-full border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text active:scale-95"
               >
                 {t.feed.goToSettings}
               </Link>
@@ -201,7 +201,9 @@ export default async function FeedCampaignPage({
                   placeholder={t.feed.coverNotePlaceholder}
                 />
               </Field>
-              <p className="text-xs text-text-faint">
+              {/* break-words: адрес криптокошелька — одно длинное слово без
+                  пробелов, на 390px оно распирало карточку и обрезалось. */}
+              <p className="break-words text-xs text-text-faint">
                 {t.feed.applyPriceNote} {profile?.price_min ?? '—'} $. {t.feed.payoutWillArrive}{' '}
                 {payout.label}: {payout.value}. {t.feed.payoutHint}
               </p>

@@ -396,11 +396,11 @@ export default async function LandingPage() {
             <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
                 <Image
-                  src="/logo.png"
+                  src="/logo-mark.webp"
                   alt="J/R marketing"
-                  width={512}
-                  height={512}
-                  className="h-14 w-auto scale-[1.12] mix-blend-screen"
+                  width={640}
+                  height={502}
+                  className="h-14 w-auto"
                 />
                 <p className="mt-2 text-meta text-text-faint">{t.common.earlyAccess}</p>
               </div>

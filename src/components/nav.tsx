@@ -30,21 +30,22 @@ export async function Nav() {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-bg">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6 sm:py-2.5">
-        {/* Фирменный лого. Фон снимка чёрный — на сплошной тёмной шапке
-            mix-blend-screen убирает его, оставляя золото и белую надпись;
-            кадрирование (scale + overflow-hidden) срезает поля снимка. */}
+        {/* Фирменный лого (public/logo-mark.webp, 640×502, фон прозрачный).
+            Никаких mix-blend/подложек/кадрирования — они были нужны только
+            старому снимку с чёрным фоном. Исходник почти в 9 раз выше
+            отрисовки, так что на ретине не мылится. */}
         <Link
           href="/"
           aria-label="J/R marketing"
-          className="block shrink-0 overflow-hidden transition hover:opacity-80 active:scale-95"
+          className="block shrink-0 transition hover:opacity-80 active:scale-95"
         >
           <Image
-            src="/logo.png"
+            src="/logo-mark.webp"
             alt="J/R marketing"
-            width={512}
-            height={512}
+            width={640}
+            height={502}
             priority
-            className="h-12 w-auto scale-[1.22] mix-blend-screen sm:h-14"
+            className="h-11 w-auto sm:h-14"
           />
         </Link>
 

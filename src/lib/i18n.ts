@@ -1059,8 +1059,10 @@ export async function getDict(): Promise<{ locale: Locale; t: Dict }> {
 
 // Supabase Auth всегда возвращает error.message на английском, независимо от
 // локали сайта — эта функция переводит самые частые сообщения на язык
-// интерфейса. Если сообщение незнакомое, возвращаем его как есть (лучше
-// показать нераспознанный английский текст, чем скрыть реальную причину ошибки).
+// интерфейса. Незнакомое сообщение больше НЕ показываем как есть: сырой
+// технический текст на чужом языке пользователю ничего не объясняет. Вместо
+// него — общая понятная фраза, а настоящую ошибку вызывающий код пишет в лог
+// через logError (см. src/app/(auth)/actions.ts).
 export function translateAuthError(message: string, t: Dict): string {
   const m = message.toLowerCase();
   if (m.includes('invalid login credentials')) return t.errors.invalidCredentials;
@@ -1070,5 +1072,6 @@ export function translateAuthError(message: string, t: Dict): string {
   }
   if (m.includes('password') && (m.includes('at least') || m.includes('should be'))) return t.errors.weakPassword;
   if (m.includes('unable to validate email') || m.includes('invalid email')) return t.errors.invalidEmail;
-  return message;
+  if (m.includes('rate limit') || m.includes('too many')) return t.errors.tooManyAttempts;
+  return t.errors.genericAuthError;
 }

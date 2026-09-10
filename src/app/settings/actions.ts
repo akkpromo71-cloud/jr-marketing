@@ -30,7 +30,12 @@ export async function updatePayoutAction(formData: FormData) {
     .update({ paypal_email: paypalEmail, crypto_wallet: cryptoWallet })
     .eq('id', user.id);
 
-  if (error) logError('updatePayoutAction', error, { userId: user.id });
+  // Раньше ошибка тут терялась молча: человек видел «Сохранено», хотя
+  // реквизиты не записались. Техническое — в лог, человеку — понятный текст.
+  if (error) {
+    logError('updatePayoutAction', error, { userId: user.id });
+    redirect(`/settings?error=${encodeURIComponent(t.errors.genericAuthError)}`);
+  }
 
   revalidatePath('/settings');
   revalidatePath('/feed');
@@ -100,7 +105,10 @@ export async function updateProfileAction(formData: FormData) {
   }
 
   const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
-  if (error) logError('updateProfileAction', error, { userId: user.id });
+  if (error) {
+    logError('updateProfileAction', error, { userId: user.id });
+    redirect(`/settings?error=${encodeURIComponent(t.errors.genericAuthError)}`);
+  }
 
   revalidatePath('/settings');
   revalidatePath('/feed');

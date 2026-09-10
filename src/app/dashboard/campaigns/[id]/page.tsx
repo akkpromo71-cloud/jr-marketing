@@ -220,7 +220,7 @@ export default async function CampaignDetailPage({
                       href={TELEGRAM_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center gap-1.5 rounded border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+                      className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
                     >
                       <MessageCircle size={14} strokeWidth={1.75} aria-hidden="true" />
                       {t.campaignDetail.contactTeam}
@@ -500,8 +500,10 @@ async function AdminApplications({ campaignId, budget }: { campaignId: string; b
                           )}`}
                       </p>
                     )}
+                    {/* break-words: адрес кошелька — одно длинное слово, на
+                        узком экране оно распирало карточку. */}
                     {(a.profiles?.paypal_email || a.profiles?.crypto_wallet) && (
-                      <p className="mt-1 text-xs text-text-faint">
+                      <p className="mt-1 break-words text-xs text-text-faint">
                         {a.profiles.paypal_email
                           ? `${t.payout.paypal}: ${a.profiles.paypal_email}`
                           : `${t.payout.crypto}: ${a.profiles.crypto_wallet}`}

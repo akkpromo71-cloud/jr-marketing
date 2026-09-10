@@ -23,7 +23,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
         onClick={() => switchTo('ru')}
         disabled={isPending}
         aria-current={locale === 'ru'}
-        className={`px-2.5 py-1.5 transition disabled:cursor-wait ${
+        className={`min-h-11 px-3 transition disabled:cursor-wait ${
           locale === 'ru' ? 'bg-accent text-on-accent' : 'text-text-dim hover:text-text'
         }`}
       >
@@ -34,7 +34,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
         onClick={() => switchTo('en')}
         disabled={isPending}
         aria-current={locale === 'en'}
-        className={`px-2.5 py-1.5 transition disabled:cursor-wait ${
+        className={`min-h-11 px-3 transition disabled:cursor-wait ${
           locale === 'en' ? 'bg-accent text-on-accent' : 'text-text-dim hover:text-text'
         }`}
       >
