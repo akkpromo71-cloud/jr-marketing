@@ -13,7 +13,7 @@ export const dict = {
   ru: {
     common: {
       back: 'Назад',
-      earlyAccess: 'Идёт первый набор',
+      tagline: 'Продвижение треков в TikTok и Reels',
     },
     payout: {
       title: 'Способ получения оплаты',
@@ -100,7 +100,7 @@ export const dict = {
         'Нет. Подбор и приёмку ведёт команда — чтобы сделку нельзя было увести мимо площадки.',
       faq5Q: 'Это безопасно?',
       faq5A: 'Цену согласуют до старта. Скрытых комиссий нет.',
-      boardHeading: 'Запустите продвижение первыми',
+      boardHeading: 'Площадка в цифрах',
       faqEyebrow: 'Оплата, модерация, правки',
       tapePlatform: 'Площадка',
       tapeViewsWord: 'просмотров',
@@ -120,11 +120,11 @@ export const dict = {
       heroSecondaryCta: 'Монтировать за деньги',
       heroVisualAlt: 'Звуковая волна, переходящая в монтажный таймлайн',
 
-      cohortManifesto:
-        'Витрина только заполняется. Сейчас в ней один трек — не очередь. Первым тут выгоднее.',
-      boardBigCaption: 'просмотров — с одного эдита',
-      boardEditorsCaption: 'эдиторов уже в наборе',
-      cohortSlotYou: 'Ваш трек?',
+      boardOfferHeading: 'Что вы получаете',
+      boardLead:
+        'Вы даёте трек, бюджет и бриф. Мы подбираем эдиторов, ведём приёмку и правки и показываем результат по каждому ролику.',
+      boardBigCaption: 'просмотров по кампаниям площадки',
+      boardEditorsCaption: 'эдиторов в работе',
       cohortCta: 'Запустить кампанию продвижения',
 
       dealTitle: 'Как устроена сделка',
@@ -528,7 +528,7 @@ export const dict = {
   en: {
     common: {
       back: 'Back',
-      earlyAccess: 'First cohort forming',
+      tagline: 'Track promotion on TikTok and Reels',
     },
     payout: {
       title: 'Payout method',
@@ -615,7 +615,7 @@ export const dict = {
         "No. The team handles matching and review — so a deal can't be taken off-platform.",
       faq5Q: 'Is this safe?',
       faq5A: 'Price is agreed before the start. No hidden fees.',
-      boardHeading: 'Be first to launch',
+      boardHeading: 'The platform in numbers',
       faqEyebrow: 'Payments, moderation, revisions',
       tapePlatform: 'Platform',
       tapeViewsWord: 'views',
@@ -635,11 +635,11 @@ export const dict = {
       heroSecondaryCta: 'Edit for money',
       heroVisualAlt: 'A sound wave turning into an editing timeline',
 
-      cohortManifesto:
-        "The showcase is still filling up. One track in it now — not a queue. Being first pays off.",
-      boardBigCaption: 'views — from a single edit',
-      boardEditorsCaption: 'editors already in',
-      cohortSlotYou: 'Your track?',
+      boardOfferHeading: 'What you get',
+      boardLead:
+        'You bring the track, the budget and the brief. We match editors, run review and revisions, and show you the result on every video.',
+      boardBigCaption: 'views across platform campaigns',
+      boardEditorsCaption: 'editors working',
       cohortCta: 'Launch a promo campaign',
 
       dealTitle: 'How the deal works',

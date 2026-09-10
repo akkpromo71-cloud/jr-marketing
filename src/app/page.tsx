@@ -83,7 +83,6 @@ export default async function LandingPage() {
   // Бегущая строка: только реальные цифры площадки + короткие факты о сделке.
   // Дублирование элементов делает сам компонент Ticker.
   const tickerItems = [
-    t.common.earlyAccess,
     ...(hasStats && stats
       ? [
           `${t.landing.tapePlatform}: ${fmt(stats.completed_edits)} ${plural(
@@ -182,13 +181,15 @@ export default async function LandingPage() {
         {/* ── «Лента»: реальные цифры, всегда заполнена, движется ── */}
         <Ticker items={tickerItems} />
 
-        {/* ── «Запустите продвижение первыми»: один эдит = крупное число ── */}
+        {/* ── Цифры площадки, если они есть. Пока реальных цифр нет, секция
+            говорит о самом предложении, а не о наполненности витрины: нулевые
+            счётчики и пустой слот «Ваш трек?» только подчёркивали пустоту. ── */}
         <section id="board" className="scroll-mt-24 border-b border-border">
           <Container className="py-section-lg text-center">
-            <h2 className="text-headline text-text">{t.landing.boardHeading}</h2>
-            <p className="mx-auto mt-4 max-w-md text-body text-text-dim">
-              {t.landing.cohortManifesto}
-            </p>
+            <h2 className="text-headline text-text">
+              {hasStats ? t.landing.boardHeading : t.landing.boardOfferHeading}
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-body text-text-dim">{t.landing.boardLead}</p>
 
             {hasStats && stats && (
               <>
@@ -207,12 +208,9 @@ export default async function LandingPage() {
               </>
             )}
 
-            <div className="mx-auto mt-12 max-w-sm rounded border border-dashed border-primary/50 p-6">
-              <p className="text-title text-text">{t.landing.cohortSlotYou}</p>
-              <LinkButton href="/signup/artist" variant="artist" className="mt-4 w-full">
-                {t.landing.cohortCta}
-              </LinkButton>
-            </div>
+            <LinkButton href="/signup/artist" variant="artist" className="mt-12">
+              {t.landing.cohortCta}
+            </LinkButton>
           </Container>
         </section>
 
@@ -402,7 +400,7 @@ export default async function LandingPage() {
                   height={502}
                   className="h-14 w-auto"
                 />
-                <p className="mt-2 text-meta text-text-faint">{t.common.earlyAccess}</p>
+                <p className="mt-2 text-meta text-text-faint">{t.common.tagline}</p>
               </div>
               <div className="flex flex-col gap-3 md:items-end">
                 <span className="text-meta text-text-faint">{t.landing.contactLabel}</span>

@@ -63,7 +63,7 @@ export async function AuthShell({
             aria-hidden="true"
             className="h-px w-32 bg-[image:var(--gradient-iridescent-fade)]"
           />
-          <p className="mt-4 text-meta text-text-faint">{t.common.earlyAccess}</p>
+          <p className="mt-4 text-meta text-text-faint">{t.common.tagline}</p>
         </div>
       </aside>
 
