@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // В родительской папке лежит посторонний package-lock.json — без этого Next
+  // угадывает корень воркспейса неверно и тащит её в трассировку сборки.
+  outputFileTracingRoot: import.meta.dirname,
   experimental: {
     serverActions: {
       bodySizeLimit: '5mb',

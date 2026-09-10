@@ -295,26 +295,26 @@ async function ArtistReport({ campaignId }: { campaignId: string }) {
   const supabase = await createClient();
   const { t, locale } = await getDict();
 
-  const { data } = await supabase.rpc('get_campaign_report', { p_campaign_id: campaignId });
+  // Три запроса независимы — параллельно, а не цепочкой. Имя эдитора для работ
+  // (profiles_public — только имя/аватар/био, без контактов) зависит от worksRaw,
+  // поэтому идёт следом. RLS applications_select пускает владельца кампании к её
+  // заявкам; ролик и так публикуется на аккаунте эдитора.
+  const [{ data }, { data: existingReview }, { data: worksRaw }] = await Promise.all([
+    supabase.rpc('get_campaign_report', { p_campaign_id: campaignId }),
+    supabase
+      .from('reviews')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .eq('author_role', 'artist')
+      .maybeSingle(),
+    supabase
+      .from('applications')
+      .select('id, editor_id, posted_url, views_count, likes_count, result_updated_at, created_at')
+      .eq('campaign_id', campaignId)
+      .in('status', ['delivered', 'completed'])
+      .order('created_at', { ascending: false }),
+  ]);
   const report = (Array.isArray(data) ? data[0] : data) as CampaignReport | undefined;
-
-  const { data: existingReview } = await supabase
-    .from('reviews')
-    .select('*')
-    .eq('campaign_id', campaignId)
-    .eq('author_role', 'artist')
-    .maybeSingle();
-
-  // Готовые работы: артист платит за ролики и должен их видеть, а не только
-  // суммарные цифры. RLS applications_select пускает владельца кампании к её
-  // заявкам, имя эдитора берём из profiles_public (там только имя/аватар/био —
-  // без контактов). Ролик и так публикуется на аккаунте эдитора.
-  const { data: worksRaw } = await supabase
-    .from('applications')
-    .select('id, editor_id, posted_url, views_count, likes_count, result_updated_at, created_at')
-    .eq('campaign_id', campaignId)
-    .in('status', ['delivered', 'completed'])
-    .order('created_at', { ascending: false });
 
   type Work = Pick<
     Application,

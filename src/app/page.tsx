@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
-import { createClient } from '@/lib/supabase/server';
+import { getLandingStats } from '@/lib/landing-stats';
 import { Nav } from '@/components/nav';
 import { Container, Grid } from '@/components/layout';
 import { LinkButton } from '@/components/ui';
@@ -45,17 +45,11 @@ export default async function LandingPage() {
   if (profile) redirect(roleHome(profile.role));
 
   const { t, locale } = await getDict();
-  const supabase = await createClient();
 
   // Публичные RPC (security definer, доступны анониму). ЗАПРОСЫ НЕ МЕНЯЛИСЬ —
-  // перестроен только презентационный слой. Лидерборд эдиторов больше не
-  // выводится на лендинге (там был тестовый аккаунт), поэтому его результат
-  // не разбираем, но запрос оставлен как есть.
-  const [{ data: statsData }, , { data: reviewsData }] = await Promise.all([
-    supabase.rpc('get_public_platform_stats'),
-    supabase.rpc('get_editor_leaderboard', { p_limit: 10 }),
-    supabase.rpc('get_public_reviews', { p_limit: 6 }),
-  ]);
+  // вынесены в getLandingStats() и кэшируются на 5 минут (revalidate).
+  // Лидерборд эдиторов больше не выводится на лендинге, но запрос оставлен.
+  const { statsData, reviewsData } = await getLandingStats();
 
   const stats = (Array.isArray(statsData) ? statsData[0] : statsData) as PublicStats | undefined;
   const reviews = (reviewsData ?? []) as PublicReview[];

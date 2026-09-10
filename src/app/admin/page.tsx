@@ -30,32 +30,36 @@ export default async function AdminPage() {
   const { locale, t } = await getDict();
 
   // Данные и запросы НЕ менялись (REDESIGN_PLAN.md §6) — только плотность и
-  // раскладка: «режим модерации» считывается по более высокой плотности.
-  const { data: pendingEditors } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('role', 'editor')
-    .eq('editor_status', 'pending')
-    .order('created_at', { ascending: true });
-
-  const { data: pendingApplications } = await supabase
-    .from('applications')
-    .select('*, profiles(*), campaigns(id, title)')
-    .eq('status', 'pending')
-    .order('created_at', { ascending: true });
-
-  const { data: approvedEditors } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('role', 'editor')
-    .eq('editor_status', 'approved')
-    .order('created_at', { ascending: false });
-
-  const { data: campaigns } = await supabase
-    .from('campaigns')
-    .select('*, profiles(display_name, avatar_url)')
-    .order('created_at', { ascending: false })
-    .limit(20);
+  // раскладка. Четыре запроса независимы — выполняем параллельно, а не цепочкой.
+  const [
+    { data: pendingEditors },
+    { data: pendingApplications },
+    { data: approvedEditors },
+    { data: campaigns },
+  ] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'editor')
+      .eq('editor_status', 'pending')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('applications')
+      .select('*, profiles(*), campaigns(id, title)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('role', 'editor')
+      .eq('editor_status', 'approved')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('campaigns')
+      .select('*, profiles(display_name, avatar_url)')
+      .order('created_at', { ascending: false })
+      .limit(20),
+  ]);
 
   const editorIds = Array.from(
     new Set(

@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import type { Profile, Role } from '@/lib/types';
 
@@ -10,7 +11,12 @@ import type { Profile, Role } from '@/lib/types';
 // либо триггер не установлен/не сработал) — подстраховываемся и создаём профиль
 // прямо здесь, на лету, из user_metadata. Это гарантирует, что залогиненный
 // пользователь никогда не "зависает" без профиля.
-export async function getCurrentProfile(): Promise<Profile | null> {
+//
+// Обёрнут в React cache(): одна страница дёргает getCurrentProfile() и в самом
+// роуте, и в <Nav>, и в под-компонентах — без мемоизации это 2-4 обращения
+// auth.getUser() (сетевой вызов к Supabase Auth) + столько же select к profiles
+// за один рендер. cache() схлопывает их в один на запрос; поведение не меняется.
+export const getCurrentProfile = cache(async function getCurrentProfile(): Promise<Profile | null> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -60,4 +66,4 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .single();
 
   return (created as Profile) ?? null;
-}
+});
