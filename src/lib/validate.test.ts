@@ -5,6 +5,8 @@ import {
   positiveNumberOrNull,
   nonNegativeIntOrNull,
   futureDateOrNull,
+  clampText,
+  smallPositiveInt,
 } from './validate';
 
 describe('safeUrl', () => {
@@ -91,6 +93,36 @@ describe('futureDateOrNull', () => {
     expect(futureDateOrNull(null)).toBeNull();
     expect(futureDateOrNull('2026/01/01')).toBeNull();
     expect(futureDateOrNull('2026-13-40')).toBeNull();
+  });
+});
+
+describe('clampText', () => {
+  it('trims and enforces the max length', () => {
+    expect(clampText('  hi  ', 10)).toBe('hi');
+    expect(clampText('abcdefghij', 5)).toBe('abcde');
+  });
+
+  it('returns null for empty / whitespace-only / missing input', () => {
+    expect(clampText('', 10)).toBeNull();
+    expect(clampText('   ', 10)).toBeNull();
+    expect(clampText(null, 10)).toBeNull();
+  });
+});
+
+describe('smallPositiveInt', () => {
+  it('accepts a positive integer within the cap', () => {
+    expect(smallPositiveInt('3', 1)).toBe(3);
+  });
+
+  it('falls back for zero, negative, non-numeric or missing input', () => {
+    expect(smallPositiveInt('0', 1)).toBe(1);
+    expect(smallPositiveInt('-5', 1)).toBe(1);
+    expect(smallPositiveInt('abc', 2)).toBe(2);
+    expect(smallPositiveInt(null, 1)).toBe(1);
+  });
+
+  it('caps at the maximum', () => {
+    expect(smallPositiveInt('999', 1)).toBe(20);
   });
 });
 

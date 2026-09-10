@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { fetchTikTokStats } from '@/lib/tiktok';
-import { safeUrl, clampRating } from '@/lib/validate';
+import { safeUrl, clampRating, clampText } from '@/lib/validate';
 import { getDict } from '@/lib/i18n';
 import { logError } from '@/lib/log-error';
 import { notifyUser, notifyAdmin, fill } from '@/lib/notify';
@@ -170,7 +170,7 @@ export async function submitDraftAction(formData: FormData) {
 // отдельного поля для этого заводить не нужно.
 export async function requestRevisionAction(formData: FormData) {
   const applicationId = String(formData.get('application_id') ?? '');
-  const note = String(formData.get('revision_note') ?? '').trim();
+  const note = clampText(formData.get('revision_note'), 2000);
 
   const supabase = await createClient();
   const {
@@ -285,7 +285,7 @@ export async function submitEditorReviewAction(formData: FormData) {
   const applicationId = String(formData.get('application_id') ?? '');
   const campaignId = String(formData.get('campaign_id') ?? '');
   const rating = clampRating(formData.get('rating'));
-  const comment = String(formData.get('comment') ?? '').trim() || null;
+  const comment = clampText(formData.get('comment'), 2000);
 
   const supabase = await createClient();
   const {

@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
-const PROTECTED_PREFIXES = ['/feed', '/applications', '/dashboard', '/admin'];
+const PROTECTED_PREFIXES = ['/feed', '/applications', '/dashboard', '/admin', '/settings'];
 
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);

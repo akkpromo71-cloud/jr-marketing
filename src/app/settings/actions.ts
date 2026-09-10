@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDict } from '@/lib/i18n';
+import { clampText } from '@/lib/validate';
 import { logError } from '@/lib/log-error';
 
 // Эдитор сам меняет реквизиты выплаты (RLS: profiles_update_self_or_admin
@@ -47,8 +48,8 @@ export async function updatePayoutAction(formData: FormData) {
 // чтение бакет "avatars" (см. supabase/patch-avatars-storage.sql) — RLS там
 // разрешает писать только в свою же папку "{user_id}/...".
 export async function updateProfileAction(formData: FormData) {
-  const displayName = String(formData.get('display_name') ?? '').trim();
-  const bio = String(formData.get('bio') ?? '').trim() || null;
+  const displayName = clampText(formData.get('display_name'), 120) ?? '';
+  const bio = clampText(formData.get('bio'), 2000);
   const avatarFile = formData.get('avatar');
 
   const supabase = await createClient();

@@ -5,14 +5,21 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDict } from '@/lib/i18n';
 import { roleHome } from '@/lib/role-home';
-import { safeUrl, clampRating, positiveNumberOrNull, futureDateOrNull } from '@/lib/validate';
+import {
+  safeUrl,
+  clampRating,
+  positiveNumberOrNull,
+  futureDateOrNull,
+  clampText,
+  smallPositiveInt,
+} from '@/lib/validate';
 import { logError } from '@/lib/log-error';
 import { campaignIsEditable } from '@/lib/campaign-editable';
 import { notifyAdmin, fill } from '@/lib/notify';
 
 export async function createCampaignAction(formData: FormData) {
-  const title = String(formData.get('title') ?? '').trim();
-  const description = String(formData.get('description') ?? '');
+  const title = clampText(formData.get('title'), 200) ?? '';
+  const description = clampText(formData.get('description'), 5000) ?? '';
   const trackUrl = safeUrl(formData.get('track_url'));
   const spotifyUrl = safeUrl(formData.get('spotify_url'));
   const budget = positiveNumberOrNull(formData.get('budget'));
@@ -20,7 +27,7 @@ export async function createCampaignAction(formData: FormData) {
   // слот эдитора, поэтому число и логика приёма заявок не меняются — только
   // формулировка для пользователя (колонку не переименовываем, чтобы не плодить
   // ещё одну миграцию).
-  const maxEditors = Number(formData.get('max_editors') ?? 1) || 1;
+  const maxEditors = smallPositiveInt(formData.get('max_editors'), 1);
   const termsAccepted = formData.get('terms_accepted') === '1';
 
   // Новый бриф для эдитора (supabase/patch-campaign-brief-fields.sql).
@@ -128,8 +135,8 @@ export async function updateCampaignAction(formData: FormData) {
   }
 
   const editHref = `/dashboard/campaigns/${campaignId}/edit`;
-  const title = String(formData.get('title') ?? '').trim();
-  const description = String(formData.get('description') ?? '');
+  const title = clampText(formData.get('title'), 200) ?? '';
+  const description = clampText(formData.get('description'), 5000) ?? '';
   const budget = positiveNumberOrNull(formData.get('budget'));
   const deadline = futureDateOrNull(formData.get('deadline'));
 
@@ -232,7 +239,7 @@ export async function closeCampaignAction(formData: FormData) {
 // артисту в интерфейсе). Теперь проверяем роль по-настоящему.
 export async function updateCampaignMessageAction(formData: FormData) {
   const campaignId = String(formData.get('campaign_id') ?? '');
-  const message = String(formData.get('manager_message') ?? '').trim() || null;
+  const message = clampText(formData.get('manager_message'), 2000);
   const supabase = await requireAdmin();
   const { error } = await supabase.from('campaigns').update({ manager_message: message }).eq('id', campaignId);
   if (error) logError('updateCampaignMessageAction', error, { campaignId });
@@ -247,7 +254,7 @@ export async function updateCampaignMessageAction(formData: FormData) {
 export async function submitArtistReviewAction(formData: FormData) {
   const campaignId = String(formData.get('campaign_id') ?? '');
   const rating = clampRating(formData.get('rating'));
-  const comment = String(formData.get('comment') ?? '').trim() || null;
+  const comment = clampText(formData.get('comment'), 2000);
 
   const supabase = await createClient();
   const {

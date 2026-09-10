@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDict } from '@/lib/i18n';
+import { clampText } from '@/lib/validate';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { logError } from '@/lib/log-error';
 import { notifyAdmin, fill } from '@/lib/notify';
@@ -13,7 +14,7 @@ import { notifyAdmin, fill } from '@/lib/notify';
 // выплата всегда была той цифрой, которую утвердил админ при одобрении.
 export async function applyToCampaignAction(formData: FormData) {
   const campaignId = String(formData.get('campaign_id') ?? '');
-  const coverNote = String(formData.get('cover_note') ?? '') || null;
+  const coverNote = clampText(formData.get('cover_note'), 2000);
 
   const supabase = await createClient();
   const {

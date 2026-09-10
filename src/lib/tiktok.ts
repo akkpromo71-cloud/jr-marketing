@@ -18,10 +18,26 @@ export interface TikTokStats {
   likes: number;
 }
 
+// Ссылку сюда передаёт эдитор (posted_url) — без белого списка хостов сервер
+// по его команде дёрнет любой адрес, включая внутренние (SSRF): облачные
+// metadata-эндпоинты, localhost, соседние сервисы. Пускаем только домены
+// TikTok (вкл. короткие vm./vt.).
+function isTikTokUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    if (u.protocol !== 'https:') return false;
+    return /(^|\.)tiktok\.com$/.test(u.hostname);
+  } catch {
+    return false;
+  }
+}
+
 const REHYDRATION_SCRIPT_RE =
   /<script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"[^>]*>([\s\S]*?)<\/script>/;
 
 export async function fetchTikTokStats(url: string, timeoutMs = 8000): Promise<TikTokStats | null> {
+  if (!isTikTokUrl(url)) return null;
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 

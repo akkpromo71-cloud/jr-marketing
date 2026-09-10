@@ -6,7 +6,7 @@ import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { getDict, translateAuthError } from '@/lib/i18n';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
-import { nonNegativeIntOrNull } from '@/lib/validate';
+import { nonNegativeIntOrNull, clampText } from '@/lib/validate';
 import { logError } from '@/lib/log-error';
 
 export async function signOutAction() {
@@ -122,8 +122,8 @@ export async function resetPasswordAction(formData: FormData) {
 export async function signUpEditorAction(formData: FormData) {
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
-  const displayName = String(formData.get('display_name') ?? '').trim();
-  const bio = String(formData.get('bio') ?? '').trim();
+  const displayName = clampText(formData.get('display_name'), 120) ?? '';
+  const bio = clampText(formData.get('bio'), 2000) ?? '';
   const price = Number(formData.get('price') ?? 0) || null;
   const telegram = String(formData.get('telegram') ?? '').trim() || null;
   const instagram = String(formData.get('instagram') ?? '').trim() || null;
@@ -202,8 +202,8 @@ export async function signUpEditorAction(formData: FormData) {
 export async function signUpArtistAction(formData: FormData) {
   const email = String(formData.get('email') ?? '');
   const password = String(formData.get('password') ?? '');
-  const displayName = String(formData.get('display_name') ?? '').trim();
-  const bio = String(formData.get('bio') ?? '').trim();
+  const displayName = clampText(formData.get('display_name'), 120) ?? '';
+  const bio = clampText(formData.get('bio'), 2000) ?? '';
   const termsAccepted = formData.get('terms_accepted') === '1';
 
   const { t } = await getDict();

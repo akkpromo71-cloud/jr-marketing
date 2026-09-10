@@ -48,6 +48,30 @@ export function futureDateOrNull(input: FormDataEntryValue | null | undefined): 
   return raw;
 }
 
+// Свободный текст из формы: обрезаем пробелы по краям и режем по верхней
+// границе длины. Без потолка одно поле (название, описание, сопроводительное
+// сообщение) может принять несколько мегабайт — они осядут в БД и будут
+// рендериться на каждой карточке. Пустую строку превращаем в null.
+export function clampText(
+  input: FormDataEntryValue | null | undefined,
+  max: number
+): string | null {
+  const v = String(input ?? '').trim().slice(0, max);
+  return v || null;
+}
+
+// Небольшое положительное целое (например «сколько эдитов нужно») с потолком.
+// Мусор/ноль/отрицательное → fallback, а не тихий отказ на уровне БД-констрейнта.
+export function smallPositiveInt(
+  input: FormDataEntryValue | null | undefined,
+  fallback: number,
+  max = 20
+): number {
+  const n = Math.floor(Number(input));
+  if (!Number.isFinite(n) || n < 1) return fallback;
+  return Math.min(n, max);
+}
+
 // Счётчики вроде подписчиков — только целое неотрицательное число (0 — тоже
 // валидное значение, в отличие от positiveNumberOrNull выше) или отсутствует.
 export function nonNegativeIntOrNull(input: FormDataEntryValue | null | undefined): number | null {
