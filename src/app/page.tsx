@@ -23,6 +23,7 @@ import { Ticker } from '@/components/ticker';
 import { Faq } from '@/components/faq';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
+import { TELEGRAM_URL } from '@/lib/contacts';
 
 interface PublicStats {
   completed_edits: number;
@@ -408,7 +409,7 @@ export default async function LandingPage() {
                 <div className="flex flex-wrap gap-x-6 gap-y-2 text-body">
                   {[
                     { label: t.landing.instagram, href: null },
-                    { label: t.landing.telegramChannel, href: 'https://t.me/jrmrktng' },
+                    { label: t.landing.telegramChannel, href: TELEGRAM_URL },
                     { label: t.landing.tiktok, href: null },
                   ].map(({ label, href }) =>
                     href ? (

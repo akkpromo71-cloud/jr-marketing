@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Button, Field, inputClass, BackLink, EmptyState, RatingInput } from '@/components/ui';
-import { Eye, Star } from 'lucide-react';
+import { Card, Button, LinkButton, Field, inputClass, BackLink, EmptyState, RatingInput } from '@/components/ui';
+import { Eye, Star, MessageCircle } from 'lucide-react';
 import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
@@ -17,6 +17,8 @@ import {
 import { PublishGuide } from '@/components/publish-guide';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber, formatDate } from '@/lib/format';
+import { campaignIsEditable } from '@/lib/campaign-editable';
+import { TELEGRAM_URL } from '@/lib/contacts';
 import type { Application, Campaign, Profile } from '@/lib/types';
 
 interface CampaignReport {
@@ -58,10 +60,13 @@ function LedgerRow({ label, value, big = false }: { label: string; value: string
 
 export default async function CampaignDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string; error?: string }>;
 }) {
   const { id } = await params;
+  const { saved, error } = await searchParams;
   const profile = await getCurrentProfile();
   const supabase = await createClient();
   const { t, locale } = await getDict();
@@ -74,15 +79,34 @@ export default async function CampaignDetailPage({
   const isAdmin = profile?.role === 'admin';
   if (!isOwner && !isAdmin) notFound();
 
+  // Правка доступна владельцу, пока кампания открыта и нет принятой заявки —
+  // ту же проверку повторяют /edit и updateCampaignAction.
+  const editable = isOwner && (await campaignIsEditable(supabase, id, c.status));
+
   return (
     <>
       <Nav />
       <main className="py-12">
         <Container>
           <BackLink href={isAdmin ? '/admin' : '/dashboard'} label={t.common.back} />
+
+          {saved === '1' && (
+            <p className="mb-4 border-l-2 border-[var(--success-tint-border)] pl-3 text-xs text-success">
+              {t.campaignDetail.editSavedMsg}
+            </p>
+          )}
+          {error && (
+            <p className="mb-4 border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">
+              {decodeURIComponent(error)}
+            </p>
+          )}
+
           <Grid className="mt-2">
-            {/* Левая колонка — мета кампании и управляющие действия. */}
-            <div className="md:col-span-4 md:sticky md:top-24 md:self-start">
+            {/* Левая колонка — мета кампании и управляющие действия. Раньше
+                была sticky, но с брифом, оплатой и действиями она стала выше
+                экрана: у sticky-блока выше вьюпорта нижняя часть недостижима
+                при прокрутке, поэтому колонка теперь обычная. */}
+            <div className="md:col-span-4">
               <div className="flex items-start justify-between gap-3">
                 <h1 className="text-headline text-text">{c.title}</h1>
                 <StatusBadge status={c.status} />
@@ -96,7 +120,12 @@ export default async function CampaignDetailPage({
                 </p>
               )}
 
+              {/* Публикует ролик эдитор, не артист — подпись сверху, чтобы
+                  блок не читался как инструкция самому артисту. */}
               <div className="mt-4">
+                <p className="mb-1.5 text-meta text-text-faint">
+                  {t.campaignDetail.publishGuideForEditor}
+                </p>
                 <PublishGuide
                   caption={`${c.track_title_for_caption ?? c.title}${
                     c.artist_handle ? ` ${c.artist_handle}` : ''
@@ -141,13 +170,63 @@ export default async function CampaignDetailPage({
                 </dl>
               )}
 
+              {/* Заметка админа по кампании — раньше её видел только эдитор в
+                  ленте. Админу её тут не дублируем: ниже у него форма правки. */}
+              {c.manager_message && !isAdmin && (
+                <div className="mt-4 rounded-[4px] border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
+                  <p className="text-meta text-accent">{t.campaignDetail.teamMessageLabel}</p>
+                  <p className="mt-1 text-sm text-text-dim">{c.manager_message}</p>
+                </div>
+              )}
+
+              {isOwner && c.status === 'open' && (
+                <div className="mt-5">
+                  {editable ? (
+                    <LinkButton href={`/dashboard/campaigns/${c.id}/edit`} variant="secondary">
+                      {t.campaignDetail.editBtn}
+                    </LinkButton>
+                  ) : (
+                    <p className="text-xs text-text-faint">{t.campaignDetail.editLockedHint}</p>
+                  )}
+                </div>
+              )}
+
               {c.status === 'open' && (
-                <form action={closeCampaignAction} className="mt-5">
+                <form id="close-campaign-form" action={closeCampaignAction} className="mt-5">
                   <input type="hidden" name="campaign_id" value={c.id} />
+                  <p className="mb-2 text-xs text-text-faint">{t.campaignDetail.closeApplicationsHint}</p>
                   <Button type="submit" variant="secondary">
                     {t.campaignDetail.closeApplicationsBtn}
                   </Button>
                 </form>
+              )}
+
+              {/* Оплата и связь с командой — только владельцу кампании. */}
+              {isOwner && (
+                <>
+                  <div className="mt-6 rounded-[4px] border border-border p-4">
+                    <p className="text-meta text-text-faint">{t.campaignDetail.payoutTitle}</p>
+                    <ul className="mt-2 flex flex-col gap-1.5 text-sm text-text-dim">
+                      <li>{t.campaignDetail.payoutWhat}</li>
+                      <li>{t.campaignDetail.payoutHow}</li>
+                      <li>{t.campaignDetail.payoutWhen}</li>
+                      <li>{t.campaignDetail.payoutConfirm}</li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="text-xs text-text-faint">{t.campaignDetail.contactHint}</p>
+                    <a
+                      href={TELEGRAM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center gap-1.5 rounded border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+                    >
+                      <MessageCircle size={14} strokeWidth={1.75} aria-hidden="true" />
+                      {t.campaignDetail.contactTeam}
+                    </a>
+                  </div>
+                </>
               )}
 
               {isAdmin && (
@@ -185,6 +264,27 @@ export default async function CampaignDetailPage({
           </Grid>
         </Container>
       </main>
+
+      {/* Подтверждение перед закрытием приёма откликов — действие необратимое.
+          Чистый JS без React-состояния, тот же приём, что в
+          src/app/dashboard/new/page.tsx: страница остаётся серверной. */}
+      {c.status === 'open' && (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                var form = document.getElementById('close-campaign-form');
+                if (!form) return;
+                form.addEventListener('submit', function (e) {
+                  if (!window.confirm(${JSON.stringify(t.campaignDetail.closeApplicationsConfirm)})) {
+                    e.preventDefault();
+                  }
+                });
+              })();
+            `,
+          }}
+        />
+      )}
     </>
   );
 }
@@ -205,6 +305,29 @@ async function ArtistReport({ campaignId }: { campaignId: string }) {
     .eq('author_role', 'artist')
     .maybeSingle();
 
+  // Готовые работы: артист платит за ролики и должен их видеть, а не только
+  // суммарные цифры. RLS applications_select пускает владельца кампании к её
+  // заявкам, имя эдитора берём из profiles_public (там только имя/аватар/био —
+  // без контактов). Ролик и так публикуется на аккаунте эдитора.
+  const { data: worksRaw } = await supabase
+    .from('applications')
+    .select('id, editor_id, posted_url, views_count, likes_count, result_updated_at, created_at')
+    .eq('campaign_id', campaignId)
+    .in('status', ['delivered', 'completed'])
+    .order('created_at', { ascending: false });
+
+  type Work = Pick<
+    Application,
+    'id' | 'editor_id' | 'posted_url' | 'views_count' | 'likes_count' | 'result_updated_at' | 'created_at'
+  >;
+  const works = (worksRaw ?? []) as Work[];
+
+  const editorIds = [...new Set(works.map((w) => w.editor_id))];
+  const { data: editorRows } = editorIds.length
+    ? await supabase.from('profiles_public').select('id, display_name').in('id', editorIds)
+    : { data: [] as { id: string; display_name: string }[] };
+  const editorNameById = new Map((editorRows ?? []).map((p) => [p.id, p.display_name]));
+
   return (
     <>
       <p className="text-meta text-text-faint">{t.campaignDetail.reportTitle}</p>
@@ -219,6 +342,53 @@ async function ArtistReport({ campaignId }: { campaignId: string }) {
         <LedgerRow label={t.campaignDetail.editsCountLabel} value={report?.edits_count ?? 0} />
         <LedgerRow label={t.campaignDetail.totalSpentLabel} value={`${report?.total_spent ?? 0} $`} />
       </dl>
+
+      <div className="mt-10">
+        <p className="text-meta text-text-faint">{t.campaignDetail.worksTitle}</p>
+        {works.length === 0 ? (
+          <p className="mt-3 text-sm text-text-faint">{t.campaignDetail.worksEmpty}</p>
+        ) : (
+          <ul className="mt-3 flex flex-col">
+            {works.map((w) => (
+              <li
+                key={w.id}
+                className="flex flex-col gap-2 border-t border-border py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+              >
+                <div className="min-w-0">
+                  <p className="text-sm text-text">{editorNameById.get(w.editor_id) ?? '—'}</p>
+                  {w.posted_url ? (
+                    <a
+                      href={w.posted_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-0.5 inline-block text-sm text-accent hover:underline"
+                    >
+                      {t.applicationDetail.viewPostedEdit}
+                    </a>
+                  ) : (
+                    <p className="mt-0.5 text-xs text-text-faint">{t.campaignDetail.worksNoLink}</p>
+                  )}
+                </div>
+                <div className="flex shrink-0 flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-text-faint">
+                  {w.views_count != null && (
+                    <span>
+                      <span className="tabular text-text">{formatCompactNumber(w.views_count, locale)}</span>{' '}
+                      {t.applicationDetail.viewsLabel}
+                    </span>
+                  )}
+                  {w.likes_count != null && (
+                    <span>
+                      <span className="tabular text-text">{formatCompactNumber(w.likes_count, locale)}</span>{' '}
+                      {t.applicationDetail.likesLabel}
+                    </span>
+                  )}
+                  <span>{formatDate(w.result_updated_at ?? w.created_at, locale)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {(report?.completed_count ?? 0) > 0 && (
         <Card className="mt-8 p-6">

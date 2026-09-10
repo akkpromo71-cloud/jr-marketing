@@ -10,6 +10,7 @@ import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
+import { TELEGRAM_URL } from '@/lib/contacts';
 import type { Campaign } from '@/lib/types';
 
 // Засечка статуса слева от строки кампании — «пульт управления» считывается
@@ -123,8 +124,33 @@ export default async function DashboardPage({
                 </p>
               )}
 
-              <h2 className="text-headline text-text">{t.dashboard.allTracksTitle}</h2>
-              <p className="mt-2 text-body text-text-dim">{t.dashboard.allTracksHint}</p>
+              {all.length === 0 ? (
+                // У нового артиста метрик ещё нет — вместо подсказки «выберите
+                // кампанию слева» даём один понятный первый шаг и связь с нами.
+                <>
+                  <p className="max-w-container-text text-headline text-text">
+                    {t.dashboard.emptyLead}
+                  </p>
+                  <LinkButton href="/dashboard/new" variant="artist" className="mt-6">
+                    {t.dashboard.emptyCta}
+                  </LinkButton>
+                  <p className="mt-6 text-xs text-text-faint">
+                    <a
+                      href={TELEGRAM_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-text-dim underline decoration-1 underline-offset-4 transition hover:text-text"
+                    >
+                      {t.campaignDetail.contactTeam}
+                    </a>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-headline text-text">{t.dashboard.allTracksTitle}</h2>
+                  <p className="mt-2 text-body text-text-dim">{t.dashboard.allTracksHint}</p>
+                </>
+              )}
 
               {totalViews > 0 && (
                 <dl className="mt-10 max-w-md">

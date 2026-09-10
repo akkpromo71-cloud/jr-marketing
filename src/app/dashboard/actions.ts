@@ -7,6 +7,7 @@ import { getDict } from '@/lib/i18n';
 import { roleHome } from '@/lib/role-home';
 import { safeUrl, clampRating, positiveNumberOrNull, futureDateOrNull } from '@/lib/validate';
 import { logError } from '@/lib/log-error';
+import { campaignIsEditable } from '@/lib/campaign-editable';
 
 export async function createCampaignAction(formData: FormData) {
   const title = String(formData.get('title') ?? '').trim();
@@ -88,6 +89,88 @@ export async function createCampaignAction(formData: FormData) {
   revalidatePath('/dashboard');
   revalidatePath('/feed');
   redirect('/dashboard?created=1');
+}
+
+// Правка уже опубликованной кампании — только владельцем и только пока
+// campaignIsEditable (кампания открыта и по ней нет принятой заявки). Статусы
+// и модерацию не трогаем: здесь меняются исключительно поля брифа.
+// Поля и их валидация — те же, что в createCampaignAction выше.
+export async function updateCampaignAction(formData: FormData) {
+  const campaignId = String(formData.get('campaign_id') ?? '');
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const { t } = await getDict();
+
+  const { data: existing } = await supabase
+    .from('campaigns')
+    .select('artist_id, status')
+    .eq('id', campaignId)
+    .single();
+  // Чужую кампанию не показываем и не правим — так же, как страница кампании.
+  if (!existing || existing.artist_id !== user.id) redirect('/dashboard');
+
+  if (!(await campaignIsEditable(supabase, campaignId, existing.status))) {
+    redirect(`/dashboard/campaigns/${campaignId}?error=${encodeURIComponent(t.errors.campaignEditLocked)}`);
+  }
+
+  const editHref = `/dashboard/campaigns/${campaignId}/edit`;
+  const title = String(formData.get('title') ?? '').trim();
+  const description = String(formData.get('description') ?? '');
+  const budget = positiveNumberOrNull(formData.get('budget'));
+  const deadline = futureDateOrNull(formData.get('deadline'));
+
+  if (!title || !description) {
+    redirect(`${editHref}?error=${encodeURIComponent(t.errors.fillRequired)}`);
+  }
+  if (!budget) {
+    redirect(`${editHref}?error=${encodeURIComponent(t.errors.budgetRequired)}`);
+  }
+  if (!formData.get('deadline')) {
+    redirect(`${editHref}?error=${encodeURIComponent(t.errors.deadlineRequired)}`);
+  }
+  if (!deadline) {
+    redirect(`${editHref}?error=${encodeURIComponent(t.errors.deadlineTooSoon)}`);
+  }
+
+  const referenceUrls = formData
+    .getAll('reference_urls')
+    .map((v) => safeUrl(v))
+    .filter((v): v is string => !!v)
+    .slice(0, 3);
+
+  const { error } = await supabase
+    .from('campaigns')
+    .update({
+      title,
+      description,
+      track_url: safeUrl(formData.get('track_url')),
+      spotify_url: safeUrl(formData.get('spotify_url')),
+      budget,
+      deadline,
+      track_title_for_caption:
+        String(formData.get('track_title_for_caption') ?? '').trim().slice(0, 200) || title,
+      artist_handle: String(formData.get('artist_handle') ?? '').trim().slice(0, 120) || null,
+      track_segment: String(formData.get('track_segment') ?? '').trim().slice(0, 200) || null,
+      reference_urls: referenceUrls.length ? referenceUrls : null,
+      restrictions: String(formData.get('restrictions') ?? '').trim().slice(0, 300) || null,
+    })
+    .eq('id', campaignId)
+    .eq('artist_id', user.id);
+
+  if (error) {
+    logError('updateCampaignAction', error, { campaignId });
+    redirect(`${editHref}?error=${encodeURIComponent(t.errors.campaignUpdateFailed)}`);
+  }
+
+  revalidatePath('/dashboard');
+  revalidatePath('/feed');
+  revalidatePath(`/dashboard/campaigns/${campaignId}`);
+  redirect(`/dashboard/campaigns/${campaignId}?saved=1`);
 }
 
 // Закрыть приём откликов может владелец кампании (артист) или админ — раньше

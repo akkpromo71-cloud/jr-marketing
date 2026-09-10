@@ -295,6 +295,8 @@ export const dict = {
       campaignsRailLabel: 'Кампании',
       allTracksTitle: 'Сводка по всем трекам',
       allTracksHint: 'Выберите кампанию в списке слева, чтобы открыть её.',
+      emptyLead: 'Опубликуйте первый трек — он появится в ленте, и эдиторы смогут откликнуться.',
+      emptyCta: 'Опубликовать трек',
     },
     dashboardNew: {
       title: 'Новый трек',
@@ -361,6 +363,38 @@ export const dict = {
       segmentLabel: 'Фрагмент трека',
       referencesLabel: 'Референсы',
       restrictionsLabel: 'Ограничения',
+      publishGuideForEditor: 'Это увидит эдитор',
+
+      // Готовые работы — список роликов, которые эдиторы уже выложили.
+      worksTitle: 'Готовые работы',
+      worksEmpty: 'Работ пока нет.',
+      worksNoLink: 'Ссылку на ролик эдитор ещё не добавил.',
+
+      // ── Блок «Оплата» ──────────────────────────────────────────────
+      // ВНИМАНИЕ: тексты ниже — заглушки. Реальный порядок оплаты, способ и
+      // подтверждение задаёт владелец площадки; заменить эти четыре строки
+      // (payoutWhat / payoutHow / payoutWhen / payoutConfirm) на настоящие.
+      payoutTitle: 'Оплата',
+      payoutWhat:
+        'Вы оплачиваете бюджет кампании — из него команда рассчитывается с эдиторами. Комиссия площадки — разница между бюджетом и суммой, ушедшей эдиторам.',
+      payoutHow: 'Способ оплаты и реквизиты согласуются с командой напрямую.',
+      payoutWhen: 'Оплата проходит вручную — автоматических списаний с карты нет.',
+      payoutConfirm: 'Подтверждение оплаты приходит от команды площадки.',
+
+      teamMessageLabel: 'Сообщение от команды площадки',
+      contactTeam: 'Написать нам',
+      contactHint: 'Вопрос по кампании или по оплате — напишите нам в Telegram.',
+
+      editBtn: 'Редактировать кампанию',
+      editLockedHint: 'Редактирование закрыто: по кампании уже есть принятая заявка.',
+      editTitle: 'Редактирование кампании',
+      editSubtitle: 'Правки доступны, пока кампания открыта и по ней нет принятой заявки.',
+      editSaveBtn: 'Сохранить изменения',
+      editSavedMsg: 'Изменения сохранены.',
+
+      closeApplicationsHint:
+        'Кампания перейдёт в статус «Закрыт» и пропадёт из ленты — новые эдиторы откликнуться не смогут. Уже принятые заявки продолжат работу.',
+      closeApplicationsConfirm: 'Закрыть приём откликов по этой кампании? Вернуть приём обратно нельзя.',
     },
     admin: {
       title: 'Админ-панель',
@@ -426,6 +460,8 @@ export const dict = {
       deadlineRequired: 'Укажите дедлайн — дату, до которой нужен эдит',
       deadlineTooSoon: 'Дедлайн должен быть не раньше завтрашнего дня',
       campaignCreateFailed: 'Не удалось опубликовать кампанию. Попробуйте ещё раз, а если не получится — напишите нам.',
+      campaignUpdateFailed: 'Не удалось сохранить изменения. Попробуйте ещё раз, а если не получится — напишите нам.',
+      campaignEditLocked: 'Кампанию уже нельзя редактировать — по ней есть принятая заявка.',
     },
   },
   en: {
@@ -713,6 +749,8 @@ export const dict = {
       campaignsRailLabel: 'Campaigns',
       allTracksTitle: 'All tracks at a glance',
       allTracksHint: 'Pick a campaign in the list on the left to open it.',
+      emptyLead: 'Publish your first track — it shows up in the feed and editors can apply to it.',
+      emptyCta: 'Publish a track',
     },
     dashboardNew: {
       title: 'New track',
@@ -779,6 +817,38 @@ export const dict = {
       segmentLabel: 'Track segment',
       referencesLabel: 'References',
       restrictionsLabel: 'Restrictions',
+      publishGuideForEditor: 'This is what the editor sees',
+
+      // Delivered work — the videos editors have already posted.
+      worksTitle: 'Delivered work',
+      worksEmpty: 'No work delivered yet.',
+      worksNoLink: "The editor hasn't added a link to the video yet.",
+
+      // ── "Payment" block ────────────────────────────────────────────
+      // NOTE: the strings below are placeholders. The real payment flow,
+      // method and confirmation are the platform owner's to define; replace
+      // these four (payoutWhat / payoutHow / payoutWhen / payoutConfirm).
+      payoutTitle: 'Payment',
+      payoutWhat:
+        "You pay the campaign budget — the team pays editors out of it. The platform's fee is the difference between the budget and what goes to editors.",
+      payoutHow: 'The payment method and details are arranged with the team directly.',
+      payoutWhen: 'Payment is handled manually — there are no automatic card charges.',
+      payoutConfirm: 'The team confirms your payment once it goes through.',
+
+      teamMessageLabel: 'Message from the platform team',
+      contactTeam: 'Message us',
+      contactHint: 'Questions about the campaign or the payment — message us on Telegram.',
+
+      editBtn: 'Edit campaign',
+      editLockedHint: 'Editing is closed: this campaign already has an accepted application.',
+      editTitle: 'Edit campaign',
+      editSubtitle: 'You can make changes while the campaign is open and has no accepted application.',
+      editSaveBtn: 'Save changes',
+      editSavedMsg: 'Changes saved.',
+
+      closeApplicationsHint:
+        'The campaign moves to "Closed" and leaves the feed — no new editor can apply. Applications already accepted keep going.',
+      closeApplicationsConfirm: 'Close applications for this campaign? This cannot be undone.',
     },
     admin: {
       title: 'Admin panel',
@@ -844,6 +914,8 @@ export const dict = {
       deadlineRequired: 'Enter a deadline — the date the edit is due',
       deadlineTooSoon: 'The deadline must be tomorrow or later',
       campaignCreateFailed: "Couldn't publish the campaign. Please try again, and contact us if it keeps failing.",
+      campaignUpdateFailed: "Couldn't save your changes. Please try again, and contact us if it keeps failing.",
+      campaignEditLocked: 'This campaign can no longer be edited — it already has an accepted application.',
     },
   },
 } as const;
