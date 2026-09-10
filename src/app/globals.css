@@ -63,12 +63,6 @@
   --tk-dur: 32s;
 }
 
-/* Класс .dark больше не используется (переключателя темы нет, тёмная тема —
-   единственная). Оставлен как безопасный алиас на случай внешних ссылок. */
-.dark {
-  color-scheme: dark;
-}
-
 * {
   border-color: var(--border);
 }
@@ -186,26 +180,6 @@ button {
   }
   .animate-toast-in {
     animation: none;
-  }
-}
-
-/* Reveal — начальное состояние для src/components/reveal.tsx, снимается
-   классом .reveal-visible через IntersectionObserver. */
-.reveal {
-  opacity: 0;
-  transform: translateY(12px);
-}
-.reveal-visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1),
-    transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
   }
 }
 
