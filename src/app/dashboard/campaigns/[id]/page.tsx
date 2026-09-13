@@ -1,7 +1,8 @@
 import { notFound, redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
 import { Toast } from '@/components/toast';
-import { Card, Button, Field, inputClass, BackLink, LinkButton } from '@/components/ui';
+import { Button, Field, inputClass, BackLink, LinkButton } from '@/components/ui';
+import { ToolStat, ToolFigure, ToolTable, ToolEmptyRow, ToolSection } from '@/components/tool-ui';
 import { Container } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { createClient } from '@/lib/supabase/server';
@@ -66,14 +67,14 @@ export default async function CampaignReportPage({
       <Nav />
       <Toast successParam="saved" successMessage={t.settings.savedMsg} />
       <Toast successParam="deposited" successMessage={t.clip.depositBtn} />
-      <main className="py-12">
+      <main className="py-6 sm:py-8">
         <Container>
           <BackLink href="/dashboard" label={t.common.back} />
 
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-headline text-text">{c.title}</h1>
-              <p className="mt-1 text-body text-text-dim">{c.description}</p>
+              <h1 className="text-lg font-semibold text-text">{c.title}</h1>
+              <p className="mt-1 text-sm text-text-dim">{c.description}</p>
             </div>
             <StatusBadge status={c.status} />
           </div>
@@ -84,7 +85,7 @@ export default async function CampaignReportPage({
             </div>
           )}
 
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <LinkButton href={`/dashboard/campaigns/${id}/edit`} variant="secondary">
               {t.clip.editBtn}
             </LinkButton>
@@ -115,86 +116,90 @@ export default async function CampaignReportPage({
           </div>
           {c.status !== 'finished' && <p className="mt-2 text-xs text-text-faint">{t.clip.finishHint}</p>}
 
-          {/* ── Отчёт ── */}
-          <section className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {[
-              [t.clip.deliveredViewsLabel, deliveredViews],
-              [t.clip.spentLabel, `${c.budget_spent} $`],
-              [t.clip.budgetLeftLabel, `${available} $`],
-              [t.clip.actualCpmLabel, actualCpm ? `${actualCpm.toFixed(2)} $` : '—'],
-              [t.clip.clipsCountLabel, approved.length],
-              [t.clip.medianViewsLabel, Math.round(medianViews)],
-            ].map(([label, value]) => (
-              <Card key={String(label)} className="p-4">
-                <p className="text-meta text-text-faint">{label}</p>
-                <p className="mt-1 text-title tabular text-text">{value}</p>
-              </Card>
-            ))}
-          </section>
+          {/* ── Главная цифра экрана: доставленные просмотры ── */}
+          <div className="mt-6 flex flex-wrap items-end justify-between gap-6 border-y border-border py-5">
+            <ToolStat value={deliveredViews} label={t.clip.deliveredViewsLabel} />
+            <div className="flex flex-wrap gap-x-8 gap-y-3">
+              <ToolFigure value={`${c.budget_spent} $`} label={t.clip.spentLabel} />
+              <ToolFigure value={`${available} $`} label={t.clip.budgetLeftLabel} />
+              <ToolFigure value={actualCpm ? `${actualCpm.toFixed(2)} $` : '—'} label={t.clip.actualCpmLabel} />
+              <ToolFigure value={approved.length} label={t.clip.clipsCountLabel} />
+              <ToolFigure value={Math.round(medianViews)} label={t.clip.medianViewsLabel} />
+            </div>
+          </div>
 
           {/* ── Лучшие ролики ── */}
-          <section className="mt-10">
-            <h2 className="text-title text-text">{t.clip.topClipsTitle}</h2>
-            <div className="mt-4 flex flex-col gap-2">
-              {topClips.length === 0 && <p className="text-sm text-text-faint">—</p>}
-              {topClips.map((s) => (
-                <div key={s.id} className="flex items-center justify-between border-b border-border pb-2 text-sm">
-                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="break-all text-accent hover:underline">
-                    {s.url}
-                  </a>
-                  <span className="tabular text-text">{s.views_total}</span>
-                </div>
-              ))}
-            </div>
-          </section>
+          <ToolSection title={t.clip.topClipsTitle}>
+            <ToolTable>
+              <tbody>
+                {topClips.length === 0 && <ToolEmptyRow colSpan={2} text="—" />}
+                {topClips.map((s) => (
+                  <tr key={s.id}>
+                    <td>
+                      <a href={s.url} target="_blank" rel="noopener noreferrer" className="break-all text-accent hover:underline">
+                        {s.url}
+                      </a>
+                    </td>
+                    <td className="num font-mono tabular-nums text-text">{s.views_total}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </ToolTable>
+          </ToolSection>
 
           {/* ── Использования звука ── */}
           {c.track_sound_url && (
-            <section className="mt-10">
-              <h2 className="text-title text-text">{t.clip.soundUsageTitle}</h2>
-              <div className="mt-4 flex flex-col gap-2">
-                {(soundUsage as SoundUsageSnapshot[] | null)?.length ? (
-                  (soundUsage as SoundUsageSnapshot[]).map((s) => (
-                    <div key={s.id} className="flex items-center justify-between border-b border-border pb-2 text-sm">
-                      <span className="text-text-dim">{formatDate(s.checked_at, locale)}</span>
-                      <span className="tabular text-text">
-                        {s.videos_count} {t.clip.soundUsageLabel.toLowerCase()}
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-text-faint">—</p>
-                )}
-              </div>
-            </section>
+            <ToolSection title={t.clip.soundUsageTitle}>
+              <ToolTable>
+                <tbody>
+                  {(soundUsage as SoundUsageSnapshot[] | null)?.length ? (
+                    (soundUsage as SoundUsageSnapshot[]).map((s) => (
+                      <tr key={s.id}>
+                        <td>{formatDate(s.checked_at, locale)}</td>
+                        <td className="num font-mono tabular-nums text-text">
+                          {s.videos_count} {t.clip.soundUsageLabel.toLowerCase()}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <ToolEmptyRow colSpan={2} text="—" />
+                  )}
+                </tbody>
+              </ToolTable>
+            </ToolSection>
           )}
 
           {/* ── Пополнение ── */}
-          <section className="mt-10 border-t border-border pt-8">
-            <h2 className="text-title text-text">{t.clip.depositTitle}</h2>
-            <p className="mt-1 text-sm text-text-faint">{t.clip.depositHint}</p>
-            <form action={requestDepositAction} className="mt-4 flex flex-wrap items-end gap-3">
+          <ToolSection title={t.clip.depositTitle} className="border-t border-border pt-6">
+            <p className="text-xs text-text-faint">{t.clip.depositHint}</p>
+            <form action={requestDepositAction} className="mt-3 flex flex-wrap items-end gap-3">
               <input type="hidden" name="campaign_id" value={id} />
               <Field label={t.clip.depositAmountLabel}>
                 <input className={inputClass} name="amount" type="number" step="0.01" min="0.01" required />
               </Field>
-              <Button type="submit" variant="artist">
+              <Button type="submit" variant="primary">
                 {t.clip.depositBtn}
               </Button>
             </form>
 
-            <div className="mt-6 flex flex-col gap-2">
-              <p className="text-meta text-text-faint">{t.clip.depositsHistoryTitle}</p>
-              {((deposits ?? []) as ClientDeposit[]).length === 0 && <p className="text-sm text-text-faint">—</p>}
-              {((deposits ?? []) as ClientDeposit[]).map((d) => (
-                <div key={d.id} className="flex items-center justify-between border-b border-border pb-2 text-sm">
-                  <span className="text-text-dim">{formatDate(d.created_at, locale)}</span>
-                  <span className="tabular text-text">{d.amount} $</span>
-                  <StatusBadge status={d.status} />
-                </div>
-              ))}
+            <div className="mt-6">
+              <p className="mb-2 text-meta text-text-faint">{t.clip.depositsHistoryTitle}</p>
+              <ToolTable>
+                <tbody>
+                  {((deposits ?? []) as ClientDeposit[]).length === 0 && <ToolEmptyRow colSpan={3} text="—" />}
+                  {((deposits ?? []) as ClientDeposit[]).map((d) => (
+                    <tr key={d.id}>
+                      <td>{formatDate(d.created_at, locale)}</td>
+                      <td className="num font-mono tabular-nums text-text">{d.amount} $</td>
+                      <td>
+                        <StatusBadge status={d.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </ToolTable>
             </div>
-          </section>
+          </ToolSection>
         </Container>
       </main>
     </>

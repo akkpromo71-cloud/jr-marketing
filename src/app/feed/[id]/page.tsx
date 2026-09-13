@@ -73,15 +73,15 @@ export default async function FeedCampaignPage({
   return (
     <>
       <Nav />
-      <main className="py-12">
+      <main className="py-6 sm:py-8">
         <Container width="text">
           <BackLink href="/feed" label={t.common.back} />
 
           <div className="mt-2 flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <Avatar url={client?.avatar_url ?? null} name={client?.display_name ?? '?'} size={44} />
+              <Avatar url={client?.avatar_url ?? null} name={client?.display_name ?? '?'} size={40} />
               <div>
-                <h1 className="text-headline text-text">{c.title}</h1>
+                <h1 className="text-lg font-semibold text-text">{c.title}</h1>
                 {client?.display_name && (
                   <p className="mt-1 text-sm text-text-faint">
                     {t.clip.clientLabel}: {client.display_name}
@@ -103,17 +103,17 @@ export default async function FeedCampaignPage({
           <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2">
             {c.cpm_rate != null && (
               <p>
-                <span className="text-lg tabular text-text">{c.cpm_rate} $</span>{' '}
+                <span className="font-mono text-lg tabular-nums text-text">{c.cpm_rate} $</span>{' '}
                 <span className="text-micro uppercase text-text-faint">{t.clip.cpmLabel}</span>
               </p>
             )}
             {c.per_clip_cap != null && (
               <p className="text-sm text-text-faint">
-                {t.clip.capLabel}: <span className="text-text-dim">{c.per_clip_cap} $</span>
+                {t.clip.capLabel}: <span className="font-mono tabular-nums text-text-dim">{c.per_clip_cap} $</span>
               </p>
             )}
             <p className="text-sm text-text-faint">
-              {t.clip.budgetLeftLabel}: <span className="text-text-dim">{available} $</span>
+              {t.clip.budgetLeftLabel}: <span className="font-mono tabular-nums text-text-dim">{available} $</span>
             </p>
           </div>
 
@@ -179,9 +179,10 @@ export default async function FeedCampaignPage({
               <input type="hidden" name="slot_id" value={(mySlot as Slot).id} />
               <input type="hidden" name="campaign_id" value={c.id} />
               <p className="text-sm text-warning">
-                {t.clip.slotExpiresLabel}: {formatDateTime((mySlot as Slot).expires_at, locale)}
+                {t.clip.slotExpiresLabel}:{' '}
+                <span className="font-mono tabular-nums">{formatDateTime((mySlot as Slot).expires_at, locale)}</span>
               </p>
-              <p className="text-title text-text">{t.clip.submitClipTitle}</p>
+              <p className="text-sm font-semibold text-text">{t.clip.submitClipTitle}</p>
               <p className="text-sm text-text-faint">{t.clip.submitClipHint}</p>
               <Field label={t.clip.urlLabel}>
                 <input className={inputClass} name="url" type="url" required placeholder="https://" />

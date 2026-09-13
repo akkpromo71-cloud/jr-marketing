@@ -1,19 +1,18 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Nav } from '@/components/nav';
-import { EmptyState } from '@/components/ui';
-import { Clapperboard, Music2 } from 'lucide-react';
-import { Container, Grid } from '@/components/layout';
+import { Container } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
-import { Avatar } from '@/components/avatar';
+import { ToolTable, ToolEmptyRow } from '@/components/tool-ui';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { getDict } from '@/lib/i18n';
 import type { Campaign } from '@/lib/types';
 
-// Лента открытых клиппинг-кампаний (Этап 3). Видны кампании в статусах
-// funded/active — campaigns_select уже отдаёт их (см.
+// Лента открытых клиппинг-кампаний (Этап 3), режим «инструмент» — см.
+// design-system/jr-marketing/MASTER.md, раздел Tool mode. Видны кампании в
+// статусах funded/active — campaigns_select уже отдаёт их (см.
 // supabase/migrations/0003_clipping_platform.sql).
 export default async function FeedPage({
   searchParams,
@@ -53,90 +52,70 @@ export default async function FeedPage({
   return (
     <>
       <Nav />
-      <main className="py-12">
+      <main className="py-6 sm:py-8">
         <Container>
-          <Grid>
-            <aside className="flex flex-col gap-6 md:col-span-3 md:sticky md:top-24 md:self-start">
-              <div>
-                <p className="text-display-sm tabular text-text">{list.length}</p>
-                <p className="mt-1 text-meta text-text-faint">{t.clip.feedTitle}</p>
-              </div>
+          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
+            <div>
+              <h1 className="text-sm font-semibold uppercase tracking-wide text-text-faint">{t.clip.feedTitle}</h1>
+              <p className="mt-2 font-mono text-4xl font-medium tabular-nums text-text">{list.length}</p>
+            </div>
+            <p className="max-w-sm text-xs text-text-faint">{t.clip.feedSubtitle}</p>
+          </div>
 
-              {error && (
-                <p className="border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">
-                  {decodeURIComponent(error)}
-                </p>
-              )}
-              {pending && (
-                <div className="border-l-2 border-[var(--warning-tint-border)] pl-3">
-                  <p className="text-meta text-warning">{t.clip.pendingTitle}</p>
-                  <p className="mt-1 text-xs text-warning">{t.clip.pendingMsg}</p>
-                </div>
-              )}
-              {rejected && (
-                <p className="border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">
-                  {t.clip.rejectedMsg}
-                </p>
-              )}
-            </aside>
+          {error && (
+            <p className="mt-4 border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">
+              {decodeURIComponent(error)}
+            </p>
+          )}
+          {pending && (
+            <div className="mt-4 border-l-2 border-[var(--warning-tint-border)] pl-3">
+              <p className="text-meta text-warning">{t.clip.pendingTitle}</p>
+              <p className="mt-1 text-xs text-warning">{t.clip.pendingMsg}</p>
+            </div>
+          )}
+          {rejected && (
+            <p className="mt-4 border-l-2 border-[var(--danger-tint-border)] pl-3 text-xs text-danger">
+              {t.clip.rejectedMsg}
+            </p>
+          )}
 
-            <div className="md:col-span-9">
-              <h1 className="text-headline text-text">{t.clip.feedTitle}</h1>
-              <p className="mt-1 text-body text-text-dim">{t.clip.feedSubtitle}</p>
-
-              <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                {list.length === 0 && (
-                  <div className="md:col-span-2 xl:col-span-3">
-                    <EmptyState icon={Clapperboard} text={t.clip.noCampaigns} />
-                  </div>
-                )}
+          <div className="mt-6">
+            <ToolTable>
+              <thead>
+                <tr>
+                  <th>{t.clip.feedTitle}</th>
+                  <th>{t.clip.clientLabel}</th>
+                  <th className="num">{t.clip.cpmLabel}</th>
+                  <th className="num">{t.clip.budgetLeftLabel}</th>
+                  <th className="num">{t.clip.slotsLeftLabel}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.length === 0 && <ToolEmptyRow colSpan={6} text={t.clip.noCampaigns} />}
                 {list.map((c) => {
                   const available = Math.max(c.budget_total - c.budget_reserved - c.budget_spent, 0);
                   const slotsLeft = c.per_clip_cap ? Math.floor(available / c.per_clip_cap) : null;
                   return (
-                    <article
-                      key={c.id}
-                      className="relative flex min-h-[240px] flex-col rounded-[4px] border border-border bg-surface p-4 transition-colors hover:border-accent/60"
-                    >
-                      <Link href={`/feed/${c.id}`} aria-label={c.title} className="absolute inset-0 rounded-[4px]" />
-
-                      <div className="flex items-start justify-between gap-2">
-                        <Avatar url={c.profiles?.avatar_url ?? null} name={c.profiles?.display_name ?? '?'} size={32} />
+                    <tr key={c.id}>
+                      <td>
+                        <Link href={`/feed/${c.id}`} className="text-accent hover:underline">
+                          {c.title}
+                        </Link>
+                      </td>
+                      <td>{c.profiles?.display_name ?? '—'}</td>
+                      <td className="num font-mono tabular-nums text-text">{c.cpm_rate != null ? `${c.cpm_rate} $` : '—'}</td>
+                      <td className="num font-mono tabular-nums text-text">{available} $</td>
+                      <td className="num font-mono tabular-nums">{slotsLeft ?? '—'}</td>
+                      <td>
                         <StatusBadge status={c.status} />
-                      </div>
-
-                      <h2 className="mt-3 line-clamp-2 text-title text-text">{c.title}</h2>
-                      {c.profiles?.display_name && (
-                        <p className="mt-1 truncate text-xs text-text-faint">
-                          {t.clip.clientLabel}: {c.profiles.display_name}
-                        </p>
-                      )}
-                      <p className="mt-2 line-clamp-2 text-sm text-text-dim">{c.description}</p>
-
-                      <div className="mt-auto flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-4 text-xs text-text-faint">
-                        {c.cpm_rate != null && (
-                          <span className="text-base tabular text-text">
-                            {c.cpm_rate} $ <span className="text-xs text-text-faint">/ {t.clip.cpmLabel}</span>
-                          </span>
-                        )}
-                        {slotsLeft !== null && <span>{t.clip.slotsLeftLabel}: {slotsLeft}</span>}
-                        {c.track_sound_url && (
-                          <a
-                            href={c.track_sound_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="relative z-10 inline-flex items-center gap-1 font-semibold text-text-dim transition hover:text-text"
-                          >
-                            <Music2 size={13} strokeWidth={1.75} aria-hidden="true" /> {t.clip.soundLabel}
-                          </a>
-                        )}
-                      </div>
-                    </article>
+                      </td>
+                    </tr>
                   );
                 })}
-              </div>
-            </div>
-          </Grid>
+              </tbody>
+            </ToolTable>
+          </div>
         </Container>
       </main>
     </>

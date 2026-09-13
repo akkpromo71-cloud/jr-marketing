@@ -22,11 +22,11 @@ export default async function NewCampaignPage({
   return (
     <>
       <Nav />
-      <main className="py-12">
+      <main className="py-6 sm:py-8">
         <Container width="text">
           <BackLink href="/dashboard" label={t.common.back} />
-          <h1 className="text-headline text-text">{t.clip.newTitle}</h1>
-          <p className="mt-1 text-body text-text-dim">{t.clip.newSubtitle}</p>
+          <h1 className="text-sm font-semibold uppercase tracking-wide text-text-faint">{t.clip.newTitle}</h1>
+          <p className="mt-1 text-xs text-text-faint">{t.clip.newSubtitle}</p>
 
           {error && (
             <div className="mt-6 rounded-[4px] border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
@@ -96,7 +96,7 @@ export default async function NewCampaignPage({
               <input className={inputClass} name="track_sound_url" type="url" placeholder="https://www.tiktok.com/music/..." />
             </Field>
 
-            <Button type="submit" variant="artist" className="self-start">
+            <Button type="submit" variant="primary" className="self-start">
               {t.clip.createBtn}
             </Button>
           </form>

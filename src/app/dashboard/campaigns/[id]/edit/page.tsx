@@ -33,10 +33,10 @@ export default async function EditCampaignPage({
   return (
     <>
       <Nav />
-      <main className="py-12">
+      <main className="py-6 sm:py-8">
         <Container width="text">
           <BackLink href={`/dashboard/campaigns/${id}`} label={t.common.back} />
-          <h1 className="text-headline text-text">{t.clip.editBtn}</h1>
+          <h1 className="text-sm font-semibold uppercase tracking-wide text-text-faint">{t.clip.editBtn}</h1>
 
           {error && (
             <div className="mt-6 rounded-[4px] border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
@@ -102,7 +102,7 @@ export default async function EditCampaignPage({
               <input className={inputClass} name="track_sound_url" type="url" defaultValue={c.track_sound_url ?? ''} />
             </Field>
 
-            <Button type="submit" variant="artist" className="self-start">
+            <Button type="submit" variant="primary" className="self-start">
               {t.settings.saveBtn}
             </Button>
           </form>
