@@ -61,13 +61,12 @@ export default async function FeedCampaignPage({
 
   const pending = profile?.editor_status === 'pending';
   const rejected = profile?.editor_status === 'rejected';
+  // Клиппер может брать несколько слотов подряд на одну кампанию (до
+  // max_clips_per_clipper) — реальный лимит проверяет и обеспечивает take_slot
+  // (см. supabase/migrations/0004_clipping_functions.sql), тут только UI:
+  // кнопка скрыта, пока текущий слот не сдан, чтобы не плодить незакрытые резервы.
   const canTakeSlot =
-    profile?.role === 'editor' &&
-    !pending &&
-    !rejected &&
-    ['funded', 'active'].includes(c.status) &&
-    !mySlot &&
-    (mySubmissions?.length ?? 0) === 0;
+    profile?.role === 'editor' && !pending && !rejected && ['funded', 'active'].includes(c.status) && !mySlot;
 
   const available = Math.max(c.budget_total - c.budget_reserved - c.budget_spent, 0);
 
