@@ -7,13 +7,20 @@ import { Container, Grid } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
 import { approveEditorAction, rejectEditorAction } from '@/app/admin/actions';
+import {
+  moderateSubmissionAction,
+  resolveFlagAction,
+  confirmDepositAction,
+  decideWithdrawalAction,
+  manualViewSnapshotAction,
+} from '@/app/admin/clip-actions';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
 import { updateApplicationStatusAction } from '@/app/applications/[id]/actions';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
-import type { Application, Campaign, Profile } from '@/lib/types';
+import type { Application, Campaign, ClientDeposit, Profile, RejectReasonCode, Submission, Withdrawal } from '@/lib/types';
 
 type PendingApplication = Application & {
   profiles: Profile;
@@ -61,6 +68,47 @@ export default async function AdminPage() {
       .limit(20),
   ]);
 
+  const [
+    { data: pendingSubmissions },
+    { data: flaggedSubmissions },
+    { data: pendingDeposits },
+    { data: pendingWithdrawals },
+    { data: manualCandidates },
+  ] = await Promise.all([
+    supabase
+      .from('submissions')
+      .select('*, campaigns(title), clipper:clipper_id(display_name)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('submissions')
+      .select('*, campaigns(title), clipper:clipper_id(display_name)')
+      .eq('flagged', true)
+      .order('updated_at', { ascending: true }),
+    supabase
+      .from('client_deposits')
+      .select('*, campaigns(title), client:client_id(display_name)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('withdrawals')
+      .select('*, clipper:clipper_id(display_name)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('submissions')
+      .select('id, url, campaigns(title)')
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .limit(50),
+  ]);
+
+  const withdrawalClipperIds = [...new Set(((pendingWithdrawals as Withdrawal[] | null) ?? []).map((w) => w.clipper_id))];
+  const { data: removedRows } = withdrawalClipperIds.length
+    ? await supabase.from('submissions').select('clipper_id').eq('status', 'removed').in('clipper_id', withdrawalClipperIds)
+    : { data: [] as { clipper_id: string }[] };
+  const clippersWithRemovedPosts = new Set((removedRows ?? []).map((r) => r.clipper_id));
+
   const editorIds = Array.from(
     new Set(
       [
@@ -78,6 +126,10 @@ export default async function AdminPage() {
   );
 
   const queues = [
+    { href: '#moderation', label: t.clip.adminModerationTitle, count: pendingSubmissions?.length ?? 0 },
+    { href: '#antifraud', label: t.clip.adminAntifraudTitle, count: flaggedSubmissions?.length ?? 0 },
+    { href: '#deposits', label: t.clip.adminDepositsTitle, count: pendingDeposits?.length ?? 0 },
+    { href: '#withdrawals', label: t.clip.adminWithdrawalsTitle, count: pendingWithdrawals?.length ?? 0 },
     { href: '#pending', label: t.admin.pendingTitle, count: pendingEditors?.length ?? 0 },
     { href: '#applications', label: t.admin.pendingApplicationsTitle, count: pendingApplications?.length ?? 0 },
     { href: '#approved', label: t.admin.approvedTitle, count: approvedEditors?.length ?? 0 },
@@ -112,8 +164,226 @@ export default async function AdminPage() {
             </nav>
 
             <div className="md:col-span-9">
+              {/* ── Модерация работ клипперов ── */}
+              <section id="moderation" className="scroll-mt-24">
+                <h2 className="mb-3 text-meta text-text-faint">
+                  {t.clip.adminModerationTitle} ({pendingSubmissions?.length ?? 0})
+                </h2>
+                <div className="flex flex-col divide-y divide-border border border-border">
+                  {(pendingSubmissions ?? []).length === 0 && (
+                    <div className="p-4">
+                      <EmptyState icon={Inbox} text={t.clip.noPendingSubmissions} />
+                    </div>
+                  )}
+                  {(
+                    pendingSubmissions as
+                      | (Submission & { campaigns: { title: string } | null; clipper: { display_name: string } | null })[]
+                      | null
+                  )?.map((s) => (
+                    <div key={s.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="text-sm">
+                        <p className="text-text">
+                          {s.clipper?.display_name} · {s.campaigns?.title ?? '—'}
+                        </p>
+                        <a href={s.url} target="_blank" rel="noopener noreferrer" className="break-all text-xs text-accent hover:underline">
+                          {s.url}
+                        </a>
+                        <p className="mt-0.5 text-xs text-text-faint">{s.platform}</p>
+                      </div>
+                      <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+                        <form action={moderateSubmissionAction}>
+                          <input type="hidden" name="submission_id" value={s.id} />
+                          <input type="hidden" name="decision" value="approve" />
+                          <Button type="submit" variant="primary">
+                            {t.clip.approveBtn}
+                          </Button>
+                        </form>
+                        <form action={moderateSubmissionAction} className="flex flex-wrap items-center gap-2">
+                          <input type="hidden" name="submission_id" value={s.id} />
+                          <input type="hidden" name="decision" value="reject" />
+                          <select name="reason_code" required className={`${inputClass} w-auto`}>
+                            {(Object.keys(t.clip.rejectReasons) as RejectReasonCode[]).map((code) => (
+                              <option key={code} value={code}>
+                                {t.clip.rejectReasons[code]}
+                              </option>
+                            ))}
+                          </select>
+                          <input
+                            name="reason_comment"
+                            className={`${inputClass} w-40`}
+                            placeholder={t.clip.reasonCommentPlaceholder}
+                          />
+                          <Button type="submit" variant="danger">
+                            {t.clip.rejectBtn}
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* ── Антифрод: подозрительный прирост просмотров ── */}
+              <section id="antifraud" className="mt-10 scroll-mt-24">
+                <h2 className="mb-3 text-meta text-text-faint">
+                  {t.clip.adminAntifraudTitle} ({flaggedSubmissions?.length ?? 0})
+                </h2>
+                <div className="flex flex-col divide-y divide-border border border-border">
+                  {(flaggedSubmissions ?? []).length === 0 && (
+                    <div className="p-4">
+                      <EmptyState icon={Inbox} text={t.clip.noFlagged} />
+                    </div>
+                  )}
+                  {(
+                    flaggedSubmissions as
+                      | (Submission & { campaigns: { title: string } | null; clipper: { display_name: string } | null })[]
+                      | null
+                  )?.map((s) => (
+                    <div key={s.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="text-sm">
+                        <p className="text-text">
+                          {s.clipper?.display_name} · {s.campaigns?.title ?? '—'}
+                        </p>
+                        <p className="mt-0.5 text-xs text-warning">{s.flagged_reason}</p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <form action={resolveFlagAction}>
+                          <input type="hidden" name="submission_id" value={s.id} />
+                          <input type="hidden" name="decision" value="credit" />
+                          <Button type="submit" variant="primary">
+                            {t.clip.creditBtn}
+                          </Button>
+                        </form>
+                        <form action={resolveFlagAction}>
+                          <input type="hidden" name="submission_id" value={s.id} />
+                          <input type="hidden" name="decision" value="deny" />
+                          <Button type="submit" variant="danger">
+                            {t.clip.denyBtn}
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* ── Заявки на пополнение ── */}
+              <section id="deposits" className="mt-10 scroll-mt-24">
+                <h2 className="mb-3 text-meta text-text-faint">
+                  {t.clip.adminDepositsTitle} ({pendingDeposits?.length ?? 0})
+                </h2>
+                <div className="flex flex-col divide-y divide-border border border-border">
+                  {(pendingDeposits ?? []).length === 0 && (
+                    <div className="p-4">
+                      <EmptyState icon={Inbox} text={t.clip.noPendingDeposits} />
+                    </div>
+                  )}
+                  {(
+                    pendingDeposits as
+                      | (ClientDeposit & { campaigns: { title: string } | null; client: { display_name: string } | null })[]
+                      | null
+                  )?.map((d) => (
+                    <div key={d.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-sm">
+                        <p className="text-text">
+                          {d.client?.display_name} · {d.campaigns?.title ?? '—'}
+                        </p>
+                        <p className="tabular text-xs text-text-faint">{d.amount} $</p>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <form action={confirmDepositAction}>
+                          <input type="hidden" name="deposit_id" value={d.id} />
+                          <input type="hidden" name="decision" value="approve" />
+                          <Button type="submit" variant="primary">
+                            {t.clip.approveBtn}
+                          </Button>
+                        </form>
+                        <form action={confirmDepositAction}>
+                          <input type="hidden" name="deposit_id" value={d.id} />
+                          <input type="hidden" name="decision" value="reject" />
+                          <Button type="submit" variant="danger">
+                            {t.clip.rejectBtn}
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* ── Заявки на вывод ── */}
+              <section id="withdrawals" className="mt-10 scroll-mt-24">
+                <h2 className="mb-3 text-meta text-text-faint">
+                  {t.clip.adminWithdrawalsTitle} ({pendingWithdrawals?.length ?? 0})
+                </h2>
+                <div className="flex flex-col divide-y divide-border border border-border">
+                  {(pendingWithdrawals ?? []).length === 0 && (
+                    <div className="p-4">
+                      <EmptyState icon={Inbox} text={t.clip.noPendingWithdrawals} />
+                    </div>
+                  )}
+                  {(pendingWithdrawals as (Withdrawal & { clipper: { display_name: string } | null })[] | null)?.map((w) => (
+                    <div key={w.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="text-sm">
+                        <p className="text-text">{w.clipper?.display_name}</p>
+                        <p className="tabular text-xs text-text-faint">
+                          {w.amount} $ · {w.method} · {w.details}
+                        </p>
+                        {clippersWithRemovedPosts.has(w.clipper_id) && (
+                          <p className="mt-1 text-xs text-warning">{t.clip.hasRemovedPostsWarning}</p>
+                        )}
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2">
+                        <form action={decideWithdrawalAction}>
+                          <input type="hidden" name="withdrawal_id" value={w.id} />
+                          <input type="hidden" name="decision" value="approve" />
+                          <Button type="submit" variant="primary">
+                            {t.clip.approveBtn}
+                          </Button>
+                        </form>
+                        <form action={decideWithdrawalAction}>
+                          <input type="hidden" name="withdrawal_id" value={w.id} />
+                          <input type="hidden" name="decision" value="reject" />
+                          <Button type="submit" variant="danger">
+                            {t.clip.rejectBtn}
+                          </Button>
+                        </form>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* ── Ручной ввод просмотров (фолбэк, Этап 2) ── */}
+              <section id="manual-views" className="mt-10 scroll-mt-24">
+                <h2 className="mb-3 text-meta text-text-faint">{t.clip.adminManualViewsTitle}</h2>
+                <p className="mb-3 text-xs text-text-faint">{t.clip.adminManualViewsHint}</p>
+                <form action={manualViewSnapshotAction} className="flex flex-wrap items-end gap-3">
+                  <Field label={t.clip.mySubmissionsTitle}>
+                    <select name="submission_id" required className={`${inputClass} w-64`}>
+                      {(manualCandidates as { id: string; url: string; campaigns: { title: string } | null }[] | null)?.map(
+                        (s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.campaigns?.title ?? '—'} — {s.url.slice(0, 40)}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </Field>
+                  <Field label={t.clip.viewsLabel}>
+                    <input className={`${inputClass} w-28`} name="views" type="number" min={0} required />
+                  </Field>
+                  <Field label={t.applicationDetail.likesLabel}>
+                    <input className={`${inputClass} w-28`} name="likes" type="number" min={0} defaultValue={0} />
+                  </Field>
+                  <Button type="submit" variant="primary">
+                    {t.clip.manualViewsBtn}
+                  </Button>
+                </form>
+              </section>
+
               {/* ── Эдиторы на модерации ── */}
-              <section id="pending" className="scroll-mt-24">
+              <section id="pending" className="mt-10 scroll-mt-24">
                 <h2 className="mb-3 text-meta text-text-faint">
                   {t.admin.pendingTitle} ({pendingEditors?.length ?? 0})
                 </h2>
