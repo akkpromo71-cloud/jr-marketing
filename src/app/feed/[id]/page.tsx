@@ -1,30 +1,24 @@
 import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
 import { Nav } from '@/components/nav';
 import { Button, Field, inputClass, BackLink } from '@/components/ui';
-import { Music2, Headphones } from 'lucide-react';
+import { Music2 } from 'lucide-react';
 import { Container } from '@/components/layout';
 import { StatusBadge } from '@/components/status-badge';
 import { Avatar } from '@/components/avatar';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
-import { applyToCampaignAction } from '@/app/feed/actions';
+import { takeSlotAction, submitClipAction } from '@/app/feed/actions';
 import { getDict } from '@/lib/i18n';
-import { formatDate } from '@/lib/format';
-import type { Campaign } from '@/lib/types';
+import { formatDateTime } from '@/lib/format';
+import type { Campaign, Slot, Submission } from '@/lib/types';
 
-// Страница кампании для эдитора: полный бриф + правило публикации + форма
-// отклика. Лента (src/app/feed/page.tsx) — только сетка плиток, каждая ведёт
-// сюда. Экшен applyToCampaignAction и RLS не менялись — форма просто переехала
-// из карточки списка. Открытую кампанию видит любой авторизованный
-// (политика campaigns_select), закрытую — только если эдитор уже откликнулся.
 export default async function FeedCampaignPage({
   params,
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; slot?: string }>;
 }) {
   const { id } = await params;
   const { error } = await searchParams;
@@ -37,34 +31,45 @@ export default async function FeedCampaignPage({
 
   const { data: campaign } = await supabase.from('campaigns').select('*').eq('id', id).single();
   if (!campaign) notFound();
-  const c = campaign as Campaign;
+  const c = campaign as Campaign & { id: string };
 
-  const { data: artist } = await supabase
+  const { data: client } = await supabase
     .from('profiles_public')
     .select('display_name, avatar_url')
     .eq('id', c.artist_id)
     .maybeSingle();
 
-  const { data: myApplication } = profile
+  const { data: mySlot } = profile
     ? await supabase
-        .from('applications')
-        .select('id')
-        .eq('editor_id', profile.id)
-        .eq('campaign_id', c.id)
+        .from('slots')
+        .select('*')
+        .eq('campaign_id', id)
+        .eq('clipper_id', profile.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
         .maybeSingle()
     : { data: null };
 
+  const { data: mySubmissions } = profile
+    ? await supabase
+        .from('submissions')
+        .select('*')
+        .eq('campaign_id', id)
+        .eq('clipper_id', profile.id)
+        .order('created_at', { ascending: false })
+    : { data: [] };
+
   const pending = profile?.editor_status === 'pending';
   const rejected = profile?.editor_status === 'rejected';
-  const canApply = profile?.role === 'editor' && !pending && !rejected && c.status === 'open';
+  const canTakeSlot =
+    profile?.role === 'editor' &&
+    !pending &&
+    !rejected &&
+    ['funded', 'active'].includes(c.status) &&
+    !mySlot &&
+    (mySubmissions?.length ?? 0) === 0;
 
-  const payout = profile?.paypal_email
-    ? { label: t.payout.paypal, value: profile.paypal_email }
-    : profile?.crypto_wallet
-      ? { label: t.payout.crypto, value: profile.crypto_wallet }
-      : null;
-
-  const hasBrief = c.track_segment || (c.reference_urls?.length ?? 0) > 0 || c.restrictions;
+  const available = Math.max(c.budget_total - c.budget_reserved - c.budget_spent, 0);
 
   return (
     <>
@@ -75,12 +80,12 @@ export default async function FeedCampaignPage({
 
           <div className="mt-2 flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
-              <Avatar url={artist?.avatar_url ?? null} name={artist?.display_name ?? '?'} size={44} />
+              <Avatar url={client?.avatar_url ?? null} name={client?.display_name ?? '?'} size={44} />
               <div>
                 <h1 className="text-headline text-text">{c.title}</h1>
-                {artist?.display_name && (
+                {client?.display_name && (
                   <p className="mt-1 text-sm text-text-faint">
-                    {t.feed.artistLabel}: {artist.display_name}
+                    {t.clip.clientLabel}: {client.display_name}
                   </p>
                 )}
               </div>
@@ -97,119 +102,114 @@ export default async function FeedCampaignPage({
           <p className="mt-6 whitespace-pre-line text-body text-text-dim">{c.description}</p>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2">
-            {c.budget && (
+            {c.cpm_rate != null && (
               <p>
-                <span className="text-lg tabular text-text">{c.budget} $</span>{' '}
-                <span className="text-micro uppercase text-text-faint">{t.feed.budgetLabel}</span>
+                <span className="text-lg tabular text-text">{c.cpm_rate} $</span>{' '}
+                <span className="text-micro uppercase text-text-faint">{t.clip.cpmLabel}</span>
               </p>
             )}
-            {c.deadline && (
+            {c.per_clip_cap != null && (
               <p className="text-sm text-text-faint">
-                {t.feed.deadlineLabel}: <span className="text-text-dim">{formatDate(c.deadline, locale)}</span>
+                {t.clip.capLabel}: <span className="text-text-dim">{c.per_clip_cap} $</span>
               </p>
             )}
+            <p className="text-sm text-text-faint">
+              {t.clip.budgetLeftLabel}: <span className="text-text-dim">{available} $</span>
+            </p>
           </div>
 
-          {(c.track_url || c.spotify_url) && (
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              {c.track_url && (
-                <a
-                  href={c.track_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
-                >
-                  <Music2 size={14} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundTiktok}
-                </a>
-              )}
-              {c.spotify_url && (
-                <a
-                  href={c.spotify_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
-                >
-                  <Headphones size={14} strokeWidth={1.75} aria-hidden="true" /> {t.feed.soundSpotify}
-                </a>
-              )}
+          {c.platforms?.length > 0 && (
+            <p className="mt-2 text-sm text-text-faint">
+              {t.clip.platformsLabel}: {c.platforms.join(', ')}
+            </p>
+          )}
+
+          {c.track_sound_url && (
+            <div className="mt-4">
+              <a
+                href={c.track_sound_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface2/40 px-3 py-1.5 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text"
+              >
+                <Music2 size={14} strokeWidth={1.75} aria-hidden="true" /> {t.clip.soundLabel}
+              </a>
             </div>
           )}
 
-          {c.manager_message && (
+          {(c.source_urls?.length ?? 0) > 0 && (
+            <div className="mt-4">
+              <p className="text-meta text-text-faint">{t.clip.materialsLabel}</p>
+              <div className="mt-1 flex flex-col gap-1">
+                {c.source_urls.map((url) => (
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="break-all text-sm text-accent hover:underline">
+                    {url}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {c.required_caption && (
             <div className="mt-4 border border-[var(--accent-tint-border)] bg-[var(--accent-tint-bg)] px-4 py-3">
-              <p className="text-meta text-accent">{t.feed.managerMessageLabel}</p>
-              <p className="mt-1 text-sm text-text-dim">{c.manager_message}</p>
+              <p className="text-meta text-accent">{t.clip.requiredCaptionLabel}</p>
+              <p className="mt-1 text-sm text-text-dim">{c.required_caption}</p>
             </div>
           )}
 
-          {hasBrief && (
-            <dl className="mt-4 flex flex-col gap-3 rounded-[4px] border border-border p-4 text-sm">
-              <p className="text-meta text-text-faint">{t.campaignDetail.briefTitle}</p>
-              {c.track_segment && (
-                <div>
-                  <dt className="text-xs text-text-faint">{t.campaignDetail.segmentLabel}</dt>
-                  <dd className="mt-0.5 text-text-dim">{c.track_segment}</dd>
-                </div>
-              )}
-              {(c.reference_urls?.length ?? 0) > 0 && (
-                <div>
-                  <dt className="text-xs text-text-faint">{t.campaignDetail.referencesLabel}</dt>
-                  <dd className="mt-0.5 flex flex-col gap-1">
-                    {c.reference_urls!.map((url) => (
-                      <a
-                        key={url}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="break-all text-accent hover:underline"
-                      >
-                        {url}
-                      </a>
-                    ))}
-                  </dd>
-                </div>
-              )}
-              {c.restrictions && (
-                <div>
-                  <dt className="text-xs text-text-faint">{t.campaignDetail.restrictionsLabel}</dt>
-                  <dd className="mt-0.5 text-text-dim">{c.restrictions}</dd>
-                </div>
-              )}
+          {c.rules && (
+            <dl className="mt-4 flex flex-col gap-2 rounded-[4px] border border-border p-4 text-sm">
+              <dt className="text-meta text-text-faint">{t.clip.rulesLabel}</dt>
+              <dd className="whitespace-pre-line text-text-dim">{c.rules}</dd>
             </dl>
           )}
 
-          {myApplication ? (
-            <p className="mt-6 border-t border-border pt-6 text-sm text-text-faint">{t.feed.alreadyApplied}</p>
-          ) : canApply && !payout ? (
-            <div className="mt-6 flex flex-col gap-2 border-t border-border pt-6">
-              <p className="text-sm text-warning">{t.feed.noPayoutWarning}</p>
-              <Link
-                href="/settings"
-                className="inline-flex min-h-11 items-center self-start rounded-full border border-border px-4 py-2 text-xs font-semibold text-text-dim transition hover:border-accent/50 hover:text-text active:scale-95"
-              >
-                {t.feed.goToSettings}
-              </Link>
-            </div>
-          ) : canApply && payout ? (
-            <form action={applyToCampaignAction} className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
-              <input type="hidden" name="campaign_id" value={c.id} />
-              <Field label={t.feed.coverNote}>
-                <textarea
-                  className={inputClass}
-                  name="cover_note"
-                  rows={3}
-                  placeholder={t.feed.coverNotePlaceholder}
-                />
-              </Field>
-              {/* break-words: адрес криптокошелька — одно длинное слово без
-                  пробелов, на 390px оно распирало карточку и обрезалось. */}
-              <p className="break-words text-xs text-text-faint">
-                {t.feed.applyPriceNote} {profile?.price_min ?? '—'} $. {t.feed.payoutWillArrive}{' '}
-                {payout.label}: {payout.value}. {t.feed.payoutHint}
+          {(mySubmissions?.length ?? 0) > 0 && (
+            <div className="mt-6 border-t border-border pt-6">
+              <p className="text-sm text-text-faint">
+                {(mySubmissions as Submission[]).length} — {t.clip.mySubmissionsTitle.toLowerCase()}.{' '}
+                <a href="/applications" className="text-accent hover:underline">
+                  {t.clip.myWorkTitle}
+                </a>
               </p>
-              <p className="text-xs text-text-faint">{t.feed.payoutStage}</p>
+            </div>
+          )}
+
+          {mySlot ? (
+            <form action={submitClipAction} className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
+              <input type="hidden" name="slot_id" value={(mySlot as Slot).id} />
+              <input type="hidden" name="campaign_id" value={c.id} />
+              <p className="text-sm text-warning">
+                {t.clip.slotExpiresLabel}: {formatDateTime((mySlot as Slot).expires_at, locale)}
+              </p>
+              <p className="text-title text-text">{t.clip.submitClipTitle}</p>
+              <p className="text-sm text-text-faint">{t.clip.submitClipHint}</p>
+              <Field label={t.clip.urlLabel}>
+                <input className={inputClass} name="url" type="url" required placeholder="https://" />
+              </Field>
+              <Field label={t.clip.platformLabel}>
+                <select className={inputClass} name="platform" required defaultValue={c.platforms?.[0] ?? 'tiktok'}>
+                  {(c.platforms?.length ? c.platforms : ['tiktok', 'reels', 'shorts']).map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </Field>
               <Button type="submit" variant="primary" className="self-start">
-                {t.feed.applyBtn}
+                {t.clip.submitClipBtn}
+              </Button>
+            </form>
+          ) : canTakeSlot ? (
+            <form action={takeSlotAction} className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
+              <input type="hidden" name="campaign_id" value={c.id} />
+              <p className="text-xs text-text-faint">
+                {t.clip.takeSlotHint
+                  .replace('{amount}', String(c.per_clip_cap ?? '—'))
+                  .replace('{hours}', String(c.slot_ttl_hours))}
+              </p>
+              <Button type="submit" variant="primary" className="self-start">
+                {t.clip.takeSlotBtn}
               </Button>
             </form>
           ) : null}

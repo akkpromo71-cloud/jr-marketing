@@ -1,17 +1,11 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Nav } from '@/components/nav';
-import { Card, Field, inputClass, Button, BackLink } from '@/components/ui';
+import { Button, Field, inputClass, BackLink } from '@/components/ui';
+import { Container } from '@/components/layout';
 import { createCampaignAction } from '@/app/dashboard/actions';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { roleHome } from '@/lib/role-home';
-import { createClient } from '@/lib/supabase/server';
 import { getDict } from '@/lib/i18n';
-
-// Запасная средняя ставка, если одобренных эдиторов с указанной ценой ещё
-// нет вообще (например, на самом старте площадки) — чтобы калькулятор ниже
-// всегда показывал хоть какой-то разумный ориентир, а не $0.
-const FALLBACK_AVG_PRICE = 40;
 
 export default async function NewCampaignPage({
   searchParams,
@@ -25,244 +19,89 @@ export default async function NewCampaignPage({
   }
   const { t } = await getDict();
 
-  // Минимально допустимый дедлайн — завтра (в UTC, как и серверная проверка
-  // futureDateOrNull). Атрибут min в <input type="date"> + валидация на сервере.
-  const minDeadline = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
-
-  // Рекомендуемый бюджет — простая формула (не ML, данных пока недостаточно):
-  // средняя ставка одобренных эдиторов × сколько эдитов нужно (один эдит =
-  // один слот), с запасом сверху на разброс цен. Это ориентир, а не гарантия
-  // охвата — см.
-  // t.dashboardNew.budgetHintDisclaimer и supabase/patch-followers-terms-metrics.sql.
-  const supabase = await createClient();
-  const { data: approvedPrices } = await supabase
-    .from('profiles')
-    .select('price_min')
-    .eq('role', 'editor')
-    .eq('editor_status', 'approved')
-    .not('price_min', 'is', null);
-  const prices = (approvedPrices ?? [])
-    .map((p) => Number((p as { price_min: number | null }).price_min))
-    .filter((p) => Number.isFinite(p) && p > 0);
-  const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : FALLBACK_AVG_PRICE;
-
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-container-text px-6 py-12">
-        <BackLink href="/dashboard" label={t.common.back} />
-        <h1 className="text-headline text-text">{t.dashboardNew.title}</h1>
-        <p className="mt-2 text-body text-text-dim">{t.dashboardNew.subtitle}</p>
+      <main className="py-12">
+        <Container width="text">
+          <BackLink href="/dashboard" label={t.common.back} />
+          <h1 className="text-headline text-text">{t.clip.newTitle}</h1>
+          <p className="mt-1 text-body text-text-dim">{t.clip.newSubtitle}</p>
 
-        <Card className="mt-8 p-6">
           {error && (
-            <div className="mb-4 rounded-none border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
+            <div className="mt-6 rounded-[4px] border border-[var(--danger-tint-border)] bg-[var(--danger-tint-bg)] px-4 py-3 text-sm text-danger">
               {decodeURIComponent(error)}
             </div>
           )}
-          <form id="new-campaign-form" action={createCampaignAction} className="flex flex-col gap-4">
-            <Field label={t.dashboardNew.name}>
-              <input className={inputClass} name="title" required placeholder={t.dashboardNew.namePlaceholder} />
+
+          <form action={createCampaignAction} className="mt-8 flex flex-col gap-4">
+            <Field label={t.clip.nameLabel}>
+              <input className={inputClass} name="title" required maxLength={200} placeholder={t.clip.namePlaceholder} />
             </Field>
-            <Field label={t.dashboardNew.description}>
-              <textarea
-                className={inputClass}
-                name="description"
-                rows={4}
-                required
-                placeholder={t.dashboardNew.descriptionPlaceholder}
-              />
+            <Field label={t.clip.descriptionLabel}>
+              <textarea className={inputClass} name="description" rows={4} required placeholder={t.clip.descriptionPlaceholder} />
             </Field>
 
-            <Field label={t.dashboardNew.deadline}>
-              <input
-                className={inputClass}
-                type="date"
-                name="deadline"
-                required
-                min={minDeadline}
-              />
-              <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.deadlineHint}</span>
-            </Field>
-
-            <Field label={t.dashboardNew.captionTitle}>
-              <input
-                id="caption-title"
-                className={inputClass}
-                name="track_title_for_caption"
-                required
-                placeholder={t.dashboardNew.namePlaceholder}
-              />
-              <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.captionTitleHint}</span>
-            </Field>
-            <Field label={t.dashboardNew.artistHandle}>
-              <input
-                className={inputClass}
-                name="artist_handle"
-                placeholder={t.dashboardNew.artistHandlePlaceholder}
-              />
-            </Field>
-
-            <Field label={t.dashboardNew.trackLink}>
-              <input className={inputClass} name="track_url" placeholder="https://..." />
-            </Field>
-            <Field label={t.dashboardNew.spotifyLink}>
-              <input className={inputClass} name="spotify_url" placeholder="https://open.spotify.com/..." />
-            </Field>
-            <Field label={t.dashboardNew.maxEditors}>
-              {/* Поле пишет в колонку max_editors: один эдит = один слот эдитора. */}
-              <input id="max_editors" className={inputClass} type="number" name="max_editors" min={1} defaultValue={1} />
-              <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.maxEditorsHint}</span>
-            </Field>
-            <Field label={t.dashboardNew.budget}>
-              <span className="relative block">
-                <input
-                  id="budget"
-                  className={`${inputClass} pr-14`}
-                  type="number"
-                  name="budget"
-                  min={1}
-                  required
-                />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-text-faint">
-                  {t.dashboardNew.budgetCurrency}
-                </span>
-              </span>
-            </Field>
-
-            {/* Калькулятор рекомендуемого бюджета — формула, не ML (данных о
-                прошлых кампаниях пока недостаточно). Диапазон пересчитывается
-                на лету при изменении числа эдитов (см. <script> ниже),
-                а при попытке отправить форму с бюджетом заметно ниже
-                рекомендованного — показывает подтверждение через confirm(),
-                не блокируя публикацию (это ориентир, а не жёсткое правило). */}
-            <div className="-mt-2 rounded-none border border-border bg-surface2/30 px-4 py-3">
-              <p className="text-meta text-text-faint">
-                {t.dashboardNew.budgetHintTitle}: <span id="budget-hint-range" className="normal-case tracking-normal text-accent">—</span>
-              </p>
-              <p className="mt-1 text-xs text-text-faint">{t.dashboardNew.budgetHintDisclaimer}</p>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Field label={t.clip.cpmRateLabel}>
+                <input className={inputClass} name="cpm_rate" type="number" step="0.01" min="0" required />
+              </Field>
+              <Field label={t.clip.clientCpmLabel}>
+                <input className={inputClass} name="client_cpm" type="number" step="0.01" min="0" required />
+              </Field>
+              <Field label={t.clip.perClipCapLabel}>
+                <input className={inputClass} name="per_clip_cap" type="number" step="0.01" min="0" required />
+              </Field>
+              <Field label={t.clip.maxClipsLabel}>
+                <input className={inputClass} name="max_clips_per_clipper" type="number" min="1" defaultValue={5} />
+              </Field>
+              <Field label={t.clip.slotTtlLabel}>
+                <input className={inputClass} name="slot_ttl_hours" type="number" min="1" defaultValue={72} />
+              </Field>
+              <Field label={t.clip.budgetTotalLabel}>
+                <input className={inputClass} name="starting_deposit" type="number" step="0.01" min="0" placeholder="0" />
+              </Field>
             </div>
+            <p className="-mt-2 text-xs text-text-faint">{t.clip.budgetTotalHint}</p>
 
-            {/* Необязательный бриф — свёрнут, чтобы форма не выглядела длинной. */}
-            <details className="group rounded-[4px] border border-border">
-              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold text-text-dim marker:content-none [&::-webkit-details-marker]:hidden">
-                {t.dashboardNew.moreOptions}
-                <span className="text-text-faint transition-transform group-open:rotate-45">+</span>
-              </summary>
-              <div className="flex flex-col gap-4 border-t border-border px-4 py-4">
-                <Field label={t.dashboardNew.trackSegment}>
-                  <input
-                    className={inputClass}
-                    name="track_segment"
-                    placeholder={t.dashboardNew.trackSegmentPlaceholder}
-                  />
-                  <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.trackSegmentHint}</span>
-                </Field>
-                <Field label={t.dashboardNew.references}>
-                  <div className="flex flex-col gap-2">
-                    {[0, 1, 2].map((i) => (
-                      <input
-                        key={i}
-                        className={inputClass}
-                        type="url"
-                        name="reference_urls"
-                        placeholder="https://..."
-                      />
-                    ))}
-                  </div>
-                  <span className="mt-1 text-xs text-text-faint">{t.dashboardNew.referencesHint}</span>
-                </Field>
-                <Field label={t.dashboardNew.restrictions}>
-                  <input
-                    className={inputClass}
-                    name="restrictions"
-                    placeholder={t.dashboardNew.restrictionsPlaceholder}
-                  />
-                </Field>
+            <Field label={t.clip.platformsLabel}>
+              <div className="flex flex-wrap gap-4">
+                {(['tiktok', 'reels', 'shorts'] as const).map((p) => (
+                  <label key={p} className="flex items-center gap-2 text-sm text-text-dim">
+                    <input type="checkbox" name="platforms" value={p} defaultChecked className="h-4 w-4" />
+                    {p}
+                  </label>
+                ))}
               </div>
-            </details>
+              <p className="text-xs text-text-faint">{t.clip.platformsHint}</p>
+            </Field>
 
-            <label className="flex items-start gap-2 text-xs text-text-dim">
-              <input type="checkbox" name="terms_accepted" value="1" required className="mt-0.5" />
-              <span>
-                {t.terms.campaignAgreePrefix}
-                <Link href="/terms" target="_blank" className="text-accent hover:underline">
-                  {t.terms.campaignAgreeLinkText}
-                </Link>
-                {t.terms.campaignAgreeSuffix}
-              </span>
-            </label>
+            <Field label={t.clip.requiredCaptionLabel}>
+              <input className={inputClass} name="required_caption" maxLength={300} placeholder={t.clip.requiredCaptionPlaceholder} />
+            </Field>
 
-            <Button type="submit" variant="primary" className="mt-2 w-full">
-              {t.dashboardNew.publishBtn}
+            <Field label={t.clip.rulesLabel}>
+              <textarea className={inputClass} name="rules" rows={4} maxLength={3000} placeholder={t.clip.rulesPlaceholder} />
+            </Field>
+
+            <Field label={t.clip.sourceUrlsLabel}>
+              <div className="flex flex-col gap-2">
+                <input className={inputClass} name="source_urls" type="url" placeholder="https://" />
+                <input className={inputClass} name="source_urls" type="url" placeholder="https://" />
+                <input className={inputClass} name="source_urls" type="url" placeholder="https://" />
+              </div>
+            </Field>
+
+            <Field label={t.clip.trackSoundUrlLabel}>
+              <input className={inputClass} name="track_sound_url" type="url" placeholder="https://www.tiktok.com/music/..." />
+            </Field>
+
+            <Button type="submit" variant="artist" className="self-start">
+              {t.clip.createBtn}
             </Button>
           </form>
-        </Card>
+        </Container>
       </main>
-
-      <script
-        // Чистый JS без React-состояния — намеренно (см. комментарий про
-        // client/server-границу в src/components/ui.tsx): страница остаётся
-        // серверным компонентом, а этот маленький скрипт только пересчитывает
-        // подсказку и один раз спрашивает подтверждение при явно заниженном
-        // бюджете. Похожий приём уже используется в src/app/layout.tsx для темы.
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function () {
-              var avgPrice = ${avgPrice};
-              var maxEditorsInput = document.getElementById('max_editors');
-              var budgetInput = document.getElementById('budget');
-              var hintEl = document.getElementById('budget-hint-range');
-              var form = document.getElementById('new-campaign-form');
-
-              // Название трека для описания по умолчанию повторяет название
-              // кампании — пока артист не отредактировал это поле вручную.
-              var titleInput = form && form.querySelector('input[name="title"]');
-              var captionInput = document.getElementById('caption-title');
-              if (titleInput && captionInput) {
-                var captionTouched = false;
-                captionInput.addEventListener('input', function () { captionTouched = true; });
-                titleInput.addEventListener('input', function () {
-                  if (!captionTouched) captionInput.value = titleInput.value;
-                });
-              }
-
-              function computeRange() {
-                var n = Math.max(1, parseInt((maxEditorsInput && maxEditorsInput.value) || '1', 10) || 1);
-                var min = Math.round(avgPrice * n);
-                var max = Math.round(avgPrice * n * 1.6);
-                return { min: min, max: max };
-              }
-
-              function updateHint() {
-                if (!hintEl) return;
-                var r = computeRange();
-                hintEl.textContent = '$' + r.min + '–$' + r.max;
-              }
-
-              if (maxEditorsInput) {
-                updateHint();
-                maxEditorsInput.addEventListener('input', updateHint);
-              }
-
-              if (form && budgetInput) {
-                form.addEventListener('submit', function (e) {
-                  var r = computeRange();
-                  var budget = parseFloat(budgetInput.value);
-                  if (budget && budget > 0 && budget < r.min) {
-                    var msg = ${JSON.stringify(t.dashboardNew.budgetTooLowConfirm)}
-                      .replace('{min}', String(r.min))
-                      .replace('{max}', String(r.max));
-                    if (!window.confirm(msg)) {
-                      e.preventDefault();
-                    }
-                  }
-                });
-              }
-            })();
-          `,
-        }}
-      />
     </>
   );
 }

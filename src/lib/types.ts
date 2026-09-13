@@ -164,6 +164,8 @@ export interface Submission {
   views_paid: number;
   earned: number;
   capped: boolean;
+  flagged: boolean;
+  flagged_reason: string | null;
   created_at: string;
   updated_at: string;
 }

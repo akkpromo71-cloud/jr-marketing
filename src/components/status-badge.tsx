@@ -1,4 +1,12 @@
-import type { ApplicationStatus, CampaignStatus, EditorStatus } from '@/lib/types';
+import type {
+  ApplicationStatus,
+  CampaignStatus,
+  DepositStatus,
+  EditorStatus,
+  SlotStatus,
+  SubmissionStatus,
+  WithdrawalStatus,
+} from '@/lib/types';
 import { getDict } from '@/lib/i18n';
 
 // Вынесен из ui.tsx отдельно: getDict() читает cookie через next/headers, а
@@ -16,6 +24,17 @@ const statusStyles: Record<string, string> = {
   in_revision: 'text-warning bg-[var(--warning-tint-bg)] border-[var(--warning-tint-border)]',
   delivered: 'text-accent bg-[var(--accent-tint-bg)] border-[var(--accent-tint-border)]',
   approved: 'text-success bg-[var(--success-tint-bg)] border-[var(--success-tint-border)]',
+  // ── Клиппинг ──
+  draft: 'text-text-faint bg-surface2 border-border',
+  funded: 'text-accent bg-[var(--accent-tint-bg)] border-[var(--accent-tint-border)]',
+  active: 'text-success bg-[var(--success-tint-bg)] border-[var(--success-tint-border)]',
+  paused: 'text-warning bg-[var(--warning-tint-bg)] border-[var(--warning-tint-border)]',
+  finished: 'text-text-faint bg-surface2 border-border',
+  used: 'text-accent bg-[var(--accent-tint-bg)] border-[var(--accent-tint-border)]',
+  expired: 'text-text-faint bg-surface2 border-border',
+  cancelled: 'text-text-faint bg-surface2 border-border',
+  removed: 'text-danger bg-[var(--danger-tint-bg)] border-[var(--danger-tint-border)]',
+  paid: 'text-success bg-[var(--success-tint-bg)] border-[var(--success-tint-border)]',
 };
 
 // Подписи статусов берутся из словаря i18n (src/lib/i18n.ts) — StatusBadge сам
@@ -23,7 +42,14 @@ const statusStyles: Record<string, string> = {
 export async function StatusBadge({
   status,
 }: {
-  status: CampaignStatus | ApplicationStatus | EditorStatus;
+  status:
+    | CampaignStatus
+    | ApplicationStatus
+    | EditorStatus
+    | SlotStatus
+    | SubmissionStatus
+    | WithdrawalStatus
+    | DepositStatus;
 }) {
   const { t } = await getDict();
   const statusLabels: Record<string, string> = t.status;

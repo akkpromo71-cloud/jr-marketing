@@ -18,3 +18,12 @@ export function formatDate(iso: string, locale: Locale): string {
     month: 'short',
   }).format(new Date(iso));
 }
+
+export function formatDateTime(iso: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', {
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(iso));
+}
