@@ -26,9 +26,9 @@ import { formatCompactNumber } from '@/lib/format';
 import { TELEGRAM_URL } from '@/lib/contacts';
 
 interface PublicStats {
-  completed_edits: number;
-  total_views: number;
-  active_editors: number;
+  delivered_views: number;
+  clips_count: number;
+  active_clippers: number;
 }
 
 interface PublicReview {
@@ -54,7 +54,7 @@ export default async function LandingPage() {
   const stats = (Array.isArray(statsData) ? statsData[0] : statsData) as PublicStats | undefined;
   const reviews = (reviewsData ?? []) as PublicReview[];
   const hasStats =
-    !!stats && (stats.completed_edits > 0 || stats.total_views > 0 || stats.active_editors > 0);
+    !!stats && (stats.clips_count > 0 || stats.delivered_views > 0 || stats.active_clippers > 0);
 
   const fmt = (n: number) => formatCompactNumber(n, locale);
   // Склонение слова по числу: ru — [1, 2, 5], en — [1, много].
@@ -79,16 +79,16 @@ export default async function LandingPage() {
   const tickerItems = [
     ...(hasStats && stats
       ? [
-          `${t.landing.tapePlatform}: ${fmt(stats.completed_edits)} ${plural(
-            stats.completed_edits,
-            ['эдит', 'эдита', 'эдитов'],
-            ['edit', 'edits']
+          `${t.landing.tapePlatform}: ${fmt(stats.clips_count)} ${plural(
+            stats.clips_count,
+            ['ролик', 'ролика', 'роликов'],
+            ['clip', 'clips']
           )}`,
-          `${fmt(stats.total_views)} ${t.landing.tapeViewsWord}`,
-          `${fmt(stats.active_editors)} ${plural(
-            stats.active_editors,
-            ['эдитор в работе', 'эдитора в работе', 'эдиторов в работе'],
-            ['editor working', 'editors working']
+          `${fmt(stats.delivered_views)} ${t.landing.tapeViewsWord}`,
+          `${fmt(stats.active_clippers)} ${plural(
+            stats.active_clippers,
+            ['клиппер в работе', 'клиппера в работе', 'клипперов в работе'],
+            ['clipper working', 'clippers working']
           )}`,
         ]
       : []),
@@ -191,13 +191,13 @@ export default async function LandingPage() {
                   className="mt-12 text-display font-extrabold leading-none text-text"
                   style={{ textShadow: '0 0 44px rgba(236, 72, 153, 0.26)' }}
                 >
-                  {fmt(stats.total_views)}
+                  {fmt(stats.delivered_views)}
                 </p>
                 <p className="mx-auto mt-3 max-w-xs text-body-lg text-text-dim">
                   {t.landing.boardBigCaption}
                 </p>
                 <p className="mt-1 text-meta text-text-faint">
-                  {stats.active_editors} {t.landing.boardEditorsCaption}
+                  {stats.active_clippers} {t.landing.boardEditorsCaption}
                 </p>
               </>
             )}

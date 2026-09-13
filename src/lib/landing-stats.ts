@@ -3,9 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 
 // Публичные цифры лендинга: security-definer RPC, одинаковые для всех анонимов
 // (залогиненных редиректит раньше). Кэшируем на 5 минут — данные меняются
-// редко, а «/» — самый нагруженный маршрут: без кэша это три обращения к
-// Supabase на каждый заход. Клиент без cookies: unstable_cache не даёт читать
-// cookies, а этим RPC они и не нужны — права те же.
+// редко, а «/» — самый нагруженный маршрут: без кэша это обращения к Supabase
+// на каждый заход. Клиент без cookies: unstable_cache не даёт читать cookies,
+// а этим RPC они и не нужны — права те же.
 export const getLandingStats = unstable_cache(
   async () => {
     const supabase = createClient(
@@ -13,11 +13,12 @@ export const getLandingStats = unstable_cache(
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       { auth: { persistSession: false, autoRefreshToken: false } }
     );
-    // Запросы не меняются (см. src/app/page.tsx): лидерборд по-прежнему
-    // запрашивается, хотя на лендинге больше не выводится.
-    const [{ data: statsData }, , { data: reviewsData }] = await Promise.all([
-      supabase.rpc('get_public_platform_stats'),
-      supabase.rpc('get_editor_leaderboard', { p_limit: 10 }),
+    // get_public_clipping_stats считает по новым таблицам (submissions/profiles)
+    // — см. supabase/migrations/0006_public_clipping_stats.sql. Отзывы — из
+    // старого флоу (reviews), но это реальные опубликованные отзывы, не
+    // выдуманные цифры, поэтому оставлены как есть.
+    const [{ data: statsData }, { data: reviewsData }] = await Promise.all([
+      supabase.rpc('get_public_clipping_stats'),
       supabase.rpc('get_public_reviews', { p_limit: 6 }),
     ]);
     return { statsData, reviewsData };
