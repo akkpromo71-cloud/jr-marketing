@@ -4,7 +4,9 @@ export type Role = 'artist' | 'editor' | 'admin';
 
 export type EditorStatus = 'pending' | 'approved' | 'rejected';
 
-export type CampaignStatus = 'open' | 'in_progress' | 'completed' | 'closed';
+export type CampaignStatus =
+  | 'open' | 'in_progress' | 'completed' | 'closed' // старый музыкальный флоу
+  | 'draft' | 'funded' | 'active' | 'paused' | 'finished'; // клиппинг
 
 export type ApplicationStatus =
   | 'pending'
@@ -68,6 +70,21 @@ export interface Campaign {
   // гарантия) при публикации трека — отдельно от согласия при регистрации.
   terms_accepted_at: string | null;
   created_at: string;
+  // Клиппинг-поля (supabase/migrations/0003_clipping_platform.sql) —
+  // заполнены у новых кампаний, null/0 у старых музыкальных.
+  cpm_rate: number | null;
+  client_cpm: number | null;
+  budget_total: number;
+  budget_reserved: number;
+  budget_spent: number;
+  per_clip_cap: number | null;
+  max_clips_per_clipper: number | null;
+  platforms: Platform[];
+  rules: string | null;
+  required_caption: string | null;
+  source_urls: string[];
+  slot_ttl_hours: number;
+  track_sound_url: string | null;
 }
 
 export interface Application {
@@ -103,4 +120,110 @@ export interface RevisionMessage {
   body: string;
   attachment_url: string | null;
   created_at: string;
+}
+
+// =========================================================
+// Клиппинг-платформа (supabase/migrations/0003_clipping_platform.sql).
+// Роли в БД не переименованы: role='artist' — клиент, role='editor' — клиппер.
+// Кампании клиппинга — те же строки таблицы campaigns, но со status в новом
+// наборе значений и заполненными cpm_rate/budget_total/per_clip_cap и т.д.
+// =========================================================
+
+export type ClippingCampaignStatus = 'draft' | 'funded' | 'active' | 'paused' | 'finished';
+
+export type Platform = 'tiktok' | 'reels' | 'shorts';
+
+export type SlotStatus = 'active' | 'used' | 'expired' | 'cancelled';
+
+export interface Slot {
+  id: string;
+  campaign_id: string;
+  clipper_id: string;
+  amount_reserved: number;
+  expires_at: string;
+  status: SlotStatus;
+  created_at: string;
+}
+
+export type SubmissionStatus = 'pending' | 'approved' | 'rejected' | 'removed';
+
+export type RejectReasonCode = 'low_quality' | 'wrong_caption' | 'fake_views' | 'duplicate' | 'off_brief' | 'other';
+
+export interface Submission {
+  id: string;
+  campaign_id: string;
+  clipper_id: string;
+  slot_id: string;
+  url: string;
+  platform: Platform;
+  posted_at: string | null;
+  status: SubmissionStatus;
+  reject_reason_code: RejectReasonCode | null;
+  reject_reason_comment: string | null;
+  views_total: number;
+  views_paid: number;
+  earned: number;
+  capped: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ViewSnapshot {
+  id: string;
+  submission_id: string;
+  checked_at: string;
+  views: number;
+  likes: number;
+  source: 'auto' | 'manual';
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface Earning {
+  id: string;
+  submission_id: string;
+  snapshot_id: string;
+  amount: number;
+  created_at: string;
+}
+
+export interface Wallet {
+  clipper_id: string;
+  balance: number;
+  updated_at: string;
+}
+
+export type WithdrawalStatus = 'pending' | 'approved' | 'paid' | 'rejected';
+export type PayoutMethod = 'paypal' | 'crypto';
+
+export interface Withdrawal {
+  id: string;
+  clipper_id: string;
+  amount: number;
+  method: PayoutMethod;
+  details: string;
+  status: WithdrawalStatus;
+  admin_comment: string | null;
+  created_at: string;
+  decided_at: string | null;
+}
+
+export interface SoundUsageSnapshot {
+  id: string;
+  campaign_id: string;
+  checked_at: string;
+  videos_count: number;
+}
+
+export type DepositStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ClientDeposit {
+  id: string;
+  campaign_id: string;
+  client_id: string;
+  amount: number;
+  status: DepositStatus;
+  admin_comment: string | null;
+  created_at: string;
+  decided_at: string | null;
 }
