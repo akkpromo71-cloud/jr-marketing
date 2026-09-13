@@ -25,14 +25,15 @@ const config: Config = {
         'on-accent': 'var(--on-accent)',
       },
       fontFamily: {
-        // В проекте ДВЕ гарнитуры, обе с кириллицей (см. src/app/layout.tsx):
-        // display — Unbounded (только дисплейные размеры, не для текста);
-        // sans    — Manrope (весь текст/UI).
-        // Третьей (моно) нет: font-mono намеренно указывает на тот же Manrope.
+        // В проекте ТРИ гарнитуры, все с кириллицей (см. src/app/layout.tsx):
+        // display — Unbounded (дисплейные размеры на витрине — лендинге);
+        // sans    — Manrope (весь текст/UI везде);
+        // mono    — JetBrains Mono (все числа в режиме «инструмент»: кабинеты,
+        //           админка — баланс, просмотры, суммы; на лендинге не используется,
+        //           см. design-system/jr-marketing/MASTER.md).
         display: ['var(--font-display)', 'var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        // Отдельного моно-шрифта в проекте нет — «font-mono» = тот же гротеск.
-        mono: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       fontWeight: {
         // Дизайн-система JR допускает выразительный дисплейный вес. Именованные

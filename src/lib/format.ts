@@ -27,3 +27,13 @@ export function formatDateTime(iso: string, locale: Locale): string {
     minute: '2-digit',
   }).format(new Date(iso));
 }
+
+// Следующий запуск ежесуточного крона просмотров (/api/cron/clipping-stats,
+// "0 7 * * *" в vercel.json) — чтобы в кабинете было видно не абстрактное
+// "раз в сутки", а конкретное время. Держим час крона одним числом здесь,
+// а не тянем cron-строку из vercel.json (тот файл не импортируется в рантайме).
+export function nextDailyCronAt(hourUtc: number, now: Date = new Date()): Date {
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hourUtc, 0, 0));
+  if (next.getTime() <= now.getTime()) next.setUTCDate(next.getUTCDate() + 1);
+  return next;
+}

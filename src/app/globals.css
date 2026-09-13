@@ -127,6 +127,47 @@ button {
   color: inherit;
 }
 
+/* ============================================================
+   Режим «инструмент» (кабинет клиппера, кабинет заказчика, админка) —
+   отдельный от «витрины» (лендинг) визуальный язык, см.
+   design-system/jr-marketing/MASTER.md, раздел «Tool mode». Плотные таблицы
+   вместо карточек, Manrope вместо Unbounded в заголовках (Unbounded в
+   .tool-* классы намеренно не подмешивается), JetBrains Mono
+   (Tailwind-класс font-mono, см. tailwind.config.ts) для всех чисел.
+   Анимаций появления здесь нет — ни pop-in, ни hero-reveal.
+   ============================================================ */
+@layer components {
+  .tool-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+  }
+  .tool-table th {
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .tool-table td {
+    padding: 0.625rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    vertical-align: middle;
+  }
+  .tool-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .tool-table th.num,
+  .tool-table td.num {
+    text-align: right;
+  }
+}
+
 ::selection {
   background: rgba(59, 130, 246, 0.32);
   color: #fff;
