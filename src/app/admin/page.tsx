@@ -512,12 +512,6 @@ export default async function AdminPage() {
                             {t.applicationDetail.rejectBtn}
                           </Button>
                         </form>
-                        <Link
-                          href={`/applications/${a.id}`}
-                          className="self-center text-xs text-text-faint hover:text-accent hover:underline"
-                        >
-                          {locale === 'en' ? 'Details' : 'Подробнее'}
-                        </Link>
                       </div>
                     </div>
                   ))}
