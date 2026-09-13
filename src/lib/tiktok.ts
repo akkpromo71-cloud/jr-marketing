@@ -84,3 +84,54 @@ export async function fetchTikTokStats(url: string, timeoutMs = 8000): Promise<T
     clearTimeout(timeout);
   }
 }
+
+// Использования звука (сколько видео смонтировано с этим треком) — метрика,
+// специфичная для музыкальных кампаний (см. campaigns.track_sound_url).
+//
+// ЧЕСТНО: этот путь НЕ проверен вживую (у среды разработки нет доступа
+// сделать реальный запрос к tiktok.com и посмотреть фактическую разметку
+// страницы звука). Структура ниже — та же техника, что и в fetchTikTokStats
+// (тот же __UNIVERSAL_DATA_FOR_REHYDRATION__), с ключом 'webapp.music-detail'
+// по описаниям структуры TikTok в открытых источниках. Если TikTok использует
+// другой ключ/путь — функция просто будет возвращать null, ничего не сломает
+// (то же поведение "тихого отказа", что и у остальных провайдеров), но
+// потребует один правкой поправить путь после реальной проверки на проде.
+export async function fetchTikTokSoundVideoCount(url: string, timeoutMs = 8000): Promise<number | null> {
+  if (!isTikTokUrl(url)) return null;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      redirect: 'follow',
+      cache: 'no-store',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    });
+
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const match = html.match(REHYDRATION_SCRIPT_RE);
+    if (!match) return null;
+
+    const data = JSON.parse(match[1]);
+    const musicInfo = data?.__DEFAULT_SCOPE__?.['webapp.music-detail']?.musicInfo;
+    const count = musicInfo?.stats?.videoCount;
+    const videoCount = Number(count);
+    if (!Number.isFinite(videoCount)) return null;
+
+    return videoCount;
+  } catch (err) {
+    logError('fetchTikTokSoundVideoCount', err, { url });
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
