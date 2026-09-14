@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import type { ReactNode } from 'react';
 import { getDict } from '@/lib/i18n';
+import { Logo } from '@/components/logo';
 
 // Общий каркас страниц входа/регистрации: полноэкранный сплит 5/7.
-// Слева — тёмная брендовая панель с акцентным кантом (magenta + blue —
-// две стороны площадки), справа — сама форма. Никаких сплошных цветных
-// заливок: тёмная тема на весь сайт (design-system/jr-marketing).
-// Серверный компонент: getDict() читает cookie локали.
+// Слева — тёмная брендовая панель с акцентным кантом (green + blue — две
+// стороны площадки, см. src/components/role-visual.tsx), справа — сама
+// форма. Никаких сплошных цветных заливок: тёмная тема на весь сайт
+// (design-system/jr-marketing). Серверный компонент: getDict() читает
+// cookie локали.
 export async function AuthShell({
   title,
   subtitle,
@@ -46,14 +47,7 @@ export async function AuthShell({
           aria-label="J/R marketing"
           className="relative block w-fit transition hover:opacity-80"
         >
-          <Image
-            src="/logo-mark.webp"
-            alt="J/R marketing"
-            width={640}
-            height={502}
-            priority
-            className="h-16 w-auto"
-          />
+          <Logo className="h-9" />
         </Link>
         <p className="relative hidden text-balance break-words text-headline text-text md:block">
           {brandLine}

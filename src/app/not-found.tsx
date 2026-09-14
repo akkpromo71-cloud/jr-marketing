@@ -4,7 +4,7 @@ import { Card, LinkButton } from '@/components/ui';
 import { getDict } from '@/lib/i18n';
 
 // Next.js рендерит эту страницу вместо стандартного шаблона Vercel/Next.js,
-// когда notFound() вызван явно (см. applications/[id]/page.tsx,
+// когда notFound() вызван явно (см. clippers/[id]/page.tsx,
 // dashboard/campaigns/[id]/page.tsx) или когда роут вообще не совпал ни с
 // одним файлом — например, при опечатке в ссылке.
 export default async function NotFound() {
