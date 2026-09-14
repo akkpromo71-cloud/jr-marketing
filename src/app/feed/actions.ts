@@ -67,6 +67,14 @@ export async function submitClipAction(formData: FormData) {
     redirect(`/feed/${campaignId}?error=${encodeURIComponent(t.errors.invalidUrl)}`);
   }
 
+  // Сама сдача ограничена валидным слотом (взять новый — уже под лимитом
+  // выше), но лимит на попытки всё равно нужен: без него скрипт может
+  // молотить эндпоинт заведомо плохими URL до посинения.
+  const allowedSubmit = await checkRateLimit(`submit-clip:${user.id}`, 30, 60 * 60);
+  if (!allowedSubmit) {
+    redirect(`/feed/${campaignId}?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
+  }
+
   const { error } = await supabase.rpc('submit_clip', {
     p_slot_id: slotId,
     p_url: url,

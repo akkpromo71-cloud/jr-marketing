@@ -3,25 +3,16 @@ import { Nav } from '@/components/nav';
 import { Container } from '@/components/layout';
 import { LinkButton } from '@/components/ui';
 import { ToolTable, ToolEmptyRow } from '@/components/tool-ui';
-import { createClient } from '@/lib/supabase/server';
+import { getPublicCampaigns } from '@/lib/public-campaigns';
 import { getDict } from '@/lib/i18n';
-import type { Campaign, Platform } from '@/lib/types';
+import type { Platform } from '@/lib/types';
 
 // Витрина открытых кампаний без регистрации (дифференциатор №7) — доступна
-// анониму: RLS (campaigns_select) и grants (patch-grants.sql) уже разрешают
-// anon читать campaigns со status in ('open','funded','active'), поэтому
-// createClient() тут работает без сессии, без отдельной публичной функции.
+// анониму. Список кэшируется на 30с (getPublicCampaigns) — самая вероятная
+// точка входа нового трафика не должна бить в Supabase на каждый заход.
 export default async function PublicCampaignsPage() {
   const { t } = await getDict();
-  const supabase = await createClient();
-
-  const { data: campaignsRaw } = await supabase
-    .from('campaigns')
-    .select('*')
-    .in('status', ['funded', 'active'])
-    .order('created_at', { ascending: false });
-
-  const list = (campaignsRaw ?? []) as (Campaign & { id: string })[];
+  const list = await getPublicCampaigns();
 
   return (
     <>

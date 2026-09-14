@@ -191,21 +191,32 @@ begin
       v_remaining_cap := greatest(v_slot.amount_reserved - v_submission.earned, 0);
       v_amount := least(v_pending_views / 1000.0 * v_campaign.cpm_rate, v_remaining_cap);
       if v_amount > 0 then
-        v_paid_views := floor(v_amount / (v_campaign.cpm_rate / 1000.0));
+        -- ON CONFLICT DO NOTHING защищает unique(snapshot_id), но если он
+        -- сработает (эту работу уже кто-то зачёл за тот же снимок — гонка с
+        -- кроном), дальше делать бюджет/кошелёк ВСЁ РАВНО обновлять нельзя,
+        -- иначе это будет повторное начисление без второй строки в earnings.
+        -- FOUND после INSERT ... RETURNING — true только если строка реально
+        -- вставлена (в отличие от SELECT INTO STRICT, здесь это не ошибка,
+        -- а просто false).
         insert into public.earnings (submission_id, snapshot_id, amount)
           values (p_submission_id, v_last_snapshot, v_amount)
           on conflict (snapshot_id) do nothing;
 
-        update public.campaigns
-          set budget_reserved = budget_reserved - v_amount, budget_spent = budget_spent + v_amount
-          where id = v_submission.campaign_id;
+        if found then
+          update public.campaigns
+            set budget_reserved = budget_reserved - v_amount, budget_spent = budget_spent + v_amount
+            where id = v_submission.campaign_id;
 
-        insert into public.wallets (clipper_id, balance)
-          select clipper_id, 0 from public.submissions where id = p_submission_id
-          on conflict (clipper_id) do nothing;
-        update public.wallets w set balance = balance + v_amount, updated_at = now()
-          from public.submissions sub
-          where sub.id = p_submission_id and w.clipper_id = sub.clipper_id;
+          insert into public.wallets (clipper_id, balance)
+            select clipper_id, 0 from public.submissions where id = p_submission_id
+            on conflict (clipper_id) do nothing;
+          update public.wallets w set balance = balance + v_amount, updated_at = now()
+            from public.submissions sub
+            where sub.id = p_submission_id and w.clipper_id = sub.clipper_id;
+        else
+          v_amount := 0;
+          v_paid_views := 0;
+        end if;
       end if;
     end if;
 

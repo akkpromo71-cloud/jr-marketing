@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getDict } from '@/lib/i18n';
 import { positiveNumberOrNull, clampText } from '@/lib/validate';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { logError } from '@/lib/log-error';
 
 // Заявка на вывод — без минимальной суммы (различие №2 площадки). Списание с
@@ -24,6 +25,14 @@ export async function requestWithdrawalAction(formData: FormData) {
   const { t } = await getDict();
   if (!amount || !details) {
     redirect(`/applications?error=${encodeURIComponent(t.errors.withdrawalFailed)}`);
+  }
+
+  // Без минимальной суммы вывода заявку можно подать сколько угодно раз
+  // подряд (каждая проходит проверку баланса в самой RPC, но это не повод
+  // не ограничивать частоту попыток вообще).
+  const allowed = await checkRateLimit(`withdraw:${user.id}`, 10, 60 * 60);
+  if (!allowed) {
+    redirect(`/applications?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
   }
 
   const { error } = await supabase.rpc('request_withdrawal', {

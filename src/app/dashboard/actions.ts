@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getDict } from '@/lib/i18n';
 import { roleHome } from '@/lib/role-home';
 import { safeUrl, positiveNumberOrNull, clampText, smallPositiveInt } from '@/lib/validate';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { logError } from '@/lib/log-error';
 import { notifyAdmin, fill } from '@/lib/notify';
 import type { Platform } from '@/lib/types';
@@ -64,6 +65,11 @@ export async function createCampaignAction(formData: FormData) {
 
   if (!title || !description || !cpmRate || !clientCpm || !perClipCap || platforms.length === 0) {
     redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.campaignFieldsRequired)}`);
+  }
+
+  const allowedCreate = await checkRateLimit(`create-campaign:${user.id}`, 10, 60 * 60);
+  if (!allowedCreate) {
+    redirect(`/dashboard/new?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
   }
 
   const { data: created, error } = await supabase
@@ -181,6 +187,11 @@ export async function requestDepositAction(formData: FormData) {
   const { t } = await getDict();
   if (!amount) {
     redirect(`/dashboard/campaigns/${campaignId}?error=${encodeURIComponent(t.errors.depositFailed)}`);
+  }
+
+  const allowedDeposit = await checkRateLimit(`deposit:${user.id}`, 20, 60 * 60);
+  if (!allowedDeposit) {
+    redirect(`/dashboard/campaigns/${campaignId}?error=${encodeURIComponent(t.errors.tooManyAttempts)}`);
   }
 
   const { error } = await supabase.from('client_deposits').insert({ campaign_id: campaignId, client_id: user.id, amount });

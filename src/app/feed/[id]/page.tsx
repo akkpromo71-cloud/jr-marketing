@@ -33,31 +33,29 @@ export default async function FeedCampaignPage({
   if (!campaign) notFound();
   const c = campaign as Campaign & { id: string };
 
-  const { data: client } = await supabase
-    .from('profiles_public')
-    .select('display_name, avatar_url')
-    .eq('id', c.artist_id)
-    .maybeSingle();
-
-  const { data: mySlot } = profile
-    ? await supabase
-        .from('slots')
-        .select('*')
-        .eq('campaign_id', id)
-        .eq('clipper_id', profile.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .maybeSingle()
-    : { data: null };
-
-  const { data: mySubmissions } = profile
-    ? await supabase
-        .from('submissions')
-        .select('*')
-        .eq('campaign_id', id)
-        .eq('clipper_id', profile.id)
-        .order('created_at', { ascending: false })
-    : { data: [] };
+  // Независимые запросы — параллельно, а не по очереди (3 круговых обращения
+  // к Supabase вместо 1 круга ожидания).
+  const [{ data: client }, { data: mySlot }, { data: mySubmissions }] = await Promise.all([
+    supabase.from('profiles_public').select('display_name, avatar_url').eq('id', c.artist_id).maybeSingle(),
+    profile
+      ? supabase
+          .from('slots')
+          .select('*')
+          .eq('campaign_id', id)
+          .eq('clipper_id', profile.id)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false })
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+    profile
+      ? supabase
+          .from('submissions')
+          .select('*')
+          .eq('campaign_id', id)
+          .eq('clipper_id', profile.id)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: [] }),
+  ]);
 
   const pending = profile?.editor_status === 'pending';
   const rejected = profile?.editor_status === 'rejected';

@@ -387,6 +387,13 @@ begin
   end if;
 
   if p_approve then
+    -- Пополнение уже завершённой кампании увеличило бы budget_total без
+    -- всякой возможности когда-либо потратить эти деньги (take_slot требует
+    -- status in ('funded','active')) — деньги "зависли" бы в БД навсегда.
+    if (select status from public.campaigns where id = v_dep.campaign_id) = 'finished' then
+      raise exception 'cannot fund a finished campaign';
+    end if;
+
     update public.client_deposits set status = 'approved', admin_comment = p_comment, decided_at = now()
       where id = p_deposit_id;
     update public.campaigns
