@@ -5,7 +5,10 @@
 // а не пустота. Чисто декоративный inline-SVG, серверный компонент.
 export function RoleVisual({ role }: { role: 'artist' | 'editor' }) {
   const isArtist = role === 'artist';
-  const stroke = isArtist ? '#ec4899' : '#3b82f6';
+  // Клиент (бывш. "артист") — зелёный (деньги/просмотры), клиппер (бывш.
+  // "эдитор") — синий (действие/слот). Цвет больше не привязан к роли лично,
+  // просто это два "хороших" небрендовых оттенка платформы, см. globals.css.
+  const stroke = isArtist ? '#34d399' : '#3b82f6';
 
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -13,7 +16,7 @@ export function RoleVisual({ role }: { role: 'artist' | 'editor' }) {
         className="absolute inset-0"
         style={{
           background: isArtist
-            ? 'radial-gradient(130% 90% at 85% 0%, rgba(236,72,153,0.16), transparent 55%)'
+            ? 'radial-gradient(130% 90% at 85% 0%, rgba(52,211,153,0.16), transparent 55%)'
             : 'radial-gradient(130% 90% at 85% 0%, rgba(59,130,246,0.14), transparent 55%)',
         }}
       />

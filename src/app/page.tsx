@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import {
   AudioLines,
@@ -21,6 +20,8 @@ import { HeroVisual } from '@/components/hero-visual';
 import { RoleVisual } from '@/components/role-visual';
 import { Ticker } from '@/components/ticker';
 import { Faq } from '@/components/faq';
+import { Logo } from '@/components/logo';
+import { Clock, Ban, Zap } from 'lucide-react';
 import { getDict } from '@/lib/i18n';
 import { formatCompactNumber } from '@/lib/format';
 import { TELEGRAM_URL } from '@/lib/contacts';
@@ -53,8 +54,13 @@ export default async function LandingPage() {
 
   const stats = (Array.isArray(statsData) ? statsData[0] : statsData) as PublicStats | undefined;
   const reviews = (reviewsData ?? []) as PublicReview[];
-  const hasStats =
-    !!stats && (stats.clips_count > 0 || stats.delivered_views > 0 || stats.active_clippers > 0);
+  // Именно delivered_views рендерится крупной цифрой ниже — если просмотров
+  // ещё 0, показывать гигантский светящийся "0" хуже, чем офферную рамку
+  // без цифр (см. board-секция и REDESIGN_PLAN про пустоту вместо контента).
+  // active_clippers/clips_count одни, без просмотров, тоже реальны, но не
+  // тянут на "площадка ожила" — только на бегущую строку ниже.
+  const hasStats = !!stats && stats.delivered_views > 0;
+  const hasTickerFacts = !!stats && (stats.clips_count > 0 || stats.delivered_views > 0 || stats.active_clippers > 0);
 
   const fmt = (n: number) => formatCompactNumber(n, locale);
   // Склонение слова по числу: ru — [1, 2, 5], en — [1, много].
@@ -74,17 +80,22 @@ export default async function LandingPage() {
     { num: '04', label: t.landing.heroIndexFaq, href: '#faq' },
   ];
 
-  // Бегущая строка: только реальные цифры площадки + короткие факты о сделке.
-  // Дублирование элементов делает сам компонент Ticker.
+  // Бегущая строка: только реальные, ненулевые цифры площадки — "0 роликов"
+  // выглядит как баг, а не как факт, поэтому каждый пункт гасится по
+  // отдельности, а не всей пачкой сразу (см. hasTickerFacts выше).
   const tickerItems = [
-    ...(hasStats && stats
+    ...(hasTickerFacts && stats && stats.clips_count > 0
       ? [
           `${t.landing.tapePlatform}: ${fmt(stats.clips_count)} ${plural(
             stats.clips_count,
             ['ролик', 'ролика', 'роликов'],
             ['clip', 'clips']
           )}`,
-          `${fmt(stats.delivered_views)} ${t.landing.tapeViewsWord}`,
+        ]
+      : []),
+    ...(hasTickerFacts && stats && stats.delivered_views > 0 ? [`${fmt(stats.delivered_views)} ${t.landing.tapeViewsWord}`] : []),
+    ...(hasTickerFacts && stats && stats.active_clippers > 0
+      ? [
           `${fmt(stats.active_clippers)} ${plural(
             stats.active_clippers,
             ['клиппер в работе', 'клиппера в работе', 'клипперов в работе'],
@@ -128,7 +139,7 @@ export default async function LandingPage() {
                 <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <LinkButton
                     href="/signup/artist"
-                    variant="artist"
+                    variant="brand"
                     className="pop-in w-full sm:w-auto"
                     style={{ ['--pop-delay' as string]: '120ms' }}
                   >
@@ -189,7 +200,7 @@ export default async function LandingPage() {
               <>
                 <p
                   className="mt-12 text-display font-extrabold leading-none text-text"
-                  style={{ textShadow: '0 0 44px rgba(236, 72, 153, 0.26)' }}
+                  style={{ textShadow: '0 0 44px rgba(52, 211, 153, 0.28)' }}
                 >
                   {fmt(stats.delivered_views)}
                 </p>
@@ -202,7 +213,7 @@ export default async function LandingPage() {
               </>
             )}
 
-            <LinkButton href="/signup/artist" variant="artist" className="mt-12">
+            <LinkButton href="/signup/artist" variant="brand" className="mt-12">
               {t.landing.cohortCta}
             </LinkButton>
           </Container>
@@ -235,7 +246,7 @@ export default async function LandingPage() {
                   </p>
                   <LinkButton
                     href="/signup/artist"
-                    variant="artist"
+                    variant="brand"
                     className="mt-auto w-full md:w-auto md:self-start"
                   >
                     {t.landing.forkArtistCta}
@@ -270,6 +281,40 @@ export default async function LandingPage() {
                 </div>
               </div>
             </div>
+          </Container>
+        </section>
+
+        {/* ── Обещания площадки: конкретные, проверяемые, не маркетинговые ── */}
+        <section className="border-b border-border">
+          <Container className="py-section-sm">
+            <h2 className="text-headline text-text">{t.promises.title}</h2>
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { Icon: Clock, title: t.promises.slotTitle, text: t.promises.slotText },
+                { Icon: Wallet, title: t.promises.payoutTitle, text: t.promises.payoutText },
+                { Icon: BadgeCheck, title: t.promises.noMinTitle, text: t.promises.noMinText },
+                { Icon: ShieldCheck, title: t.promises.reasonTitle, text: t.promises.reasonText },
+                { Icon: Zap, title: t.promises.firstPayoutTitle, text: t.promises.firstPayoutText },
+                { Icon: Ban, title: t.promises.noFraudTitle, text: t.promises.noFraudText },
+              ].map(({ Icon, title, text }) => (
+                <div key={title} className="flex flex-col gap-2 rounded border border-white/[0.12] bg-white/[0.03] p-5">
+                  <Icon size={18} strokeWidth={1.75} aria-hidden="true" className="text-primary" />
+                  <p className="text-title text-text">{title}</p>
+                  <p className="text-sm text-text-dim">{text}</p>
+                </div>
+              ))}
+            </div>
+          </Container>
+        </section>
+
+        {/* ── Витрина кампаний без регистрации ── */}
+        <section className="border-b border-border">
+          <Container className="py-section-sm text-center">
+            <h2 className="text-headline text-text">{t.publicCampaigns.title}</h2>
+            <p className="mx-auto mt-3 max-w-md text-body text-text-dim">{t.publicCampaigns.subtitle}</p>
+            <LinkButton href="/campaigns" variant="secondary" className="mt-6">
+              {t.publicCampaigns.title}
+            </LinkButton>
           </Container>
         </section>
 
@@ -366,7 +411,7 @@ export default async function LandingPage() {
             <div className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
               <LinkButton
                 href="/signup/artist"
-                variant="artist"
+                variant="brand"
                 className="w-full !px-7 !py-3.5 !text-base sm:w-auto"
               >
                 {t.landing.finalCtaArtistLink}
@@ -387,13 +432,7 @@ export default async function LandingPage() {
           <Container className="py-11 sm:py-14">
             <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div>
-                <Image
-                  src="/logo-mark.webp"
-                  alt="J/R marketing"
-                  width={640}
-                  height={502}
-                  className="h-14 w-auto"
-                />
+                <Logo className="h-9" />
                 <p className="mt-2 text-meta text-text-faint">{t.common.tagline}</p>
               </div>
               <div className="flex flex-col gap-3 md:items-end">

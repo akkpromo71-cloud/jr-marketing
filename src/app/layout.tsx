@@ -58,15 +58,14 @@ export async function generateMetadata(): Promise<Metadata> {
   const shared: Partial<Metadata> = {
     applicationName: 'J/R marketing',
     metadataBase: new URL('https://jr-marketing-psi.vercel.app'),
-    icons: {
-      icon: '/favicon.ico',
-      apple: '/apple-touch-icon.png',
-    },
+    // Иконки — через file convention (src/app/icon.tsx, apple-icon.tsx), Next
+    // сам подставляет нужные <link>; ручной icons-объект тут больше не нужен
+    // (старые public/favicon.ico и apple-touch-icon.png больше не используются).
   };
   if (locale === 'en') {
-    const title = 'J/R marketing — platform for artists and video editors';
+    const title = 'J/R — get paid for delivered views';
     const description =
-      'The platform that connects artists with TikTok/Reels editors: commissioning edits, applications, revisions and moderation, all in one place.';
+      'A clipping platform for TikTok, Reels, and Shorts: clients pay per 1,000 delivered views, clippers take a reserved slot and earn from every clip.';
     return {
       ...shared,
       title,
@@ -75,9 +74,9 @@ export async function generateMetadata(): Promise<Metadata> {
       twitter: { card: 'summary_large_image', title, description },
     };
   }
-  const title = 'J/R marketing — платформа для артистов и видеоэдиторов';
+  const title = 'J/R — платите за просмотры, зарабатывайте с клипов';
   const description =
-    'Площадка, которая соединяет артистов и эдиторов TikTok/Reels: заказ монтажа, заявки, правки и модерация в одном месте.';
+    'Клиппинг-платформа для TikTok, Reels и Shorts: заказчик платит за 1000 доставленных просмотров, клиппер берёт слот с резервом бюджета и зарабатывает с каждого ролика.';
   return {
     ...shared,
     title,

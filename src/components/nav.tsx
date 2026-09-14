@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { getCurrentProfile } from '@/lib/current-profile';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { NavMenu } from '@/components/nav-menu';
 import { Avatar } from '@/components/avatar';
+import { Logo } from '@/components/logo';
 import { signOutAction } from '@/app/(auth)/actions';
 import { getDict } from '@/lib/i18n';
 
@@ -30,23 +30,12 @@ export async function Nav() {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-bg">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6 sm:py-2.5">
-        {/* Фирменный лого (public/logo-mark.webp, 640×502, фон прозрачный).
-            Никаких mix-blend/подложек/кадрирования — они были нужны только
-            старому снимку с чёрным фоном. Исходник почти в 9 раз выше
-            отрисовки, так что на ретине не мылится. */}
         <Link
           href="/"
           aria-label="J/R marketing"
           className="block shrink-0 transition hover:opacity-80 active:scale-95"
         >
-          <Image
-            src="/logo-mark.webp"
-            alt="J/R marketing"
-            width={640}
-            height={502}
-            priority
-            className="h-11 w-auto sm:h-14"
-          />
+          <Logo className="h-7 sm:h-8" />
         </Link>
 
         {/* ── Десктоп ── */}

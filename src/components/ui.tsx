@@ -21,7 +21,7 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
   );
 }
 
-type ButtonVariant = 'primary' | 'artist' | 'secondary' | 'ghost' | 'danger';
+type ButtonVariant = 'primary' | 'brand' | 'secondary' | 'ghost' | 'danger';
 
 // Единый радиус по всему сайту — `rounded` (4px), тот же, что у карточек/полей.
 // btn-pop (globals.css) — пружинистый «поп» на hover/active.
@@ -29,15 +29,17 @@ type ButtonVariant = 'primary' | 'artist' | 'secondary' | 'ghost' | 'danger';
 // мобильная). Без него кнопка выходила 40px — по пальцу промахнуться легко.
 const buttonBase =
   'btn-pop inline-flex min-h-11 items-center justify-center gap-2 rounded px-5 py-2.5 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
-// primary — единственное доминирующее действие в поле зрения: сплошная
-// timeline-blue заливка. artist — сплошная magenta (сторона артиста).
+// primary — синяя заливка, обычное доминирующее действие (везде, оба режима).
+// brand — зелёная заливка, только на витрине: главный CTA лендинга ("запустить
+// кампанию" / "стать клиппером"), в режиме «инструмент» не используется —
+// там primary одна на всё, цвет там функциональный, а не брендовый.
 // secondary/ghost — хайрлайн-пилюля и текстовая ссылка. На hover — мягкое
 // свечение в цвете самой кнопки (не тень-«коробка»).
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
     'bg-accent text-on-accent hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgba(59,130,246,0.55)]',
-  artist:
-    'bg-primary text-on-primary hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgba(236,72,153,0.55)]',
+  brand:
+    'bg-primary text-on-primary hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgba(52,211,153,0.55)]',
   secondary:
     'border border-border bg-transparent text-text hover:border-white/25 hover:bg-white/[0.04] hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.16)]',
   ghost: 'text-text-dim hover:text-text',

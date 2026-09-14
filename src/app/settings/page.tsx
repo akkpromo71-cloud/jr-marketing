@@ -64,11 +64,26 @@ export default async function SettingsPage() {
                 placeholder={t.settings.bioPlaceholder}
               />
             </Field>
+            {profile.role === 'editor' && (
+              <label className="flex items-center gap-2 text-sm text-text-dim">
+                <input type="checkbox" name="hide_earnings" value="1" defaultChecked={profile.hide_earnings} className="h-4 w-4" />
+                {t.settings.hideEarningsLabel}
+              </label>
+            )}
             <Button type="submit" variant="primary" className="mt-2 w-full">
               {t.settings.saveProfileBtn}
             </Button>
           </form>
         </Card>
+
+        {profile.role === 'editor' && (
+          <p className="mt-3 text-xs text-text-faint">
+            {t.settings.publicProfileHint}{' '}
+            <a href={`/clippers/${profile.id}`} className="text-accent hover:underline">
+              {t.settings.publicProfileLink}
+            </a>
+          </p>
+        )}
 
         {profile.role === 'editor' && (
           <Card className="mt-6 p-6">

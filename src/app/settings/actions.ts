@@ -51,6 +51,7 @@ export async function updateProfileAction(formData: FormData) {
   const displayName = clampText(formData.get('display_name'), 120) ?? '';
   const bio = clampText(formData.get('bio'), 2000);
   const avatarFile = formData.get('avatar');
+  const hideEarnings = formData.get('hide_earnings') === '1';
 
   const supabase = await createClient();
   const {
@@ -64,9 +65,10 @@ export async function updateProfileAction(formData: FormData) {
     redirect(`/settings?error=${encodeURIComponent(t.errors.fillRequired)}`);
   }
 
-  const updates: { display_name: string; bio: string | null; avatar_url?: string } = {
+  const updates: { display_name: string; bio: string | null; avatar_url?: string; hide_earnings: boolean } = {
     display_name: displayName,
     bio,
+    hide_earnings: hideEarnings,
   };
 
   if (avatarFile instanceof File && avatarFile.size > 0) {

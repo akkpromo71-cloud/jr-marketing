@@ -39,6 +39,9 @@ export interface Profile {
   followers: number | null;
   // Когда пользователь принял условия использования при регистрации.
   terms_accepted_at: string | null;
+  // Скрыть сумму заработка на публичном профиле клиппера (остальные метрики
+  // всегда видны) — supabase/migrations/0007_public_clipper_profile.sql.
+  hide_earnings: boolean;
   created_at: string;
 }
 

@@ -14,6 +14,18 @@ views). Two visual modes now, not one — see "Tool mode" below. Values in this 
 were also corrected to match the real values shipped in `src/app/globals.css` (the
 ones below were lightened for contrast during implementation and had drifted from
 this document — this file is now the one that's wrong no longer).
+**Updated again: 2026-09-15** — full redesign. Retired the old raster logo (glossy
+lips + diamond grill + star in a purple-pink-blue chrome gradient — a leftover from
+the music marketplace that clashed with every version of this system) for a small
+hand-authored SVG mark (`src/components/logo.tsx`): a rounded badge with one flat
+diagonal-cut corner (the "clip" reference) around a play triangle. `--primary`
+moved from pink to green — pink is retired everywhere, not just tool mode; green
+now carries both "brand" (showcase hero, CTA, logo) and "confirmed/paid" (tool
+mode) because they're the same idea ("this platform is about getting paid"), not
+a collision. Landing gained: a "what we actually guarantee" trust section (slot
+hold, 24h payout, no minimum, mandatory reject reason, instant first payout,
+unpaid inflated views) tied to real enforced behavior, not just marketing copy,
+and a link to the new public campaign showcase (`/campaigns`, no login required).
 **Category:** Clipping platform — two-sided marketplace (clients ⇄ TikTok/Reels/Shorts clippers)
 **Interface language:** Russian (RU). Every font here ships a Cyrillic subset — verified below.
 **Mood:** Showcase (landing) stays energetic and nocturnal. Tool mode (cabinets,
@@ -40,31 +52,35 @@ Base is a blue-black, not neutral slate. **These are the real values shipped in
 `src/app/globals.css` — that file is the source of truth, not this document; if
 they ever disagree again, fix this file, not the CSS.**
 
-Since the clipping-platform pivot, colour is **functional, not role-based** —
-pink no longer means "client" and blue no longer means "clipper" (see Tool mode
-below for the full legend). Pink now appears only on the showcase (landing,
-logo, brand marks); the tool mode uses blue/green/yellow/red purely by meaning.
+Colour is **functional, not role-based, and not tied to a mode either** — pink
+is retired everywhere (was "client" on the old marketplace, then briefly
+"showcase-only brand" mid-redesign; neither survived contact with an actual
+palette review). Green now does double duty on purpose: it's the showcase's
+brand/hero colour (money, growth — the whole pitch is "get paid") *and* the
+tool mode's "confirmed / paid" status colour. Same idea, two screens, not a
+collision. Blue is action/link in both modes, full stop.
 
 | Role | Hex | CSS Variable | Notes |
 |------|-----|--------------|-------|
 | Background (page) | `#0B0F1A` | `--bg` | near-black, blue-tinted; the "night" |
 | Surface (raised) | `#111725` | `--surface` | sections lifted off bg, ticker base is pure `#000` |
-| Field / chip fill | `#1A2333` | `--surface-2` | inputs, skeletons, tags |
+| Field / chip fill | `#1A2333` | `--surface-2` | inputs, skeletons, tags, logo badge fill |
 | Foreground (body) | `#F4F5F7` | `--text` | body copy; **not** pure white (OLED bloom) |
 | Foreground (dim) | `#C7CDD9` | `--text-dim` | secondary text — 12:1 on bg |
 | Foreground (faint) | `#98A2B3` | `--text-faint` | labels, meta, captions — 5.9:1 on bg |
 | Border / hairline | `rgba(255,255,255,0.10)` | `--border` | 1px rules replace cards on the landing |
-| **Brand accent — showcase/logo only** | `#EC4899` | `--primary` | pink; landing hero, logo — not used in tool mode |
-| On Primary | `#0A0A0A` | `--on-primary` | black text on pink fill = 6.2:1 ✓ (white = 3.3 ✗) |
+| **Brand + confirmed/paid** | `#34D399` | `--primary` (showcase) / `--success` (tool mode — same hex, two variable names for two contexts) | landing hero, logo, main CTA; tool-mode "approved / paid / active" |
+| On Primary | `#0A0A0A` | `--on-primary` | black text on green fill = 10.7:1 ✓ |
 | **Accent — action / links / main CTA** | `#3B82F6` | `--accent` | blue; the one functional "do something" colour, both modes |
 | On Accent | `#0A0F1C` | `--on-accent` | near-black on blue fill = 6:1 ✓ |
-| **Success — confirmed / paid / credited** | `#34D399` | `--success` | approved work, paid withdrawal, active campaign |
 | **Warning — pending / under review / held** | `#F5B841` | `--warning` | pending moderation, paused, antifraud hold |
 | **Danger — rejected / removed / denied** | `#FB7185` | `--danger` | rejected work, post removed, expired |
 | Ring (focus) | `#3B82F6` | via `--accent` | 2px solid + 2px offset, never removed |
 
-**Contrast, verified on `#0B0F1A`:** `#F4F5F7` 17.6:1 · `#98A2B3` 5.9:1 · `#34D399` ≥4.5:1 ·
-`#EC4899` 5.2:1 (large/UI only) · `#3B82F6` 5.0:1 (text-safe, unlike the old `#2563EB`).
+**Contrast, verified on `#0B0F1A`:** `#F4F5F7` 17.6:1 · `#98A2B3` 5.9:1 · `#34D399` (text) ≥4.5:1 ·
+`#34D399` fill + `#0A0A0A` text = 10.7:1 · `#3B82F6` 5.0:1 (text-safe, unlike the old `#2563EB`).
+`#EC4899` (pink) is retired — no longer used anywhere in the live site; kept only as a
+historical note above, not a live token to reach for.
 
 ### Gradients — one allowed, and it is not chromatic
 

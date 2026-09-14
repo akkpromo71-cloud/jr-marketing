@@ -110,6 +110,28 @@ export default async function AdminPage() {
     : { data: [] as { clipper_id: string }[] };
   const clippersWithRemovedPosts = new Set((removedRows ?? []).map((r) => r.clipper_id));
 
+  // Мгновенная первая выплата (дифференциатор №8): первая выплата клиппера
+  // поднимается в очереди наверх — считаем по ВСЕМ его заявкам на вывод,
+  // не только pending, иначе "первая" не отличить от "n-ной".
+  const { data: allWithdrawalsForClippers } = withdrawalClipperIds.length
+    ? await supabase.from('withdrawals').select('id, clipper_id').in('clipper_id', withdrawalClipperIds)
+    : { data: [] as { id: string; clipper_id: string }[] };
+  const withdrawalCountByClipper = new Map<string, number>();
+  for (const w of allWithdrawalsForClippers ?? []) {
+    withdrawalCountByClipper.set(w.clipper_id, (withdrawalCountByClipper.get(w.clipper_id) ?? 0) + 1);
+  }
+  const isFirstWithdrawal = (clipperId: string) => (withdrawalCountByClipper.get(clipperId) ?? 0) <= 1;
+  const isOverdueWithdrawal = (createdAt: string) => Date.now() - new Date(createdAt).getTime() > 24 * 60 * 60 * 1000;
+
+  const sortedWithdrawals = [...((pendingWithdrawals as (Withdrawal & { clipper: { display_name: string } | null })[] | null) ?? [])].sort(
+    (a, b) => {
+      const aFirst = isFirstWithdrawal(a.clipper_id);
+      const bFirst = isFirstWithdrawal(b.clipper_id);
+      if (aFirst !== bFirst) return aFirst ? -1 : 1;
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    }
+  );
+
   const editorIds = Array.from(
     new Set(
       [
@@ -317,14 +339,20 @@ export default async function AdminPage() {
                 </h2>
                 <ToolTable>
                   <tbody>
-                    {(pendingWithdrawals ?? []).length === 0 && <ToolEmptyRow colSpan={3} text={t.clip.noPendingWithdrawals} />}
-                    {(pendingWithdrawals as (Withdrawal & { clipper: { display_name: string } | null })[] | null)?.map((w) => (
+                    {sortedWithdrawals.length === 0 && <ToolEmptyRow colSpan={3} text={t.clip.noPendingWithdrawals} />}
+                    {sortedWithdrawals.map((w) => (
                       <tr key={w.id}>
                         <td>
                           <p className="text-text">{w.clipper?.display_name}</p>
                           <p className="mt-0.5 text-micro text-text-faint">
                             {w.method} · {w.details}
                           </p>
+                          {isFirstWithdrawal(w.clipper_id) && (
+                            <p className="mt-0.5 text-micro text-success">{t.clip.firstWithdrawalBadge}</p>
+                          )}
+                          {isOverdueWithdrawal(w.created_at) && (
+                            <p className="mt-0.5 text-micro text-danger">{t.clip.overdueWithdrawalBadge}</p>
+                          )}
                           {clippersWithRemovedPosts.has(w.clipper_id) && (
                             <p className="mt-0.5 text-micro text-warning">{t.clip.hasRemovedPostsWarning}</p>
                           )}
