@@ -17,9 +17,25 @@
 // конфиги руками не стали: слишком велик риск незаметно сломать сборку на
 // проде, как уже случалось в этом проекте, а проверить такую правку в этой
 // песочнице без доступа к npm-реестру нечем.
+// Supabase/Postgrest ошибки — обычные объекты {message, code, details, hint},
+// не instanceof Error. Раньше это падало в String(error) -> "[object Object]",
+// и сломанный крон сутками выглядел успешным в логах Vercel (см. историю
+// post-liveness). Достаём .message из любого объекта, где оно есть.
+function extractMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    return String((error as { message: unknown }).message);
+  }
+  return String(error);
+}
+
 export function logError(context: string, error: unknown, extra?: Record<string, unknown>) {
-  const message = error instanceof Error ? error.message : String(error);
+  const message = extractMessage(error);
   const stack = error instanceof Error ? error.stack : undefined;
+  const code = typeof error === 'object' && error !== null && 'code' in error ? (error as { code: unknown }).code : undefined;
+  const details =
+    typeof error === 'object' && error !== null && 'details' in error ? (error as { details: unknown }).details : undefined;
+  const hint = typeof error === 'object' && error !== null && 'hint' in error ? (error as { hint: unknown }).hint : undefined;
 
   // eslint-disable-next-line no-console
   console.error(
@@ -27,6 +43,9 @@ export function logError(context: string, error: unknown, extra?: Record<string,
       level: 'error',
       context,
       message,
+      code,
+      details,
+      hint,
       stack,
       extra,
       timestamp: new Date().toISOString(),
